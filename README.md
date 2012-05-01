@@ -10,7 +10,7 @@ Contributors:
 
 Instructions:
 
-* You need Processing 2.0a5 or later, we built trunk from latest SVN.
+* You need Processing 2.0a5 or later, we build the trunk from the latest SVN.
 * You need Apache Ant to build.
 
 * Set properties in build.xml    
