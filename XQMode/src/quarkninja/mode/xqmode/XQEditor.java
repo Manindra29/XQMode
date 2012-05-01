@@ -12,6 +12,7 @@ public class XQEditor extends JavaEditor {
 	protected XQEditor(Base base, String path, EditorState state, Mode mode) {
 		super(base, path, state, mode);
 		xqmode = (XQMode) mode;
+		System.out.println("Mode initialized.");
 	}
 
 }
