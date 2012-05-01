@@ -1,11 +1,5 @@
-========================================================================
-
-
-									XQMode
-
-
-========================================================================
-
+XQMode
+======
 
 It's coming. Stay tuned.
 
@@ -30,4 +24,3 @@ Instructions:
     * run: builds and installs your mode, then runs processing.
 
 Processing Mode Template by Martin Leopold.
-======
