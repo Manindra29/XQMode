@@ -1,6 +1,7 @@
-<?xml version="1.0"?>
-<project name="skel-mode" default="install" basedir="./">
-	<description>Template for extending Java Mode in Processing >2.0a5</description>
+<project name="XQMode" default="clean" basedir="./">
+	<description>
+		XQMode for Processing >2.0a5
+	</description>
 
 	<!-- name of your mode package (will be used as dir name) -->
 	<property name="lib.name" value="XQMode" />
@@ -96,7 +97,9 @@ E:/Program Files/processing-2.0a5
     - - - - - - - - - - - - - - - - - - - - - - - -->
 	<target name="install" depends="package">
 		<delete dir="${processing.modes}/${lib.name}" />
-
+		<echo> 
+			Copying files to the ${lib.name} folder in your sketchbook/modes folder. 
+		</echo>
 		<copy todir="${processing.modes}/">
 			<fileset dir="${dist}" />
 		</copy>
@@ -118,7 +121,7 @@ E:/Program Files/processing-2.0a5
 		<exec executable="${processing.executable}/processing.exe" dir="${processing.executable}" spawn="true" />
 
 		<echo>
-    				Launching Processing from: ${processing.executable}
+Launching Processing from: ${processing.executable}
     	</echo>
 	</target>
 </project>
