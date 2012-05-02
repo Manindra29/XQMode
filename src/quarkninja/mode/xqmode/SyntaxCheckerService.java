@@ -19,7 +19,7 @@ import processing.core.*;
 public class SyntaxCheckerService implements Runnable {
 
 	static public String PATH = "E:/TestStuff/EarthQuake_Map.java";
-	public static final int sleepTime = 1000;
+	public static final int sleepTime = 2000;
 	
 	private ASTParser parser;
 	public Editor editor;
