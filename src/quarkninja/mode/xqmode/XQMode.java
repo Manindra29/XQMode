@@ -2,6 +2,8 @@ package quarkninja.mode.xqmode;
 
 import java.io.File;
 import processing.app.Base;
+import processing.app.Editor;
+import processing.app.EditorState;
 import processing.mode.java.JavaMode;
 
 /**
@@ -14,6 +16,10 @@ public class XQMode extends JavaMode {
         super(base, folder);
         System.out.println("Mode initialized.");
     }
+    
+    public Editor createEditor(Base base, String path, EditorState state) {
+        return new XQEditor(base, path, state, this);
+      }
 
     /**
      * Called by PDE
