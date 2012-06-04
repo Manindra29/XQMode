@@ -1,5 +1,6 @@
 package quarkninja.mode.xqmode;
 
+import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.*;
+
+import javax.swing.table.DefaultTableModel;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
@@ -18,13 +22,14 @@ import processing.core.*;
  */
 public class SyntaxCheckerService implements Runnable {
 
-	static public String PATH = "E:/TestStuff/EarthQuake_Map.java";
+	static public String PATH = "E:/TestStuff/hw1.java";
 	public static final int sleepTime = 2000;
-	
+
 	private ASTParser parser;
 	public Editor editor;
 	private boolean stopThread = false;
-	
+	public ErrorWindow errorWindow;
+	private IProblem[] problems;
 
 	public static void main(String[] args) {
 		(new SyntaxCheckerService()).checkCode();
@@ -37,6 +42,11 @@ public class SyntaxCheckerService implements Runnable {
 	public SyntaxCheckerService(String path) {
 		PATH = path;
 		parser = ASTParser.newParser(AST.JLS4);
+	}
+
+	public SyntaxCheckerService(ErrorWindow erw) {
+		parser = ASTParser.newParser(AST.JLS4);
+		this.errorWindow = erw;
 	}
 
 	/**
@@ -63,7 +73,7 @@ public class SyntaxCheckerService implements Runnable {
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
-			IProblem[] problems = cu.getProblems();
+			problems = cu.getProblems();
 			if (problems.length == 0)
 				System.out.println("No syntax errors.");
 			else {
@@ -77,11 +87,24 @@ public class SyntaxCheckerService implements Runnable {
 																		// 1 for
 																		// now
 				}
+				if(errorWindow==null){
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								errorWindow = new ErrorWindow();
+								errorWindow.setVisible(true);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});					
+				}
+				setErrorTable();
 			}
 			return true;
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);
-			// e.printStackTrace();
+			 e.printStackTrace();
 		}
 		return false;
 	}
@@ -112,7 +135,20 @@ public class SyntaxCheckerService implements Runnable {
 
 	// Preprocess Pde code into pure java
 	private String preprocessCode() {
-
+		
+		String sourceAlt = "";
+		
+		if(editor==null){
+			try {
+				sourceAlt = readFile(PATH);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(sourceAlt);
+			System.out.println("-------------------------------------");
+			return sourceAlt;
+		}
 		// Super wicked regular expressions! (Used from Processing source)
 		final String importRegexp = "(?:^|;)\\s*(import\\s+)((?:static\\s+)?\\S+)(\\s*;)";
 		final Pattern FUNCTION_DECL = Pattern.compile(
@@ -120,7 +156,7 @@ public class SyntaxCheckerService implements Runnable {
 						+ "(void|int|float|double|String|char|byte)"
 						+ "(\\s*\\[\\s*\\])?\\s+[a-zA-Z0-9]+\\s*\\(",
 				Pattern.MULTILINE);
-		String sourceAlt = "";
+		
 
 		// Handle code input from editor/java file
 		try {
@@ -251,6 +287,35 @@ public class SyntaxCheckerService implements Runnable {
 				+ editor.getSketch().getName());
 
 		return sourceAlt;
+	}
+
+	private void setErrorTable() {
+		String[][] errorData = new String[problems.length][2];
+		for (int i = 0; i < problems.length; i++) {
+			errorData[i][0] = problems[i].getMessage();
+			errorData[i][1] = (problems[i].getSourceLineNumber() - 1) + "";
+		}
+		DefaultTableModel tm = new DefaultTableModel(errorData, new String[] {
+				"Error", "Line Number" });
+		if(errorWindow==null){
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						errorWindow = new ErrorWindow();
+						errorWindow.setVisible(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});				
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		errorWindow.updateTable(tm);
 	}
 
 	public static String readFile(File file) throws IOException {

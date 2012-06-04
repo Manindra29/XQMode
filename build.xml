@@ -19,7 +19,7 @@
 	<property name="processing.modes" location="C:/Users/QuarkNinja/Documents/Processing/modes" />
 
 	<!-- path to your processing executable. -->
-	<property name="processing.executable" location="E:/WorkSpaces/processing 2.0a5 build/processing-read-only/processing/build/windows/work" />
+	<property name="processing.executable" location="E:/Program Files/processing-2.0a5" />
 <!-- E:/WorkSpaces/processing 2.0a5 build/processing-read-only/processing/build/windows/work 
 E:/Program Files/processing-2.0a5
 -->

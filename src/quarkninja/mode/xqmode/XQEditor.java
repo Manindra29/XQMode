@@ -1,7 +1,10 @@
 package quarkninja.mode.xqmode;
 
+import java.awt.EventQueue;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
+import javax.swing.table.DefaultTableModel;
 
 import processing.app.Base;
 import processing.app.EditorState;
@@ -13,20 +16,34 @@ public class XQEditor extends JavaEditor {
 
 	XQMode xqmode;
 	Thread syntaxCheckerThread = null;
+	ErrorWindow err1;
 	protected XQEditor(Base base, String path, EditorState state, Mode mode) {
 		super(base, path, state, mode);
 		xqmode = (XQMode) mode;
 		System.out.println("Editor initialized.");
 		initializeSyntaxChecker();
+		
 	}
 	
 	private void initializeSyntaxChecker(){
 		if (syntaxCheckerThread == null) {
-			final SyntaxCheckerService synCheck = new SyntaxCheckerService();
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						err1 = new ErrorWindow();
+						err1.setVisible(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			final SyntaxCheckerService synCheck = new SyntaxCheckerService(err1);
 			synCheck.editor = this;
 			syntaxCheckerThread = new Thread(synCheck);
-			try {
+			try {			
+				
 				syntaxCheckerThread.start();
+				
 			} catch (Exception e) {
 				System.out.println("Oops! [XQEditor]: " + e);
 //				e.printStackTrace();
