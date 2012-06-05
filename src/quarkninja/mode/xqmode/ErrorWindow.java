@@ -123,13 +123,13 @@ public class ErrorWindow extends JFrame {
 			setLocation(new Point(thisEditor.getLocation().x
 					+ thisEditor.getWidth(), thisEditor.getLocation().y));
 		}
+		
 		errorTable.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
 				System.out.println("Row clicked: "
 						+ (errorTable.getSelectedRow() + 1));
 			}
 		});
-
 	}
 
 	public boolean updateTable(final TableModel tm) {
@@ -170,10 +170,80 @@ public class ErrorWindow extends JFrame {
 	}
 
 	private void addListeners() {
+		
+		
+		
+		
+		if (thisErrorWindow == null)
+			System.out.println("ERW null");
+		thisErrorWindow.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				Docker.tryDocking();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				Docker.tryDocking();
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+
+			}
+		});
+
+		thisErrorWindow.addWindowListener(new WindowListener() {
+
+			public void windowOpened(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				thisErrorWindow.dispose();
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				thisErrorWindow.dispose();
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				thisEditor.setExtendedState(Editor.NORMAL);
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				if (e.getOppositeWindow() != thisEditor) {
+					thisEditor.requestFocus();
+					thisErrorWindow.requestFocus();
+				}
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+
+			}
+		});
+		
 		if (thisEditor == null) {
 			System.out.println("Editor null");
 			return;
 		}
+
 		thisEditor.addWindowListener(new WindowListener() {
 
 			@Override
@@ -249,70 +319,6 @@ public class ErrorWindow extends JFrame {
 			}
 		});
 
-		if (thisErrorWindow == null)
-			System.out.println("ERW null");
-		thisErrorWindow.addComponentListener(new ComponentListener() {
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Docker.tryDocking();
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				Docker.tryDocking();
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e) {
-
-			}
-		});
-
-		thisErrorWindow.addWindowListener(new WindowListener() {
-
-			public void windowOpened(WindowEvent e) {
-
-			}
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				thisErrorWindow.dispose();
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e) {
-				thisErrorWindow.dispose();
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e) {
-
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				thisEditor.setExtendedState(Editor.NORMAL);
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-				if (e.getOppositeWindow() != thisEditor) {
-					thisEditor.requestFocus();
-					thisErrorWindow.requestFocus();
-				}
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-
-			}
-		});
 
 	}
 
