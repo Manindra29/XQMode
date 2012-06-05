@@ -19,6 +19,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import javax.swing.JButton;
+
+import org.eclipse.jdt.core.compiler.IProblem;
+
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseListener;
@@ -40,15 +43,12 @@ public class ErrorWindow extends JFrame {
 	private JPanel contentPane;
 	private JTable errorTable;
 	private JScrollPane scrollPane;
-	private JButton btnAddRow;
-	private JButton btnDeleteRow;
 	public Editor thisEditor;
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
 	// protected InteractiveTableModel tableModel;
 
 	public static final String[] columnNames = { "Problem", "Line Number" };
-	private JTable table_1;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -123,14 +123,37 @@ public class ErrorWindow extends JFrame {
 			setLocation(new Point(thisEditor.getLocation().x
 					+ thisEditor.getWidth(), thisEditor.getLocation().y));
 		}
-		
+
 		errorTable.addMouseListener(new MouseAdapter() {
-			public void mouseReleased(MouseEvent e) {
-				System.out.println("Row clicked: "
+			// synchronized ?
+			synchronized public void mouseReleased(MouseEvent e) {
+				System.out.print("Row clicked: "
 						+ (errorTable.getSelectedRow() + 1));
+				// let's try to get the line no.
+				if (errorTable.getSelectedRow() < problemList.length
+						&& errorTable.getSelectedRow() >= 0)
+					System.out.println("| Line no selected: "
+							+ problemList[errorTable.getSelectedRow()]
+									.getSourceLineNumber()
+							+ " , "
+							+ problemList[errorTable.getSelectedRow()]
+									.getSourceStart());
+				int offset = problemList[errorTable.getSelectedRow()]
+						.getSourceStart();
+				if (thisErrorWindow.hasFocus())
+					return;
+				if (thisEditor.getCaretOffset() != offset) {
+					// System.out.println("offset unequal");
+					thisEditor.toFront();
+					thisEditor.setSelection(offset, offset);
+				} else {
+					// System.out.println("Offset fine");
+				}
 			}
 		});
 	}
+
+	public IProblem[] problemList;
 
 	public boolean updateTable(final TableModel tm) {
 
@@ -170,10 +193,7 @@ public class ErrorWindow extends JFrame {
 	}
 
 	private void addListeners() {
-		
-		
-		
-		
+
 		if (thisErrorWindow == null)
 			System.out.println("ERW null");
 		thisErrorWindow.addComponentListener(new ComponentListener() {
@@ -238,7 +258,7 @@ public class ErrorWindow extends JFrame {
 
 			}
 		});
-		
+
 		if (thisEditor == null) {
 			System.out.println("Editor null");
 			return;
@@ -318,7 +338,6 @@ public class ErrorWindow extends JFrame {
 				System.out.println("ed hidden");
 			}
 		});
-
 
 	}
 

@@ -6,18 +6,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
-import java.util.regex.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.sound.midi.SysexMessage;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.*;
-import processing.app.*;
-import processing.core.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+
+import processing.app.Base;
+import processing.app.Editor;
+import processing.app.SketchCode;
+import processing.core.PApplet;
 
 /**
  * Syntax Checking Service for XQMode
@@ -25,7 +31,7 @@ import processing.core.*;
 public class SyntaxCheckerService implements Runnable {
 
 	static public String PATH = "E:/TestStuff/hw1.java";
-	public static final int sleepTime = 2000;
+	public static final int sleepTime = 1000;
 
 	private ASTParser parser;
 	public Editor editor;
@@ -53,7 +59,8 @@ public class SyntaxCheckerService implements Runnable {
 		this.errorWindow = erw;
 	}
 
-	private char[] slashAnimation = { '|', '/', '-', '\\', '|', '/', '-', '\\' };
+	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--",
+			"\\" };
 	private int slashAnimationIndex = 0;
 
 	private void initializeErrorWindow() {
@@ -117,7 +124,16 @@ public class SyntaxCheckerService implements Runnable {
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
+			// TODO: Two sets of same data, is this the best approach?
 			problems = cu.getProblems();
+			if (errorWindow != null) {
+				errorWindow.problemList = cu.getProblems();
+				for (int i = 0; i < problems.length; i++) {
+					errorWindow.problemList[i].setSourceStart(xyToOffset(
+							problems[i].getSourceLineNumber()-1, 0));
+				}
+			}
+
 			// if (problems.length == 0)
 			// System.out.println("No syntax errors.");
 			// else {
@@ -138,8 +154,6 @@ public class SyntaxCheckerService implements Runnable {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);
 			e.printStackTrace();
 		}
-
-		
 
 		return false;
 	}
@@ -313,7 +327,7 @@ public class SyntaxCheckerService implements Runnable {
 		// Convert non ascii characters
 		// sourceAlt = substituteUnicode(sourceAlt);
 
-//		 System.out.println("-->\n" + sourceAlt + "\n<--");
+		// System.out.println("-->\n" + sourceAlt + "\n<--");
 		// System.out.println("PDE code processed - "
 		// + editor.getSketch().getName());
 
@@ -337,14 +351,93 @@ public class SyntaxCheckerService implements Runnable {
 			e.printStackTrace();
 			stopThread();
 		}
+
+		// A nifty rotating slash animation on the title bar to show that syntax
+		// checker thread is running
 		slashAnimationIndex++;
 		if (slashAnimationIndex == slashAnimation.length)
 			slashAnimationIndex = 0;
 		if (editor != null) {
 			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
 					+ " " + slashAnimation[slashAnimationIndex]);
-//			System.out.println("----");
+			// System.out.println("----");
 		}
+	}
+
+	/**
+	 * Converts a row no, column no. representation of cursor location to offset
+	 * representation. Editor uses JTextArea internally which deals only with
+	 * caret offset, not row no. and column no.
+	 * 
+	 * @param x
+	 *            - row no.
+	 * @param y
+	 *            - column no.
+	 * 
+	 * @return int - Offset
+	 */
+	public int xyToOffset(int x, int y) {
+
+		String[] lines = {};// = PApplet.split(sourceString, '\n');
+		int offset = 0;
+
+		int codeIndex = 0;
+		int bigCount = 0;
+		for (SketchCode sc : editor.getSketch().getCode()) {
+			if (sc.isExtension("pde")) {
+				sc.setPreprocOffset(bigCount);
+
+				try {
+					int len = 0;
+					if (editor.getSketch().getCurrentCode().equals(sc)) {
+						lines = PApplet.split(
+								sc.getDocument().getText(0,
+										sc.getDocument().getLength()), '\n');
+						// System.out.println("Getting from document "
+						// + sc.getLineCount() + "," + lines.length);
+						len = Base.countLines(sc.getDocument().getText(0,
+								sc.getDocument().getLength())) + 1;
+					} else {
+						lines = PApplet.split(sc.getProgram(), '\n');
+						len = Base.countLines(sc.getProgram()) + 1;
+					}
+
+					// Adding + 1 to len because \n gets appended for each
+					// sketchcode extracted during processPDECode()
+					if (x >= len) {
+						x -= len;
+					} else {
+						 System.out.println(" x = " +
+						 x +
+						 "in tab: " +
+						 editor.getSketch().getCode(codeIndex).getPrettyName());
+						editor.getSketch().setCurrentCode(codeIndex);
+						break;
+					}
+					codeIndex++;
+
+				} catch (Exception e) {
+					System.out.println("Document Exception in xyToOffset");
+
+					e.printStackTrace();
+
+				}
+				bigCount += sc.getLineCount();
+			}
+
+		}
+
+		//
+
+		// Count chars till the end of previous line(x-1), keeping in mind x
+		// starts from 1
+		// System.out.println(" offset x: " + x);
+		for (int i = 0; i < x - 1; i++) {
+			offset += lines[i].length() + 1;
+		}
+		// Line Columns start from 1
+		offset += y == 0 ? 0 : y - 1;
+		return offset;
 	}
 
 	public static String readFile(File file) throws IOException {
