@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.*;
 
+import javax.sound.midi.SysexMessage;
+import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
 import org.eclipse.jdt.core.*;
@@ -37,16 +39,57 @@ public class SyntaxCheckerService implements Runnable {
 
 	public SyntaxCheckerService() {
 		parser = ASTParser.newParser(AST.JLS4);
+		initializeErrorWindow();
 	}
 
 	public SyntaxCheckerService(String path) {
 		PATH = path;
 		parser = ASTParser.newParser(AST.JLS4);
+		initializeErrorWindow();
 	}
 
 	public SyntaxCheckerService(ErrorWindow erw) {
 		parser = ASTParser.newParser(AST.JLS4);
 		this.errorWindow = erw;
+	}
+
+	private char[] slashAnimation = { '|', '/', '-', '\\', '|', '/', '-', '\\' };
+	private int slashAnimationIndex = 0;
+
+	private void initializeErrorWindow() {
+		if (errorWindow == null) {
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			try {
+				errorWindow = new ErrorWindow(editor);
+				errorWindow.setVisible(true);
+				if (editor != null) {
+					errorWindow.setTitle("Problems - "
+							+ editor.getSketch().getName() + " "
+							+ slashAnimation[slashAnimationIndex]);
+
+				}
+				Thread.sleep(500); // One thread sleeps while other continues
+									// running - the troubles of multi
+									// threading. Sigh, no more NPEs.
+			} catch (InterruptedException e1) {
+
+				e1.printStackTrace();
+			}
+			if (editor == null) {
+				errorWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			} else {
+				errorWindow
+						.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			}
+		}
 	}
 
 	/**
@@ -58,10 +101,10 @@ public class SyntaxCheckerService implements Runnable {
 
 		String source = "";
 		try {
-			// if (editor != null)
-			source = preprocessCode();
-			// else
-			// source = readFile(PATH);
+			if (editor != null)
+				source = preprocessCode();
+			else
+				source = readFile(PATH);
 
 			parser.setSource(source.toCharArray());
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -69,43 +112,35 @@ public class SyntaxCheckerService implements Runnable {
 			@SuppressWarnings("unchecked")
 			Map<String, String> options = JavaCore.getOptions();
 
+			// Ben has decided to move on to 1.6. Yay!
 			JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
 			problems = cu.getProblems();
-			if (problems.length == 0)
-				System.out.println("No syntax errors.");
-			else {
-				System.out.println("Syntax errors: ");
-				for (int i = 0; i < problems.length; i++) {
-					System.out.println(problems[i].getMessage()
-							+ " | Line no. "
-							+ (problems[i].getSourceLineNumber() - 1)); // Class
-																		// offset
-																		// is
-																		// 1 for
-																		// now
-				}
-				if(errorWindow==null){
-					EventQueue.invokeLater(new Runnable() {
-						public void run() {
-							try {
-								errorWindow = new ErrorWindow();
-								errorWindow.setVisible(true);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					});					
-				}
-				setErrorTable();
-			}
+			// if (problems.length == 0)
+			// System.out.println("No syntax errors.");
+			// else {
+			// System.out.println("Syntax errors: ");
+			// for (int i = 0; i < problems.length; i++) {
+			// System.out.println(problems[i].getMessage()
+			// + " | Line no. "
+			// + (problems[i].getSourceLineNumber() - 1));
+			// // Class offset is line 1 for now
+			// }
+			//
+			//
+			// }
+
+			setErrorTable();
 			return true;
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);
-			 e.printStackTrace();
+			e.printStackTrace();
 		}
+
+		
+
 		return false;
 	}
 
@@ -118,9 +153,6 @@ public class SyntaxCheckerService implements Runnable {
 				checkCode();
 				// Check every 2 seconds
 				Thread.sleep(sleepTime);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
 			} catch (Exception e) {
 				System.out.println("Oops! [SyntaxCheckerThreaded]: " + e);
 				// e.printStackTrace();
@@ -131,18 +163,18 @@ public class SyntaxCheckerService implements Runnable {
 
 	public void stopThread() {
 		stopThread = true;
+		System.out.println("Syntax Checker Service stopped.");
 	}
 
 	// Preprocess Pde code into pure java
 	private String preprocessCode() {
-		
+
 		String sourceAlt = "";
-		
-		if(editor==null){
+
+		if (editor == null) {
 			try {
 				sourceAlt = readFile(PATH);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			System.out.println(sourceAlt);
@@ -156,7 +188,6 @@ public class SyntaxCheckerService implements Runnable {
 						+ "(void|int|float|double|String|char|byte)"
 						+ "(\\s*\\[\\s*\\])?\\s+[a-zA-Z0-9]+\\s*\\(",
 				Pattern.MULTILINE);
-		
 
 		// Handle code input from editor/java file
 		try {
@@ -282,9 +313,9 @@ public class SyntaxCheckerService implements Runnable {
 		// Convert non ascii characters
 		// sourceAlt = substituteUnicode(sourceAlt);
 
-		// System.out.println("-->\n" + sourceAlt + "\n<--");
-		System.out.println("PDE code processed - "
-				+ editor.getSketch().getName());
+//		 System.out.println("-->\n" + sourceAlt + "\n<--");
+		// System.out.println("PDE code processed - "
+		// + editor.getSketch().getName());
 
 		return sourceAlt;
 	}
@@ -295,27 +326,25 @@ public class SyntaxCheckerService implements Runnable {
 			errorData[i][0] = problems[i].getMessage();
 			errorData[i][1] = (problems[i].getSourceLineNumber() - 1) + "";
 		}
-		DefaultTableModel tm = new DefaultTableModel(errorData, new String[] {
-				"Error", "Line Number" });
-		if(errorWindow==null){
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						errorWindow = new ErrorWindow();
-						errorWindow.setVisible(true);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});				
-		}
+		DefaultTableModel tm = new DefaultTableModel(errorData,
+				ErrorWindow.columnNames);
+
 		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			initializeErrorWindow();
+			errorWindow.updateTable(tm);
+		} catch (Exception e) {
+			System.out.println("Exception at setErrorTable() " + e);
 			e.printStackTrace();
+			stopThread();
 		}
-		errorWindow.updateTable(tm);
+		slashAnimationIndex++;
+		if (slashAnimationIndex == slashAnimation.length)
+			slashAnimationIndex = 0;
+		if (editor != null) {
+			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
+					+ " " + slashAnimation[slashAnimationIndex]);
+//			System.out.println("----");
+		}
 	}
 
 	public static String readFile(File file) throws IOException {
