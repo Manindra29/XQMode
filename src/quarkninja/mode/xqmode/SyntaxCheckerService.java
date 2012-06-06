@@ -59,8 +59,7 @@ public class SyntaxCheckerService implements Runnable {
 		this.errorWindow = erw;
 	}
 
-	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--",
-			"\\" };
+	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--", "\\" };
 	private int slashAnimationIndex = 0;
 
 	private void initializeErrorWindow() {
@@ -78,14 +77,12 @@ public class SyntaxCheckerService implements Runnable {
 				errorWindow = new ErrorWindow(editor);
 				errorWindow.setVisible(true);
 				if (editor != null) {
-					errorWindow.setTitle("Problems - "
-							+ editor.getSketch().getName() + " "
+					errorWindow.setTitle("Problems - " + editor.getSketch().getName() + " "
 							+ slashAnimation[slashAnimationIndex]);
-
 				}
-				Thread.sleep(500); // One thread sleeps while other continues
-									// running - the troubles of multi
-									// threading. Sigh, no more NPEs.
+				// One thread sleeps while other continues running - the
+				// troubles of multithreading. Sigh, no more NPEs.
+				Thread.sleep(500);
 			} catch (InterruptedException e1) {
 
 				e1.printStackTrace();
@@ -93,8 +90,7 @@ public class SyntaxCheckerService implements Runnable {
 			if (editor == null) {
 				errorWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			} else {
-				errorWindow
-						.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				errorWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			}
 		}
 	}
@@ -128,10 +124,10 @@ public class SyntaxCheckerService implements Runnable {
 			problems = cu.getProblems();
 			if (errorWindow != null) {
 				errorWindow.problemList = cu.getProblems();
-				for (int i = 0; i < problems.length; i++) {
-					errorWindow.problemList[i].setSourceStart(xyToOffset(
-							problems[i].getSourceLineNumber()-1, 0));
-				}
+				// for (int i = 0; i < problems.length; i++) {
+				// errorWindow.problemList[i].setSourceStart(xyToOffset(
+				// problems[i].getSourceLineNumber()-1, 0));
+				// }
 			}
 
 			// if (problems.length == 0)
@@ -200,8 +196,7 @@ public class SyntaxCheckerService implements Runnable {
 		final Pattern FUNCTION_DECL = Pattern.compile(
 				"(^|;)\\s*((public|private|protected|final|static)\\s+)*"
 						+ "(void|int|float|double|String|char|byte)"
-						+ "(\\s*\\[\\s*\\])?\\s+[a-zA-Z0-9]+\\s*\\(",
-				Pattern.MULTILINE);
+						+ "(\\s*\\[\\s*\\])?\\s+[a-zA-Z0-9]+\\s*\\(", Pattern.MULTILINE);
 
 		// Handle code input from editor/java file
 		try {
@@ -217,8 +212,7 @@ public class SyntaxCheckerService implements Runnable {
 						try {
 
 							if (editor.getSketch().getCurrentCode().equals(sc))
-								bigCode.append(sc.getDocument().getText(0,
-										sc.getDocument().getLength()));
+								bigCode.append(sc.getDocument().getText(0, sc.getDocument().getLength()));
 							else {
 								bigCode.append(sc.getProgram());
 
@@ -226,8 +220,7 @@ public class SyntaxCheckerService implements Runnable {
 							bigCode.append('\n');
 						} catch (Exception e) {
 							System.err
-									.println("Exception in preprocessCode() - bigCode "
-											+ e.toString());
+									.println("Exception in preprocessCode() - bigCode " + e.toString());
 						}
 						bigCode.append('\n');
 						bigCount += sc.getLineCount();
@@ -272,8 +265,7 @@ public class SyntaxCheckerService implements Runnable {
 		Matcher webMatcher = webPattern.matcher(sourceAlt);
 		while (webMatcher.find()) {
 			// System.out.println("Found at: " + webMatcher.start());
-			String found = sourceAlt.substring(webMatcher.start(),
-					webMatcher.end());
+			String found = sourceAlt.substring(webMatcher.start(), webMatcher.end());
 			// System.out.println("-> " + found);
 			sourceAlt = webMatcher.replaceFirst("0xff" + found.substring(1));
 			webMatcher = webPattern.matcher(sourceAlt);
@@ -304,25 +296,21 @@ public class SyntaxCheckerService implements Runnable {
 			for (int j = 0; j < piece.length(); j++) {
 				whiteSpace += " ";
 			}
-			sourceAlt = sourceAlt.substring(0, idx) + whiteSpace
-					+ sourceAlt.substring(idx + len);
+			sourceAlt = sourceAlt.substring(0, idx) + whiteSpace + sourceAlt.substring(idx + len);
 
 		} while (true);
 
-		String className = (editor == null) ? "DefaultClass" : editor
-				.getSketch().getName();
+		String className = (editor == null) ? "DefaultClass" : editor.getSketch().getName();
 
 		// Check whether the code is being written in BASIC mode(no function
 		// declarations) - append class declaration and void setup() declaration
 		Matcher matcher = FUNCTION_DECL.matcher(sourceAlt);
 		if (!matcher.find()) {
-			sourceAlt = "public class " + className + " extends PApplet {\n"
-					+ "public void setup() {\n" + sourceAlt
-					+ "\nnoLoop();\n}\n" + "\n}\n";
+			sourceAlt = "public class " + className + " extends PApplet {\n" + "public void setup() {\n"
+					+ sourceAlt + "\nnoLoop();\n}\n" + "\n}\n";
 
 		} else
-			sourceAlt = "public class " + className + " extends PApplet {\n"
-					+ sourceAlt + "\n}\n";
+			sourceAlt = "public class " + className + " extends PApplet {\n" + sourceAlt + "\n}\n";
 
 		// Convert non ascii characters
 		// sourceAlt = substituteUnicode(sourceAlt);
@@ -340,11 +328,11 @@ public class SyntaxCheckerService implements Runnable {
 			errorData[i][0] = problems[i].getMessage();
 			errorData[i][1] = (problems[i].getSourceLineNumber() - 1) + "";
 		}
-		DefaultTableModel tm = new DefaultTableModel(errorData,
-				ErrorWindow.columnNames);
+		DefaultTableModel tm = new DefaultTableModel(errorData, ErrorWindow.columnNames);
 
 		try {
 			initializeErrorWindow();
+			
 			errorWindow.updateTable(tm);
 		} catch (Exception e) {
 			System.out.println("Exception at setErrorTable() " + e);
@@ -358,9 +346,8 @@ public class SyntaxCheckerService implements Runnable {
 		if (slashAnimationIndex == slashAnimation.length)
 			slashAnimationIndex = 0;
 		if (editor != null) {
-			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
-					+ " " + slashAnimation[slashAnimationIndex]);
-			// System.out.println("----");
+			errorWindow.setTitle("Problems - " + editor.getSketch().getName() + " "
+					+ slashAnimation[slashAnimationIndex]);
 		}
 	}
 
@@ -376,7 +363,7 @@ public class SyntaxCheckerService implements Runnable {
 	 * 
 	 * @return int - Offset
 	 */
-	public int xyToOffset(int x, int y) {
+	public static int xyToOffset(int x, int y, Editor editor) {
 
 		String[] lines = {};// = PApplet.split(sourceString, '\n');
 		int offset = 0;
@@ -390,13 +377,11 @@ public class SyntaxCheckerService implements Runnable {
 				try {
 					int len = 0;
 					if (editor.getSketch().getCurrentCode().equals(sc)) {
-						lines = PApplet.split(
-								sc.getDocument().getText(0,
-										sc.getDocument().getLength()), '\n');
+						lines = PApplet.split(sc.getDocument().getText(0, sc.getDocument().getLength()),
+								'\n');
 						// System.out.println("Getting from document "
 						// + sc.getLineCount() + "," + lines.length);
-						len = Base.countLines(sc.getDocument().getText(0,
-								sc.getDocument().getLength())) + 1;
+						len = Base.countLines(sc.getDocument().getText(0, sc.getDocument().getLength())) + 1;
 					} else {
 						lines = PApplet.split(sc.getProgram(), '\n');
 						len = Base.countLines(sc.getProgram()) + 1;
@@ -407,10 +392,11 @@ public class SyntaxCheckerService implements Runnable {
 					if (x >= len) {
 						x -= len;
 					} else {
-						 System.out.println(" x = " +
-						 x +
-						 "in tab: " +
-						 editor.getSketch().getCode(codeIndex).getPrettyName());
+						// System.out.println(" x = " +
+						// x +
+						// "in tab: " +
+						// editor.getSketch().getCode(codeIndex).getPrettyName());
+						// if(errorWindow.hasFocus())
 						editor.getSketch().setCurrentCode(codeIndex);
 						break;
 					}
@@ -441,8 +427,7 @@ public class SyntaxCheckerService implements Runnable {
 	}
 
 	public static String readFile(File file) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				new FileInputStream(file)));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		try {
 			StringBuilder ret = new StringBuilder();
 			String line;

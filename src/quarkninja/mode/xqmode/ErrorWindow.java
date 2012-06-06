@@ -46,7 +46,6 @@ public class ErrorWindow extends JFrame {
 	public Editor thisEditor;
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
-	// protected InteractiveTableModel tableModel;
 
 	public static final String[] columnNames = { "Problem", "Line Number" };
 
@@ -64,7 +63,6 @@ public class ErrorWindow extends JFrame {
 		});
 	}
 
-	//
 	/**
 	 * Create the frame.
 	 */
@@ -93,19 +91,12 @@ public class ErrorWindow extends JFrame {
 		scrollPane = new JScrollPane();
 		contentPane.add(scrollPane);
 
-		// tableModel = new InteractiveTableModel(columnNames);
-		// tableModel.addTableModelListener(new
-		// InteractiveTableModelListener());
-
-		errorTable = new JTable();
-		// errorTable.addMouseMotionListener(new MouseMotionAdapter() {
-		// @Override
-		// public void mouseMoved(MouseEvent arg0) {
-		// System.out.println(arg0.getX());
-		// }
-		// });
-		errorTable.setModel(new DefaultTableModel(new Object[][] {},
-				columnNames));
+		errorTable = new JTable() {
+			public boolean isCellEditable(int rowIndex, int colIndex) {
+				return false; // Disallow the editing of any cell
+			}
+		};
+		errorTable.setModel(new DefaultTableModel(new Object[][] {}, columnNames));
 		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 		errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
 
@@ -118,36 +109,36 @@ public class ErrorWindow extends JFrame {
 			System.out.println("addListeners()");
 			e.printStackTrace();
 		}
-		if (thisEditor != null) {
 
-			setLocation(new Point(thisEditor.getLocation().x
-					+ thisEditor.getWidth(), thisEditor.getLocation().y));
+		if (thisEditor != null) {
+			setLocation(new Point(thisEditor.getLocation().x + thisEditor.getWidth(),
+					thisEditor.getLocation().y));
 		}
 
 		errorTable.addMouseListener(new MouseAdapter() {
-			// synchronized ?
+			// synchronized or Swing Worker ?
 			synchronized public void mouseReleased(MouseEvent e) {
-				System.out.print("Row clicked: "
-						+ (errorTable.getSelectedRow() + 1));
+
+				System.out.print("Row clicked: " + (errorTable.getSelectedRow() + 1));
 				// let's try to get the line no.
-				if (errorTable.getSelectedRow() < problemList.length
-						&& errorTable.getSelectedRow() >= 0)
-					System.out.println("| Line no selected: "
-							+ problemList[errorTable.getSelectedRow()]
-									.getSourceLineNumber()
-							+ " , "
-							+ problemList[errorTable.getSelectedRow()]
-									.getSourceStart());
-				int offset = problemList[errorTable.getSelectedRow()]
-						.getSourceStart();
-				if (thisErrorWindow.hasFocus())
+				if (thisEditor == null)
 					return;
-				if (thisEditor.getCaretOffset() != offset) {
-					// System.out.println("offset unequal");
-					thisEditor.toFront();
-					thisEditor.setSelection(offset, offset);
-				} else {
-					// System.out.println("Offset fine");
+				if (errorTable.getSelectedRow() < problemList.length && errorTable.getSelectedRow() >= 0) {
+					System.out.println(" | Line no selected: "
+							+ problemList[errorTable.getSelectedRow()].getSourceLineNumber() + " , "
+							+ problemList[errorTable.getSelectedRow()].getSourceStart());
+					int offset = SyntaxCheckerService.xyToOffset(
+							problemList[errorTable.getSelectedRow()].getSourceLineNumber() - 1, 0,
+							thisEditor);
+					if (thisErrorWindow.hasFocus())
+						return;
+					if (thisEditor.getCaretOffset() != offset) {
+						// System.out.println("offset unequal");
+						thisEditor.toFront();
+						thisEditor.setSelection(offset, offset);
+					} else {
+						// System.out.println("Offset fine");
+					}
 				}
 			}
 		});
@@ -381,6 +372,8 @@ public class ErrorWindow extends JFrame {
 
 		//
 		public void tryDocking() {
+			if (thisEditor == null)
+				return;
 			Editor editor = thisEditor;
 			Frame frame = thisErrorWindow;
 
@@ -394,22 +387,19 @@ public class ErrorWindow extends JFrame {
 			int fw = frame.getWidth();
 			int fh = frame.getHeight();
 
-			if (((fy > ey) && (fy < ey + eh))
-					|| ((fy + fh > ey) && (fy + fh < ey + eh))) {
+			if (((fy > ey) && (fy < ey + eh)) || ((fy + fh > ey) && (fy + fh < ey + eh))) {
 				int dis_border_left = Math.abs(ex - (fx + fw));
 				int dis_border_right = Math.abs((ex + ew) - (fx));
 
 				if (dis_border_left < MAX_GAP_ || dis_border_right < MAX_GAP_) {
-					docking_border = (dis_border_left < dis_border_right) ? 0
-							: 1;
+					docking_border = (dis_border_left < dis_border_right) ? 0 : 1;
 					dock_on_editor_y_offset_ = fy - ey;
 					dock();
 					return;
 				}
 			}
 
-			if (((fx > ex) && (fx < ex + ew))
-					|| ((fx + fw > ey) && (fx + fw < ex + ew))) {
+			if (((fx > ex) && (fx < ex + ew)) || ((fx + fw > ey) && (fx + fw < ex + ew))) {
 				int dis_border_top = Math.abs(ey - (fy + fh));
 				int dis_border_bot = Math.abs((ey + eh) - (fy));
 
@@ -424,7 +414,8 @@ public class ErrorWindow extends JFrame {
 		}
 
 		public void dock() {
-
+			if (thisEditor == null)
+				return;
 			Editor editor = thisEditor;
 			Frame frame = thisErrorWindow;
 
