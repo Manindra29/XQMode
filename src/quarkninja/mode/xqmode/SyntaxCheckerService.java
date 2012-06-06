@@ -413,8 +413,6 @@ public class SyntaxCheckerService implements Runnable {
 
 		}
 
-		//
-
 		// Count chars till the end of previous line(x-1), keeping in mind x
 		// starts from 1
 		// System.out.println(" offset x: " + x);

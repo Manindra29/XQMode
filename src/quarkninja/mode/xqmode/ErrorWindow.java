@@ -1,41 +1,30 @@
 package quarkninja.mode.xqmode;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Point;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-
 import javax.swing.table.TableModel;
-
-import javax.swing.JButton;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.BorderLayout;
-
 import processing.app.Base;
 import processing.app.Editor;
-import quarkninja.mode.xqmode.TableListSelectionDemo.SharedListSelectionHandler;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 
 @SuppressWarnings("serial")
 public class ErrorWindow extends JFrame {
@@ -49,6 +38,8 @@ public class ErrorWindow extends JFrame {
 
 	public static final String[] columnNames = { "Problem", "Line Number" };
 
+	public IProblem[] problemList;
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -63,9 +54,6 @@ public class ErrorWindow extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public ErrorWindow(Editor editor) {
 		thisErrorWindow = this;
 		thisEditor = editor;
@@ -79,7 +67,7 @@ public class ErrorWindow extends JFrame {
 
 	}
 
-	private void prepareFrame() {
+	private void prepareFrame() { // Not createAndShowGUI().
 		Base.setIcon(this);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 458, 160);
@@ -106,7 +94,7 @@ public class ErrorWindow extends JFrame {
 			Docker = new DockTool2Base();
 			addListeners();
 		} catch (Exception e) {
-			System.out.println("addListeners()");
+			System.out.println("addListeners() acted silly.");
 			e.printStackTrace();
 		}
 
@@ -149,8 +137,6 @@ public class ErrorWindow extends JFrame {
 			}
 		});
 	}
-
-	public IProblem[] problemList;
 
 	public boolean updateTable(final TableModel tm) {
 
