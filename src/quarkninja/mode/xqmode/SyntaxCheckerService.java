@@ -332,7 +332,7 @@ public class SyntaxCheckerService implements Runnable {
 
 		try {
 			initializeErrorWindow();
-			
+
 			errorWindow.updateTable(tm);
 		} catch (Exception e) {
 			System.out.println("Exception at setErrorTable() " + e);
@@ -423,6 +423,7 @@ public class SyntaxCheckerService implements Runnable {
 		}
 		// Line Columns start from 1
 		offset += y == 0 ? 0 : y - 1;
+				
 		return offset;
 	}
 

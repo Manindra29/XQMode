@@ -1,0 +1,26 @@
+TODO List - Things which have to be done and what have been done.
+
+O - to be pwned, X - pwned
+
+-----------------------------------------------------------------------------------------------
+
+Syntax Checker Service
+
+O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
+X - Syntax checking works, no concurrency bugs found yet.
+
+Error Window
+
+O - Scroll to location multi tab
+O - Have to handle basic mode. After all it's used by absolute beginners.
+O - Will preprocessing screw with the offsets? Tests.
+X - Scroll to location works fine in single tab sketches.
+X - Make Error Window sticky. DockTool2Base ftw.
+X - Scrollable tabular view of errors, line nos.
+
+
+General
+
+O - Explore adding components to Editor window.
+O - Eclipse like rectangular strip on the left of the editor text area. Errors shown as red
+	dots. More UI design inputs from Dan, and Casey too.

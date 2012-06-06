@@ -129,13 +129,19 @@ public class ErrorWindow extends JFrame {
 							+ problemList[errorTable.getSelectedRow()].getSourceStart());
 					int offset = SyntaxCheckerService.xyToOffset(
 							problemList[errorTable.getSelectedRow()].getSourceLineNumber() - 1, 0,
-							thisEditor);
+							thisEditor); // - 1 for class declaration statement
 					if (thisErrorWindow.hasFocus())
 						return;
 					if (thisEditor.getCaretOffset() != offset) {
 						// System.out.println("offset unequal");
 						thisEditor.toFront();
-						thisEditor.setSelection(offset, offset);
+						// TODO: Add support for basic mode
+						String classDeclaration = "public class " + thisEditor.getSketch().getName()
+								+ " extends PApplet {\n";
+						offset = classDeclaration.length();
+						thisEditor.setSelection(
+								problemList[errorTable.getSelectedRow()].getSourceStart() - offset ,
+								problemList[errorTable.getSelectedRow()].getSourceEnd() - offset + 1 );
 					} else {
 						// System.out.println("Offset fine");
 					}
