@@ -15,7 +15,7 @@ public class XQMode extends JavaMode {
 
 	public XQMode(Base base, File folder) {
 		super(base, folder);
-		System.out.println("Mode initialized.");
+		System.out.println("XQMode initialized.");
 	}
 
 	public Editor createEditor(Base base, String path, EditorState state) {
@@ -27,27 +27,7 @@ public class XQMode extends JavaMode {
 	 */
 	@Override
 	public String getTitle() {
-		return "TEH XQMode";
+		return "XQMode";
 	}
-
-	// @Override
-	// public String getDefaultExtension() {
-	// return "pde";
-	// }
-	//
-	// @Override
-	// public String[] getExtensions() {
-	// return new String[] { "pde", "java" };
-	// }
-	//
-	// @Override
-	// public String[] getIgnorable() {
-	// return new String[] {
-	// "applet",
-	// "application.macosx",
-	// "application.windows",
-	// "application.linux"
-	// };
-	// }
 
 }

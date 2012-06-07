@@ -22,7 +22,7 @@ X - Scrollable tabular view of errors, line nos.
 
 General
 
-O - On OS X, XQMode doesn't let the PDE to start! Critical issue!
+O - On OS X and Linux, XQMode doesn't let the PDE to start! Ant java version clash.
 O - Explore adding components to Editor window.
 O - Make messages more user friendly. (Think regex)
 O - Eclipse like rectangular strip on the left of the editor text area. Errors shown as red
