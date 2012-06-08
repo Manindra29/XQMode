@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import processing.app.Base;
 import processing.app.EditorState;
 import processing.app.Mode;
-import processing.app.syntax.JEditTextArea;
 import processing.mode.java.JavaEditor;
 
 /**

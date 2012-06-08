@@ -432,11 +432,11 @@ public class ErrorWindow extends JFrame {
 		// 3
 		// ///////////////////////////////
 
-		public void reset() {
-			dock_on_editor_y_offset_ = 0;
-			dock_on_editor_x_offset_ = 0;
-			docking_border = 0;
-		}
+//		public void reset() {
+//			dock_on_editor_y_offset_ = 0;
+//			dock_on_editor_x_offset_ = 0;
+//			docking_border = 0;
+//		}
 
 		public boolean isDocked() {
 			return (docking_border >= 0);
@@ -498,8 +498,8 @@ public class ErrorWindow extends JFrame {
 			int ew = editor.getWidth();
 			int eh = editor.getHeight();
 
-			int fx = frame.getX();
-			int fy = frame.getY();
+//			int fx = frame.getX();
+//			int fy = frame.getY();
 			int fw = frame.getWidth();
 			int fh = frame.getHeight();
 
