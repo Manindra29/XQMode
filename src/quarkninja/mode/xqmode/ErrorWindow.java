@@ -25,12 +25,26 @@ import org.eclipse.jdt.core.compiler.IProblem;
 
 import processing.app.Base;
 import processing.app.Editor;
+import processing.app.SketchCode;
 
+/**
+ * Error Window that displays a tablular list of errors. Clicking on an error
+ * scrolls to its location in the code.
+ * 
+ * @author Manindra Moharana
+ * 
+ */
 @SuppressWarnings("serial")
 public class ErrorWindow extends JFrame {
 
 	private JPanel contentPane;
+	/**
+	 * The table displaying the errors
+	 */
 	private JTable errorTable;
+	/**
+	 * Scroll pane that contains the Error Table
+	 */
 	private JScrollPane scrollPane;
 	public Editor thisEditor;
 	private JFrame thisErrorWindow;
@@ -38,8 +52,12 @@ public class ErrorWindow extends JFrame {
 
 	public static final String[] columnNames = { "Problem", "Line Number" };
 
+	/**
+	 * Stores all problems reported by Eclipse parser. Populated by Syntax
+	 * Checker Service.
+	 */
 	public IProblem[] problemList;
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -64,9 +82,11 @@ public class ErrorWindow extends JFrame {
 			e.printStackTrace();
 		}
 		prepareFrame();
-
 	}
 
+	/**
+	 * Sets up ErrorWindow
+	 */
 	private void prepareFrame() { // Not createAndShowGUI().
 		Base.setIcon(this);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -103,42 +123,44 @@ public class ErrorWindow extends JFrame {
 					thisEditor.getLocation().y));
 		}
 
-		errorTable.addMouseListener(new MouseAdapter() {
-			// synchronized or Swing Worker ?
-			synchronized public void mouseReleased(MouseEvent e) {
-
-				System.out.print("Row clicked: " + (errorTable.getSelectedRow() + 1));
-				// let's try to get the line no.
-				if (thisEditor == null)
-					return;
-				if (errorTable.getSelectedRow() < problemList.length && errorTable.getSelectedRow() >= 0) {
-					System.out.println(" | Line no selected: "
-							+ problemList[errorTable.getSelectedRow()].getSourceLineNumber() + " , "
-							+ problemList[errorTable.getSelectedRow()].getSourceStart());
-					int offset = SyntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()].getSourceLineNumber() - 1, 0,
-							thisEditor); // - 1 for class declaration statement
-					if (thisErrorWindow.hasFocus())
-						return;
-					if (thisEditor.getCaretOffset() != offset) {
-						// System.out.println("offset unequal");
-						thisEditor.toFront();
-						// TODO: Add support for basic mode
-						String classDeclaration = "public class " + thisEditor.getSketch().getName()
-								+ " extends PApplet {\n";
-						offset = classDeclaration.length();
-						thisEditor.setSelection(
-								problemList[errorTable.getSelectedRow()].getSourceStart() - offset ,
-								problemList[errorTable.getSelectedRow()].getSourceEnd() - offset + 1 );
-					} else {
-						// System.out.println("Offset fine");
-					}
-				}
-			}
-		});
 	}
 
-	public boolean updateTable(final TableModel tm) {
+	/**
+	 * Converts offsets returned by Eclipse Parser to PDE offset so that text
+	 * can be selected in the editor window. Not being used presently because of
+	 * unbalanced offset issue.
+	 */
+	protected int normalizeOffset(int offset) {
+		int finalOffset = 0, codeIndex = 0;
+		System.out.println("OF: " + offset);
+		for (SketchCode sc : thisEditor.getSketch().getCode()) {
+
+			// + 1 for \n at end of each tab
+			int scOffset = sc.getProgram().length() + 1;
+			System.out.println(codeIndex + ".Offset " + scOffset);
+			if (offset > scOffset) {
+				offset -= scOffset;
+			} else {
+				finalOffset = offset;
+				thisEditor.getSketch().setCurrentCode(codeIndex);
+				break;
+			}
+			codeIndex++;
+		}
+		System.out.println("FO: " + finalOffset);
+		return finalOffset;
+	}
+
+	/**
+	 * Updates the error table with new data(Table Model). Called from Syntax
+	 * Checker Service.
+	 * 
+	 * @param tableModel
+	 *            - Table Model
+	 * @return True - If error table was updated successfully.
+	 */
+	@SuppressWarnings("rawtypes")
+	public boolean updateTable(final TableModel tableModel) {
 
 		/*
 		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
@@ -159,7 +181,7 @@ public class ErrorWindow extends JFrame {
 
 			protected void done() {
 
-				errorTable.setModel(tm);
+				errorTable.setModel(tableModel);
 				errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 				errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
 				// errorTable.getModel()
@@ -175,10 +197,70 @@ public class ErrorWindow extends JFrame {
 		return true;
 	}
 
+	/**
+	 * Adds various listeners to components of EditorWindow and also to the
+	 * Editor window
+	 */
 	private void addListeners() {
 
 		if (thisErrorWindow == null)
 			System.out.println("ERW null");
+		errorTable.addMouseListener(new MouseAdapter() {
+			// TODO: synchronized or Swing Worker ?
+
+			/**
+			 * Clicking on an error in the list scrolls to its location. This is
+			 * the funcition that handles it all. Now this might look really
+			 * messy. But it's just getting two offsets(line start and line end)
+			 * and then switching to the appropriate tab, and then selecting the
+			 * line. I tried to select the exact point of the error in the line,
+			 * but it is never accurate because of processing's syntax which
+			 * deviates from pure Jave like #ffffff is actually 0xffffffff, int(
+			 * is actually (int)(, color is an int, etc.
+			 */
+			synchronized public void mouseReleased(MouseEvent e) {
+
+				// System.out.print("Row clicked: " +
+				// (errorTable.getSelectedRow() + 1));
+				// let's try to get the line no.
+				if (thisEditor == null)
+					return;
+				if (errorTable.getSelectedRow() < problemList.length && errorTable.getSelectedRow() >= 0) {
+					// System.out.println(" | Line no selected: "
+					// +
+					// problemList[errorTable.getSelectedRow()].getSourceLineNumber()
+					// + " , "
+					// +
+					// problemList[errorTable.getSelectedRow()].getSourceStart());
+					int offset1 = SyntaxCheckerService.xyToOffset(
+							problemList[errorTable.getSelectedRow()].getSourceLineNumber() - 1, 0,
+							thisEditor); // - 1 for class declaration statement
+					int offset2 = SyntaxCheckerService.xyToOffset(
+							problemList[errorTable.getSelectedRow()].getSourceLineNumber(), 0,
+							thisEditor);
+					if (thisErrorWindow.hasFocus())
+						return;
+					if (thisEditor.getCaretOffset() != offset1) {
+						// System.out.println("offset unequal");
+						thisEditor.toFront();
+						// TODO: Add support for basic mode
+						// String classDeclaration = "public class " +
+						// thisEditor.getSketch().getName()
+						// + " extends PApplet {\n";
+						// offset = classDeclaration.length();
+						// normalizeOffset();
+						// thisEditor.setSelection(normalizeOffset(
+						// problemList[errorTable.getSelectedRow()].getSourceStart()
+						// - offset),
+						// normalizeOffset(problemList[errorTable.getSelectedRow()].getSourceEnd()
+						// - offset+1));
+						thisEditor.setSelection(offset1, offset2 - 1);
+						// System.out.println("---");
+					}
+				}
+			}
+		});
+
 		thisErrorWindow.addComponentListener(new ComponentListener() {
 
 			@Override

@@ -26,7 +26,16 @@ import processing.app.SketchCode;
 import processing.core.PApplet;
 
 /**
- * Syntax Checking Service for XQMode
+ * Syntax Checking Service for XQMode.<br>
+ * 
+ * Fetches code from editor every few seconds, converts it into pure java and
+ * runs it through the Eclipse AST parser. Parser detects the syntax errors.
+ * Errors are passed on to Error Window to be displayed to the user.
+ * 
+ * All this happens in a separate thread, so that PDE keeps running without
+ * any hiccups.
+ * 
+ * @author Manindra Moharana
  */
 public class SyntaxCheckerService implements Runnable {
 
@@ -62,6 +71,9 @@ public class SyntaxCheckerService implements Runnable {
 	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--", "\\" };
 	private int slashAnimationIndex = 0;
 
+	/**
+	 * Initialiazes the Error Window from Syntax Checker Service
+	 */
 	private void initializeErrorWindow() {
 		if (errorWindow == null) {
 			EventQueue.invokeLater(new Runnable() {
@@ -154,6 +166,9 @@ public class SyntaxCheckerService implements Runnable {
 		return false;
 	}
 
+	/**
+	 * Starts the Syntax Checker Service thread
+	 */
 	@Override
 	public void run() {
 		stopThread = false;
@@ -171,12 +186,23 @@ public class SyntaxCheckerService implements Runnable {
 		}
 	}
 
+	/**
+	 * Stops the Syntax Checker Service thread
+	 */
 	public void stopThread() {
 		stopThread = true;
 		System.out.println("Syntax Checker Service stopped.");
 	}
 
-	// Preprocess Pde code into pure java
+	/**
+	 * Fetches code from the editor tabs and pre-processes it into parsable pure
+	 * java source. <br>
+	 * Handles: <li>Removal of import statements <li>Conversion of int(),
+	 * char(), etc to (int)(), (char)(), etc. <li>Replacing '#' with 0xff for
+	 * color representation <li>Appends class declaration statement
+	 * 
+	 * @return String - Pure java representation of PDE code
+	 */
 	private String preprocessCode() {
 
 		String sourceAlt = "";
@@ -322,6 +348,9 @@ public class SyntaxCheckerService implements Runnable {
 		return sourceAlt;
 	}
 
+	/**
+	 * Sets the error table in the Error Window
+	 */
 	private void setErrorTable() {
 		String[][] errorData = new String[problems.length][2];
 		for (int i = 0; i < problems.length; i++) {
@@ -332,7 +361,6 @@ public class SyntaxCheckerService implements Runnable {
 
 		try {
 			initializeErrorWindow();
-
 			errorWindow.updateTable(tm);
 		} catch (Exception e) {
 			System.out.println("Exception at setErrorTable() " + e);
@@ -421,7 +449,7 @@ public class SyntaxCheckerService implements Runnable {
 		}
 		// Line Columns start from 1
 		offset += y == 0 ? 0 : y - 1;
-				
+
 		return offset;
 	}
 
