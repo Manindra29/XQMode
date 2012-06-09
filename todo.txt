@@ -1,35 +1,44 @@
 TODO List - Things which have to be done and what have been done.
 
 O - to be pwned, X - pwned
-
------------------------------------------------------------------------------------------------
-
-Syntax Checker Service
-
-O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
-X - Syntax checking works, no concurrency bugs found yet.
-
-Error Window
-
-X - Scroll to location multi tab. Done
-O - Handle basic/static mode offsets. After all it's used by absolute beginners.
-X - Will preprocessing screw with the offsets? Yes. :( Switched back to selecting problem line.
-O - SwingWorker or synchronized for mouse event handler?
-X - Scroll to location works fine in single tab sketches.
-X - Make Error Window sticky. DockTool2Base ftw.
-X - Scrollable tabular view of errors, line nos.
+=====================================================================================================
 
 
 General
+-------
 
-X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java version clash. Done.
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex)
 O - Eclipse like error bar on the left of the editor text area. Errors shown as red
 	dots. More UI design inputs from Dan, and Casey too. 
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
+O - Class loading technique used in Mode Contribution - Investigate.
+X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java version clash. Done.
+
+
+Syntax Checker Service
+----------------------
+
+O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
+X - Syntax checking works, no concurrency bugs found yet.
+
+
+Error Window
+------------
+
+O - Handle basic/static mode offsets. After all it's used by absolute beginners.
+O - SwingWorker or synchronized for mouse event handler?
+X - Scroll to location multi tab. Done
+X - Will preprocessing screw with the offsets? Yes. :( Switched back to selecting problem line.
+X - Scroll to location works fine in single tab sketches.
+X - Make Error Window sticky. DockTool2Base ftw.
+X - Scrollable tabular view of errors, line nos.
+
 
 Error Bar
+---------
 
+O - Error bar to the left of the editor or right? Decisions!
 O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.
 O - Error markers to be static or scrollable(marker moves with the error line) ?  
+

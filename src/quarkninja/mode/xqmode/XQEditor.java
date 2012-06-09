@@ -1,11 +1,6 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -39,17 +34,17 @@ public class XQEditor extends JavaEditor {
 		errorBar = new ErrorBar(this, textarea.getMinimumSize().height);
 		initializeSyntaxChecker();
 
-		JPanel textAndError = new JPanel();
-		
-
-		Box box = (Box) textarea.getParent();
-		box.remove(2); // Remove textArea from it's container, i.e Box
-		textAndError.setLayout(new BorderLayout());
-		textAndError.add(errorBar, BorderLayout.WEST);
-		textarea.setBounds(errorBar.getX() + errorBar.getWidth(), errorBar.getY(), textarea.getWidth(),
-				textarea.getHeight());
-		textAndError.add(textarea);
-		box.add(textAndError);
+//		JPanel textAndError = new JPanel();
+//		
+//
+//		Box box = (Box) textarea.getParent();
+//		box.remove(2); // Remove textArea from it's container, i.e Box
+//		textAndError.setLayout(new BorderLayout());
+//		textAndError.add(errorBar, BorderLayout.WEST);
+//		textarea.setBounds(errorBar.getX() + errorBar.getWidth(), errorBar.getY(), textarea.getWidth(),
+//				textarea.getHeight());
+//		textAndError.add(textarea);
+//		box.add(textAndError);
 	}
 
 	/**

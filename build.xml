@@ -80,9 +80,11 @@
 			<fileset dir="resources/" />
 		</copy>
 
+		<!-- No need to copy the jdt jars.
 		<copy todir="${bundle}/mode">
 			<fileset dir="lib/" />
 		</copy>
+		-->
 
 		<replaceregexp file="${bundle}/mode.properties" flags="g" match="@@version@@" replace="${build.number}" />
 		<replaceregexp file="${bundle}/mode.properties" flags="g" match="@@pretty-version@@" replace="${release}" />
