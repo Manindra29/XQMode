@@ -46,6 +46,7 @@ public class SyntaxCheckerService implements Runnable {
 	public Editor editor;
 	private boolean stopThread = false;
 	public ErrorWindow errorWindow;
+	public ErrorBar errorBar;
 	private IProblem[] problems;
 
 	public static void main(String[] args) {
@@ -63,9 +64,10 @@ public class SyntaxCheckerService implements Runnable {
 		initializeErrorWindow();
 	}
 
-	public SyntaxCheckerService(ErrorWindow erw) {
+	public SyntaxCheckerService(ErrorWindow erw, ErrorBar erb) {
 		parser = ASTParser.newParser(AST.JLS4);
 		this.errorWindow = erw;
+		this.errorBar = erb;
 	}
 
 	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--", "\\" };
@@ -132,7 +134,7 @@ public class SyntaxCheckerService implements Runnable {
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
-			// TODO: Two sets of same data, is this the best approach?
+			// TODO: Two sets of same data, is this the best approach? No, pass IProblem[] to ErrorWindow.updateTable
 			problems = cu.getProblems();
 			if (errorWindow != null) {
 				errorWindow.problemList = cu.getProblems();
@@ -155,8 +157,8 @@ public class SyntaxCheckerService implements Runnable {
 			//
 			//
 			// }
-
-			setErrorTable();
+			errorBar.updateErrorPoints(problems);
+			setErrorTable();			
 			return true;
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);

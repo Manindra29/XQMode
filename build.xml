@@ -1,6 +1,6 @@
 <project name="XQMode" default="clean" basedir="./">
 	<description>
-		XQMode for Processing >2.0a5
+		XQMode for Processing >2.0a6
 	</description>
 
 	<!-- name of your mode package (will be used as dir name) -->
@@ -13,17 +13,13 @@
 	<property name="java.target.version" value="1.6" />
 
 	<!-- location of processing jars (core.jar, pde.jar, ..) -->
-	<property name="processing.classes" location="E:/Program Files/processing-2.0a5/lib" />
+	<property name="processing.classes" location="C:/Users/QuarkNinja/processing-read-only/processing/build/windows/work/lib" />
 
 	<!-- folder to install modes in (probably a folder called "modes" inside your sketchbook folder) -->
 	<property name="processing.modes" location="C:/Users/QuarkNinja/Documents/Processing/modes" />
 
 	<!-- path to your processing executable. -->
-	<property name="processing.executable" location="E:/Program Files/processing-2.0a5" />
-<!-- E:/WorkSpaces/processing 2.0a5 build/processing-read-only/processing/build/windows/work 
-E:/Program Files/processing-2.0a5
--->
-
+	<property name="processing.executable" location="C:/Users/QuarkNinja/processing-read-only/processing/build/windows/work" />
 
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - - -->
@@ -118,7 +114,9 @@ E:/Program Files/processing-2.0a5
     - - - - - - - - - - - - - - - - - - - - - - - -->
 	<target name="run" depends="install">
 		<!-- <exec executable="${processing.executable}" spawn="false" /> -->
-		<exec executable="${processing.executable}/processing.exe" dir="${processing.executable}" spawn="true" />
+		<exec executable="${processing.executable}/processing.exe" dir="${processing.executable}" spawn="true">
+			<arg value="C:\Users\QuarkNinja\Documents\Processing\AnimatedSprite\AnimatedSprite.pde" />
+		</exec>
 
 		<echo>
 Launching Processing from: ${processing.executable}
