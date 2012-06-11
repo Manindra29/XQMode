@@ -11,6 +11,8 @@ O - Explore adding components to Editor window. Done to some extent.
 O - Make messages more user friendly. (Think regex)
 O - Eclipse like error bar on the left of the editor text area. Errors shown as red
 	dots. More UI design inputs from Dan, and Casey too. 
+O - Import statements being ignored currently, but would need to be stored during compilation
+	error check.
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
 O - Class loading technique used in Mode Contribution - Investigate.
 X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java version clash. Done.

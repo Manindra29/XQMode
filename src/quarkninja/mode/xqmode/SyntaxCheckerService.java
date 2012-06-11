@@ -48,6 +48,15 @@ public class SyntaxCheckerService implements Runnable {
 	public ErrorWindow errorWindow;
 	public ErrorBar errorBar;
 	private IProblem[] problems;
+	
+	/**
+	 * How many lines are present till the initial class declaration?
+	 * In basic mode, this would include imports, class declaration and setup declaration.
+	 * In nomral mode, this would include imports, class declaration only.
+	 * It's fate is decided inside preprocessCode() }:)
+	 */
+	public int mainClassOffset;
+	public boolean basicMode = false;
 
 	public static void main(String[] args) {
 		(new SyntaxCheckerService()).checkCode();
@@ -88,7 +97,7 @@ public class SyntaxCheckerService implements Runnable {
 				}
 			});
 			try {
-				errorWindow = new ErrorWindow(editor);
+				errorWindow = new ErrorWindow(editor, this);
 				errorWindow.setVisible(true);
 				if (editor != null) {
 					errorWindow.setTitle("Problems - " + editor.getSketch().getName() + " "
@@ -336,10 +345,14 @@ public class SyntaxCheckerService implements Runnable {
 		if (!matcher.find()) {
 			sourceAlt = "public class " + className + " extends PApplet {\n" + "public void setup() {\n"
 					+ sourceAlt + "\nnoLoop();\n}\n" + "\n}\n";
+			basicMode = true;
+			mainClassOffset = 2;
 
-		} else
+		} else{
 			sourceAlt = "public class " + className + " extends PApplet {\n" + sourceAlt + "\n}\n";
-
+			basicMode = false;
+			mainClassOffset = 1;
+		}
 		// Convert non ascii characters
 		// sourceAlt = substituteUnicode(sourceAlt);
 
@@ -356,9 +369,10 @@ public class SyntaxCheckerService implements Runnable {
 	private void setErrorTable() {
 		String[][] errorData = new String[problems.length][2];
 		for (int i = 0; i < problems.length; i++) {
-			errorData[i][0] = problems[i].getMessage();
-			errorData[i][1] = (problems[i].getSourceLineNumber() - 1) + "";
+			errorData[i][0] = problems[i].getMessage(); //Make this message more natural.
+			errorData[i][1] = problems[i].getID()+"";//(problems[i].getSourceLineNumber() - mainClassOffset) + "";
 		}
+		
 		DefaultTableModel tm = new DefaultTableModel(errorData, ErrorWindow.columnNames);
 
 		try {
@@ -393,13 +407,15 @@ public class SyntaxCheckerService implements Runnable {
 	 * 
 	 * @return int - Offset
 	 */
-	public static int xyToOffset(int x, int y, Editor editor) {
+	public int xyToOffset(int x, int y) {
 
 		String[] lines = {};// = PApplet.split(sourceString, '\n');
 		int offset = 0;
-
 		int codeIndex = 0;
 		int bigCount = 0;
+		
+		x -= mainClassOffset;
+
 		for (SketchCode sc : editor.getSketch().getCode()) {
 			if (sc.isExtension("pde")) {
 				sc.setPreprocOffset(bigCount);

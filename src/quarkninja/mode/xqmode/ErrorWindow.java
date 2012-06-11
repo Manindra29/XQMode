@@ -49,6 +49,7 @@ public class ErrorWindow extends JFrame {
 	public Editor thisEditor;
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
+	public SyntaxCheckerService syntaxCheckerService;
 
 	public static final String[] columnNames = { "Problem", "Line Number" };
 
@@ -62,7 +63,7 @@ public class ErrorWindow extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ErrorWindow frame = new ErrorWindow(null);
+					ErrorWindow frame = new ErrorWindow(null,null);
 					frame.setVisible(true);
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				} catch (Exception e) {
@@ -72,8 +73,9 @@ public class ErrorWindow extends JFrame {
 		});
 	}
 
-	public ErrorWindow(Editor editor) {
+	public ErrorWindow(Editor editor, SyntaxCheckerService syncheck) {
 		thisErrorWindow = this;
+		syntaxCheckerService = syncheck;
 		thisEditor = editor;
 		setTitle("Problems");
 		try {
@@ -232,12 +234,10 @@ public class ErrorWindow extends JFrame {
 					// + " , "
 					// +
 					// problemList[errorTable.getSelectedRow()].getSourceStart());
-					int offset1 = SyntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()].getSourceLineNumber() - 1, 0,
-							thisEditor); // - 1 for class declaration statement
-					int offset2 = SyntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()].getSourceLineNumber(), 0,
-							thisEditor);
+					int offset1 = syntaxCheckerService.xyToOffset(
+							problemList[errorTable.getSelectedRow()].getSourceLineNumber(), 0); // - 1 for class declaration statement
+					int offset2 = syntaxCheckerService.xyToOffset(
+							problemList[errorTable.getSelectedRow()].getSourceLineNumber()+1, 0);
 					if (thisErrorWindow.hasFocus())
 						return;
 					if (thisEditor.getCaretOffset() != offset1) {
