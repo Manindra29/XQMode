@@ -34,17 +34,17 @@ public class XQEditor extends JavaEditor {
 		errorBar = new ErrorBar(this, textarea.getMinimumSize().height);
 		initializeSyntaxChecker();
 
-//		JPanel textAndError = new JPanel();
-//		
-//
-//		Box box = (Box) textarea.getParent();
-//		box.remove(2); // Remove textArea from it's container, i.e Box
-//		textAndError.setLayout(new BorderLayout());
-//		textAndError.add(errorBar, BorderLayout.WEST);
-//		textarea.setBounds(errorBar.getX() + errorBar.getWidth(), errorBar.getY(), textarea.getWidth(),
-//				textarea.getHeight());
-//		textAndError.add(textarea);
-//		box.add(textAndError);
+		JPanel textAndError = new JPanel();
+
+		Box box = (Box) textarea.getParent();
+		box.remove(2); // Remove textArea from it's container, i.e Box
+		textAndError.setLayout(new BorderLayout());
+		textAndError.add(errorBar, BorderLayout.EAST);
+//		textarea.setBounds(errorBar.getX() + errorBar.getWidth(),
+//				errorBar.getY(), textarea.getWidth(), textarea.getHeight());
+		textarea.setBounds(0, 0, errorBar.getX()-1, textarea.getHeight());
+		textAndError.add(textarea);
+		box.add(textAndError);
 	}
 
 	/**
@@ -58,7 +58,9 @@ public class XQEditor extends JavaEditor {
 			try {
 				syntaxCheckerThread.start();
 			} catch (Exception e) {
-				System.err.println("Syntax Checker Service not initialized [XQEditor]: " + e);
+				System.err
+						.println("Syntax Checker Service not initialized [XQEditor]: "
+								+ e);
 				// e.printStackTrace();
 			}
 			System.out.println("Syntax Checker Service initialized.");

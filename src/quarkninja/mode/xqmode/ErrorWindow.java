@@ -63,7 +63,7 @@ public class ErrorWindow extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ErrorWindow frame = new ErrorWindow(null,null);
+					ErrorWindow frame = new ErrorWindow(null, null);
 					frame.setVisible(true);
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				} catch (Exception e) {
@@ -106,7 +106,8 @@ public class ErrorWindow extends JFrame {
 				return false; // Disallow the editing of any cell
 			}
 		};
-		errorTable.setModel(new DefaultTableModel(new Object[][] {}, columnNames));
+		errorTable.setModel(new DefaultTableModel(new Object[][] {},
+				columnNames));
 		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 		errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
 
@@ -121,8 +122,8 @@ public class ErrorWindow extends JFrame {
 		}
 
 		if (thisEditor != null) {
-			setLocation(new Point(thisEditor.getLocation().x + thisEditor.getWidth(),
-					thisEditor.getLocation().y));
+			setLocation(new Point(thisEditor.getLocation().x
+					+ thisEditor.getWidth(), thisEditor.getLocation().y));
 		}
 
 	}
@@ -227,7 +228,8 @@ public class ErrorWindow extends JFrame {
 				// let's try to get the line no.
 				if (thisEditor == null)
 					return;
-				if (errorTable.getSelectedRow() < problemList.length && errorTable.getSelectedRow() >= 0) {
+				if (errorTable.getSelectedRow() < problemList.length
+						&& errorTable.getSelectedRow() >= 0) {
 					// System.out.println(" | Line no selected: "
 					// +
 					// problemList[errorTable.getSelectedRow()].getSourceLineNumber()
@@ -235,9 +237,16 @@ public class ErrorWindow extends JFrame {
 					// +
 					// problemList[errorTable.getSelectedRow()].getSourceStart());
 					int offset1 = syntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()].getSourceLineNumber(), 0); // - 1 for class declaration statement
+							problemList[errorTable.getSelectedRow()]
+									.getSourceLineNumber(), 0); // -
+																// 1
+																// for
+																// class
+																// declaration
+																// statement
 					int offset2 = syntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()].getSourceLineNumber()+1, 0);
+							problemList[errorTable.getSelectedRow()]
+									.getSourceLineNumber() + 1, 0);
 					if (thisErrorWindow.hasFocus())
 						return;
 					if (thisEditor.getCaretOffset() != offset1) {
@@ -432,11 +441,11 @@ public class ErrorWindow extends JFrame {
 		// 3
 		// ///////////////////////////////
 
-//		public void reset() {
-//			dock_on_editor_y_offset_ = 0;
-//			dock_on_editor_x_offset_ = 0;
-//			docking_border = 0;
-//		}
+		// public void reset() {
+		// dock_on_editor_y_offset_ = 0;
+		// dock_on_editor_x_offset_ = 0;
+		// docking_border = 0;
+		// }
 
 		public boolean isDocked() {
 			return (docking_border >= 0);
@@ -461,19 +470,22 @@ public class ErrorWindow extends JFrame {
 			int fw = frame.getWidth();
 			int fh = frame.getHeight();
 
-			if (((fy > ey) && (fy < ey + eh)) || ((fy + fh > ey) && (fy + fh < ey + eh))) {
+			if (((fy > ey) && (fy < ey + eh))
+					|| ((fy + fh > ey) && (fy + fh < ey + eh))) {
 				int dis_border_left = Math.abs(ex - (fx + fw));
 				int dis_border_right = Math.abs((ex + ew) - (fx));
 
 				if (dis_border_left < MAX_GAP_ || dis_border_right < MAX_GAP_) {
-					docking_border = (dis_border_left < dis_border_right) ? 0 : 1;
+					docking_border = (dis_border_left < dis_border_right) ? 0
+							: 1;
 					dock_on_editor_y_offset_ = fy - ey;
 					dock();
 					return;
 				}
 			}
 
-			if (((fx > ex) && (fx < ex + ew)) || ((fx + fw > ey) && (fx + fw < ex + ew))) {
+			if (((fx > ex) && (fx < ex + ew))
+					|| ((fx + fw > ey) && (fx + fw < ex + ew))) {
 				int dis_border_top = Math.abs(ey - (fy + fh));
 				int dis_border_bot = Math.abs((ey + eh) - (fy));
 
@@ -498,8 +510,8 @@ public class ErrorWindow extends JFrame {
 			int ew = editor.getWidth();
 			int eh = editor.getHeight();
 
-//			int fx = frame.getX();
-//			int fy = frame.getY();
+			// int fx = frame.getX();
+			// int fy = frame.getY();
 			int fw = frame.getWidth();
 			int fh = frame.getHeight();
 

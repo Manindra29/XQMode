@@ -32,8 +32,8 @@ import processing.core.PApplet;
  * runs it through the Eclipse AST parser. Parser detects the syntax errors.
  * Errors are passed on to Error Window to be displayed to the user.
  * 
- * All this happens in a separate thread, so that PDE keeps running without
- * any hiccups.
+ * All this happens in a separate thread, so that PDE keeps running without any
+ * hiccups.
  * 
  * @author Manindra Moharana
  */
@@ -48,12 +48,12 @@ public class SyntaxCheckerService implements Runnable {
 	public ErrorWindow errorWindow;
 	public ErrorBar errorBar;
 	private IProblem[] problems;
-	
+
 	/**
-	 * How many lines are present till the initial class declaration?
-	 * In basic mode, this would include imports, class declaration and setup declaration.
-	 * In nomral mode, this would include imports, class declaration only.
-	 * It's fate is decided inside preprocessCode() }:)
+	 * How many lines are present till the initial class declaration? In basic
+	 * mode, this would include imports, class declaration and setup
+	 * declaration. In nomral mode, this would include imports, class
+	 * declaration only. It's fate is decided inside preprocessCode() }:)
 	 */
 	public int mainClassOffset;
 	public boolean basicMode = false;
@@ -79,7 +79,8 @@ public class SyntaxCheckerService implements Runnable {
 		this.errorBar = erb;
 	}
 
-	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--", "\\" };
+	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--",
+			"\\" };
 	private int slashAnimationIndex = 0;
 
 	/**
@@ -100,7 +101,8 @@ public class SyntaxCheckerService implements Runnable {
 				errorWindow = new ErrorWindow(editor, this);
 				errorWindow.setVisible(true);
 				if (editor != null) {
-					errorWindow.setTitle("Problems - " + editor.getSketch().getName() + " "
+					errorWindow.setTitle("Problems - "
+							+ editor.getSketch().getName() + " "
 							+ slashAnimation[slashAnimationIndex]);
 				}
 				// One thread sleeps while other continues running - the
@@ -113,7 +115,8 @@ public class SyntaxCheckerService implements Runnable {
 			if (editor == null) {
 				errorWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			} else {
-				errorWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				errorWindow
+						.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			}
 		}
 	}
@@ -143,7 +146,8 @@ public class SyntaxCheckerService implements Runnable {
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
-			// TODO: Two sets of same data, is this the best approach? No, pass IProblem[] to ErrorWindow.updateTable
+			// TODO: Two sets of same data, is this the best approach? No, pass
+			// IProblem[] to ErrorWindow.updateTable
 			problems = cu.getProblems();
 			if (errorWindow != null) {
 				errorWindow.problemList = cu.getProblems();
@@ -167,7 +171,7 @@ public class SyntaxCheckerService implements Runnable {
 			//
 			// }
 			errorBar.updateErrorPoints(problems);
-			setErrorTable();			
+			setErrorTable();
 			return true;
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);
@@ -233,7 +237,8 @@ public class SyntaxCheckerService implements Runnable {
 		final Pattern FUNCTION_DECL = Pattern.compile(
 				"(^|;)\\s*((public|private|protected|final|static)\\s+)*"
 						+ "(void|int|float|double|String|char|byte)"
-						+ "(\\s*\\[\\s*\\])?\\s+[a-zA-Z0-9]+\\s*\\(", Pattern.MULTILINE);
+						+ "(\\s*\\[\\s*\\])?\\s+[a-zA-Z0-9]+\\s*\\(",
+				Pattern.MULTILINE);
 
 		// Handle code input from editor/java file
 		try {
@@ -249,7 +254,8 @@ public class SyntaxCheckerService implements Runnable {
 						try {
 
 							if (editor.getSketch().getCurrentCode().equals(sc))
-								bigCode.append(sc.getDocument().getText(0, sc.getDocument().getLength()));
+								bigCode.append(sc.getDocument().getText(0,
+										sc.getDocument().getLength()));
 							else {
 								bigCode.append(sc.getProgram());
 
@@ -257,7 +263,8 @@ public class SyntaxCheckerService implements Runnable {
 							bigCode.append('\n');
 						} catch (Exception e) {
 							System.err
-									.println("Exception in preprocessCode() - bigCode " + e.toString());
+									.println("Exception in preprocessCode() - bigCode "
+											+ e.toString());
 						}
 						bigCode.append('\n');
 						bigCount += sc.getLineCount();
@@ -302,7 +309,8 @@ public class SyntaxCheckerService implements Runnable {
 		Matcher webMatcher = webPattern.matcher(sourceAlt);
 		while (webMatcher.find()) {
 			// System.out.println("Found at: " + webMatcher.start());
-			String found = sourceAlt.substring(webMatcher.start(), webMatcher.end());
+			String found = sourceAlt.substring(webMatcher.start(),
+					webMatcher.end());
 			// System.out.println("-> " + found);
 			sourceAlt = webMatcher.replaceFirst("0xff" + found.substring(1));
 			webMatcher = webPattern.matcher(sourceAlt);
@@ -333,23 +341,27 @@ public class SyntaxCheckerService implements Runnable {
 			for (int j = 0; j < piece.length(); j++) {
 				whiteSpace += " ";
 			}
-			sourceAlt = sourceAlt.substring(0, idx) + whiteSpace + sourceAlt.substring(idx + len);
+			sourceAlt = sourceAlt.substring(0, idx) + whiteSpace
+					+ sourceAlt.substring(idx + len);
 
 		} while (true);
 
-		String className = (editor == null) ? "DefaultClass" : editor.getSketch().getName();
+		String className = (editor == null) ? "DefaultClass" : editor
+				.getSketch().getName();
 
 		// Check whether the code is being written in BASIC mode(no function
 		// declarations) - append class declaration and void setup() declaration
 		Matcher matcher = FUNCTION_DECL.matcher(sourceAlt);
 		if (!matcher.find()) {
-			sourceAlt = "public class " + className + " extends PApplet {\n" + "public void setup() {\n"
-					+ sourceAlt + "\nnoLoop();\n}\n" + "\n}\n";
+			sourceAlt = "public class " + className + " extends PApplet {\n"
+					+ "public void setup() {\n" + sourceAlt
+					+ "\nnoLoop();\n}\n" + "\n}\n";
 			basicMode = true;
 			mainClassOffset = 2;
 
-		} else{
-			sourceAlt = "public class " + className + " extends PApplet {\n" + sourceAlt + "\n}\n";
+		} else {
+			sourceAlt = "public class " + className + " extends PApplet {\n"
+					+ sourceAlt + "\n}\n";
 			basicMode = false;
 			mainClassOffset = 1;
 		}
@@ -369,11 +381,15 @@ public class SyntaxCheckerService implements Runnable {
 	private void setErrorTable() {
 		String[][] errorData = new String[problems.length][2];
 		for (int i = 0; i < problems.length; i++) {
-			errorData[i][0] = problems[i].getMessage(); //Make this message more natural.
-			errorData[i][1] = problems[i].getID()+"";//(problems[i].getSourceLineNumber() - mainClassOffset) + "";
+			errorData[i][0] = problems[i].getMessage(); // Make this message
+														// more natural.
+			errorData[i][1] = problems[i].getID() + "";// (problems[i].getSourceLineNumber()
+														// - mainClassOffset) +
+														// "";
 		}
-		
-		DefaultTableModel tm = new DefaultTableModel(errorData, ErrorWindow.columnNames);
+
+		DefaultTableModel tm = new DefaultTableModel(errorData,
+				ErrorWindow.columnNames);
 
 		try {
 			initializeErrorWindow();
@@ -390,8 +406,8 @@ public class SyntaxCheckerService implements Runnable {
 		if (slashAnimationIndex == slashAnimation.length)
 			slashAnimationIndex = 0;
 		if (editor != null) {
-			errorWindow.setTitle("Problems - " + editor.getSketch().getName() + " "
-					+ slashAnimation[slashAnimationIndex]);
+			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
+					+ " " + slashAnimation[slashAnimationIndex]);
 		}
 	}
 
@@ -413,7 +429,7 @@ public class SyntaxCheckerService implements Runnable {
 		int offset = 0;
 		int codeIndex = 0;
 		int bigCount = 0;
-		
+
 		x -= mainClassOffset;
 
 		for (SketchCode sc : editor.getSketch().getCode()) {
@@ -423,11 +439,13 @@ public class SyntaxCheckerService implements Runnable {
 				try {
 					int len = 0;
 					if (editor.getSketch().getCurrentCode().equals(sc)) {
-						lines = PApplet.split(sc.getDocument().getText(0, sc.getDocument().getLength()),
-								'\n');
+						lines = PApplet.split(
+								sc.getDocument().getText(0,
+										sc.getDocument().getLength()), '\n');
 						// System.out.println("Getting from document "
 						// + sc.getLineCount() + "," + lines.length);
-						len = Base.countLines(sc.getDocument().getText(0, sc.getDocument().getLength())) + 1;
+						len = Base.countLines(sc.getDocument().getText(0,
+								sc.getDocument().getLength())) + 1;
 					} else {
 						lines = PApplet.split(sc.getProgram(), '\n');
 						len = Base.countLines(sc.getProgram()) + 1;
@@ -472,7 +490,8 @@ public class SyntaxCheckerService implements Runnable {
 	}
 
 	public static String readFile(File file) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				new FileInputStream(file)));
 		try {
 			StringBuilder ret = new StringBuilder();
 			String line;
