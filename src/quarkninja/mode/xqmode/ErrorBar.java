@@ -49,7 +49,7 @@ public class ErrorBar extends JPanel {
 		g.setColor(new Color(0xED2630));
 		for (Integer y : errorPoints) {
 //			g.fillOval(getWidth()/2, y, (getWidth() - 6), (getWidth() - 6));
-			g.fillRect(3, y, (getWidth() - 6), getWidth() - 6);
+			g.fillRect(2, y, (getWidth() - 3), 4);
 		}
 	}
 
@@ -93,7 +93,7 @@ public class ErrorBar extends JPanel {
 				bigCount += sc.getLineCount();
 			}
 		}
-		System.out.println("Total lines: " + totalLines);
+//		System.out.println("Total lines: " + totalLines);
 
 		// Swing Worker
 		errorPoints = new ArrayList<Integer>();
@@ -106,7 +106,7 @@ public class ErrorBar extends JPanel {
 			// Ratio multiplied by height of the error bar
 			y *= this.getHeight() - 15;
 			errorPoints.add(new Integer((int) y));
-			System.out.println("Y: " + y);
+//			System.out.println("Y: " + y);
 		}
 		if(errorPoints.size()>0)
 			errorStatus = Color.RED;

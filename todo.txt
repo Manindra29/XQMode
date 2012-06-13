@@ -7,6 +7,7 @@ O - to be pwned, X - pwned
 General
 -------
 
+
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex)
 O - Eclipse like error bar on the left of the editor text area. Errors shown as red
@@ -21,6 +22,7 @@ X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant jav
 Syntax Checker Service
 ----------------------
 
+
 O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
 X - Syntax checking works, no concurrency bugs found yet.
 
@@ -28,8 +30,9 @@ X - Syntax checking works, no concurrency bugs found yet.
 Error Window
 ------------
 
-O - Handle basic/static mode offsets. After all it's used by absolute beginners.
+
 O - SwingWorker or synchronized for mouse event handler?
+X - Handle basic/static mode offsets. After all it's used by absolute beginners.
 X - Scroll to location multi tab. Done
 X - Will preprocessing screw with the offsets? Yes. :( Switched back to selecting problem line.
 X - Scroll to location works fine in single tab sketches.
@@ -40,7 +43,11 @@ X - Scrollable tabular view of errors, line nos.
 Error Bar
 ---------
 
-O - Error bar to the left of the editor or right? Decisions!
+
+O - Error bar for each tab, with errors displayed per tab.
+O - Clicking on an error marker, scrolls to the error location.
+O - Display error as tooltip on hover. JComponent Tooltip property?
+X - Error bar to the right of the editor. Small red rectangles as error markers.
 O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.
 O - Error markers to be static or scrollable(marker moves with the error line) ?  
 

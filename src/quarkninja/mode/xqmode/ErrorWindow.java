@@ -41,7 +41,7 @@ public class ErrorWindow extends JFrame {
 	/**
 	 * The table displaying the errors
 	 */
-	private JTable errorTable;
+	public JTable errorTable;
 	/**
 	 * Scroll pane that contains the Error Table
 	 */
