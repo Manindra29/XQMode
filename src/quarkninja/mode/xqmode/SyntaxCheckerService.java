@@ -150,11 +150,16 @@ public class SyntaxCheckerService implements Runnable {
 			// IProblem[] to ErrorWindow.updateTable
 			problems = cu.getProblems();
 			if (errorWindow != null) {
-				errorWindow.problemList = cu.getProblems();
-				// for (int i = 0; i < problems.length; i++) {
-				// errorWindow.problemList[i].setSourceStart(xyToOffset(
-				// problems[i].getSourceLineNumber()-1, 0));
-				// }
+				// errorWindow.problemList = cu.getProblems();
+				for (int i = 0; i < problems.length; i++) {
+					errorWindow.problemList.add(new Problem(problems[i],
+							calculateTabIndex(problems[i])));
+					System.out.println(editor.getSketch()
+							.getCode(calculateTabIndex(problems[i]))
+							.getPrettyName()
+							+ "-> " + problems[i].getSourceLineNumber());
+
+				}
 			}
 
 			// if (problems.length == 0)
@@ -181,11 +186,68 @@ public class SyntaxCheckerService implements Runnable {
 		return false;
 	}
 
+	public int calculateTabIndex(IProblem problem) {
+		// String[] lines = {};// = PApplet.split(sourceString, '\n');
+		int codeIndex = 0;
+		int bigCount = 0;
+
+		int x = problem.getSourceLineNumber() - mainClassOffset;
+
+		for (SketchCode sc : editor.getSketch().getCode()) {
+			if (sc.isExtension("pde")) {
+				sc.setPreprocOffset(bigCount);
+
+				try {
+					int len = 0;
+					if (editor.getSketch().getCurrentCode().equals(sc)) {
+						// lines = PApplet.split(
+						// sc.getDocument().getText(0,
+						// sc.getDocument().getLength()), '\n');
+						// System.out.println("Getting from document "
+						// + sc.getLineCount() + "," + lines.length);
+						len = Base.countLines(sc.getDocument().getText(0,
+								sc.getDocument().getLength())) + 1;
+					} else {
+						// lines = PApplet.split(sc.getProgram(), '\n');
+						len = Base.countLines(sc.getProgram()) + 1;
+					}
+
+					// Adding + 1 to len because \n gets appended for each
+					// sketchcode extracted during processPDECode()
+					if (x >= len) {
+						x -= len;
+					} else {
+						// System.out.println(" x = " +
+						// x +
+						// "in tab: " +
+						// editor.getSketch().getCode(codeIndex).getPrettyName());
+						// if(errorWindow.hasFocus())
+						// editor.getSketch().setCurrentCode(codeIndex);
+						break;
+					}
+					codeIndex++;
+
+				} catch (Exception e) {
+					System.out.println("Document Exception in xyToOffset");
+
+					e.printStackTrace();
+
+				}
+				bigCount += sc.getLineCount();
+
+			}
+
+		}
+
+		return codeIndex;
+	}
+
 	/**
 	 * Starts the Syntax Checker Service thread
 	 */
 	@Override
-	public void run() {
+	public void run() {		
+		initializeErrorWindow();
 		stopThread = false;
 		while (!stopThread) {
 
@@ -379,21 +441,22 @@ public class SyntaxCheckerService implements Runnable {
 	 * Sets the error table in the Error Window
 	 */
 	private void setErrorTable() {
-		String[][] errorData = new String[problems.length][2];
-		for (int i = 0; i < problems.length; i++) {
-			errorData[i][0] = problems[i].getMessage(); // Make this message
-														// more natural.
-			errorData[i][1] = problems[i].getID() + "";// (problems[i].getSourceLineNumber()
-														// - mainClassOffset) +
-														// "";
-		}
-
-		DefaultTableModel tm = new DefaultTableModel(errorData,
-				ErrorWindow.columnNames);
-
 		try {
-			initializeErrorWindow();
+			String[][] errorData = new String[problems.length][3];
+			for (int i = 0; i < problems.length; i++) {
+				errorData[i][0] = problems[i].getMessage(); // Make this message
+															// more natural.
+				errorData[i][1] = editor.getSketch()
+				 .getCode(errorWindow.problemList.get(i).tabIndex)
+				 .getPrettyName();
+				errorData[i][2] = (problems[i].getSourceLineNumber() - mainClassOffset)
+						+ "";
+			}
+
+			DefaultTableModel tm = new DefaultTableModel(errorData,
+					ErrorWindow.columnNames);
 			errorWindow.updateTable(tm);
+			
 		} catch (Exception e) {
 			System.out.println("Exception at setErrorTable() " + e);
 			e.printStackTrace();

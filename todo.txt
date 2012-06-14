@@ -3,10 +3,8 @@ TODO List - Things which have to be done and what have been done.
 O - to be pwned, X - pwned
 =====================================================================================================
 
-
 General
 -------
-
 
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex)
@@ -18,18 +16,14 @@ O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
 O - Class loading technique used in Mode Contribution - Investigate.
 X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java version clash. Done.
 
-
 Syntax Checker Service
 ----------------------
-
 
 O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
 X - Syntax checking works, no concurrency bugs found yet.
 
-
 Error Window
 ------------
-
 
 O - SwingWorker or synchronized for mouse event handler?
 X - Handle basic/static mode offsets. After all it's used by absolute beginners.
@@ -39,10 +33,8 @@ X - Scroll to location works fine in single tab sketches.
 X - Make Error Window sticky. DockTool2Base ftw.
 X - Scrollable tabular view of errors, line nos.
 
-
 Error Bar
 ---------
-
 
 O - Error bar for each tab, with errors displayed per tab.
 O - Clicking on an error marker, scrolls to the error location.

@@ -47,12 +47,12 @@ public class XQEditor extends JavaEditor {
 		for (int i = 0; i < consolePanel.getComponentCount(); i++) {
 			System.out.println("Console: " + consolePanel.getComponent(i));
 		}
-		consolePanel.remove(1);
-		JTable table = new JTable(new String[][] { { "Problems", "Line no" },
-				{ "Missing semicolon", "12" },
-				{ "Extra  )", "15" },{ "Missing semicolon", "34" } },
-				new String[] { "A", "B" });
-		 consolePanel.add(table);
+//		consolePanel.remove(1);
+//		JTable table = new JTable(new String[][] { { "Problems", "Line no" },
+//				{ "Missing semicolon", "12" },
+//				{ "Extra  )", "15" },{ "Missing semicolon", "34" } },
+//				new String[] { "A", "B" });
+//		 consolePanel.add(table);
 		textAndError.add(textarea);
 		box.add(textAndError);
 	}

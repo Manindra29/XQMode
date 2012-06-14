@@ -41,14 +41,15 @@ public class ErrorBar extends JPanel {
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(new Color(0x2C343D));
 		g.fillRect(0, 0, getWidth(), getHeight());
-//		g.setColor(new Color(0x2C343D));
-//		g.fillRect(0, 0, getWidth(), getHeight() - 15);
+		// g.setColor(new Color(0x2C343D));
+		// g.fillRect(0, 0, getWidth(), getHeight() - 15);
 		g.setColor(new Color(0xED2630));
 		for (Integer y : errorPoints) {
-//			g.fillOval(getWidth()/2, y, (getWidth() - 6), (getWidth() - 6));
+			// g.fillOval(getWidth()/2, y, (getWidth() - 6), (getWidth() - 6));
 			g.fillRect(2, y, (getWidth() - 3), 4);
 		}
 	}
@@ -79,7 +80,8 @@ public class ErrorBar extends JPanel {
 				try {
 					int len = 0;
 					if (editor.getSketch().getCurrentCode().equals(sc)) {
-						len = Base.countLines(sc.getDocument().getText(0, sc.getDocument().getLength())) + 1;
+						len = Base.countLines(sc.getDocument().getText(0,
+								sc.getDocument().getLength())) + 1;
 					} else {
 						len = Base.countLines(sc.getProgram()) + 1;
 					}
@@ -93,7 +95,7 @@ public class ErrorBar extends JPanel {
 				bigCount += sc.getLineCount();
 			}
 		}
-//		System.out.println("Total lines: " + totalLines);
+		// System.out.println("Total lines: " + totalLines);
 
 		// Swing Worker
 		errorPoints = new ArrayList<Integer>();
@@ -102,13 +104,14 @@ public class ErrorBar extends JPanel {
 		// class declaration in the beginnning
 		for (IProblem problem : problems) {
 			// Ratio of error line to total lines
-			float y = (problem.getSourceLineNumber() - 1) / ((float) totalLines);
+			float y = (problem.getSourceLineNumber() - 1)
+					/ ((float) totalLines);
 			// Ratio multiplied by height of the error bar
 			y *= this.getHeight() - 15;
 			errorPoints.add(new Integer((int) y));
-//			System.out.println("Y: " + y);
+			// System.out.println("Y: " + y);
 		}
-		if(errorPoints.size()>0)
+		if (errorPoints.size() > 0)
 			errorStatus = Color.RED;
 		else
 			errorStatus = Color.GREEN;

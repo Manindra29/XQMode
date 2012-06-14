@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -51,13 +52,13 @@ public class ErrorWindow extends JFrame {
 	private DockTool2Base Docker;
 	public SyntaxCheckerService syntaxCheckerService;
 
-	public static final String[] columnNames = { "Problem", "Line Number" };
+	public static final String[] columnNames = { "Problem","Tab", "Line" };
 
 	/**
 	 * Stores all problems reported by Eclipse parser. Populated by Syntax
 	 * Checker Service.
 	 */
-	public IProblem[] problemList;
+	public ArrayList<Problem> problemList;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -77,6 +78,7 @@ public class ErrorWindow extends JFrame {
 		thisErrorWindow = this;
 		syntaxCheckerService = syncheck;
 		thisEditor = editor;
+		problemList = new ArrayList<Problem>();
 		setTitle("Problems");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -187,6 +189,7 @@ public class ErrorWindow extends JFrame {
 				errorTable.setModel(tableModel);
 				errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 				errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+				errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
 				// errorTable.getModel()
 
 			}
@@ -228,7 +231,7 @@ public class ErrorWindow extends JFrame {
 				// let's try to get the line no.
 				if (thisEditor == null)
 					return;
-				if (errorTable.getSelectedRow() < problemList.length
+				if (errorTable.getSelectedRow() < problemList.size()
 						&& errorTable.getSelectedRow() >= 0) {
 					// System.out.println(" | Line no selected: "
 					// +
@@ -237,16 +240,16 @@ public class ErrorWindow extends JFrame {
 					// +
 					// problemList[errorTable.getSelectedRow()].getSourceStart());
 					int offset1 = syntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()]
-									.getSourceLineNumber(), 0); // -
+							problemList.get(errorTable.getSelectedRow())
+									.iProblem.getSourceLineNumber(), 0); // -
 																// 1
 																// for
 																// class
 																// declaration
 																// statement
 					int offset2 = syntaxCheckerService.xyToOffset(
-							problemList[errorTable.getSelectedRow()]
-									.getSourceLineNumber() + 1, 0);
+							problemList.get(errorTable.getSelectedRow())
+									.iProblem.getSourceLineNumber() + 1, 0);
 					if (thisErrorWindow.hasFocus())
 						return;
 					if (thisEditor.getCaretOffset() != offset1) {
