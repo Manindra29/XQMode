@@ -10,10 +10,11 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 public class Problem {
 	public IProblem iProblem;
-	public int tabIndex;
+	public int tabIndex, lineNumber;
 	
-	public Problem(IProblem iProblem, int tanIndex) {
+	public Problem(IProblem iProblem, int tabIndex, int lineNumber) {
 		this.iProblem = iProblem;
-		this.tabIndex = tanIndex;
+		this.tabIndex = tabIndex;
+		this.lineNumber = lineNumber;
 	}
 }

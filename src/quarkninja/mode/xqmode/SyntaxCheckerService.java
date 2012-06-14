@@ -152,12 +152,13 @@ public class SyntaxCheckerService implements Runnable {
 			if (errorWindow != null) {
 				// errorWindow.problemList = cu.getProblems();
 				for (int i = 0; i < problems.length; i++) {
-					errorWindow.problemList.add(new Problem(problems[i],
-							calculateTabIndex(problems[i])));
-					System.out.println(editor.getSketch()
-							.getCode(calculateTabIndex(problems[i]))
-							.getPrettyName()
-							+ "-> " + problems[i].getSourceLineNumber());
+					int a[] = calculateTabIndex(problems[i]);
+					errorWindow.problemList.add(new Problem(problems[i], a[0],
+							a[1]));
+					// System.out.println(editor.getSketch()
+					// .getCode(a)
+					// .getPrettyName()
+					// + "-> " + problems[i].getSourceLineNumber());
 
 				}
 			}
@@ -186,7 +187,15 @@ public class SyntaxCheckerService implements Runnable {
 		return false;
 	}
 
-	public int calculateTabIndex(IProblem problem) {
+	/**
+	 * Calculates the tab number and line number of the error in that particular
+	 * tab.
+	 * 
+	 * @param problem
+	 *            - IProblem
+	 * @return
+	 */
+	public int[] calculateTabIndex(IProblem problem) {
 		// String[] lines = {};// = PApplet.split(sourceString, '\n');
 		int codeIndex = 0;
 		int bigCount = 0;
@@ -238,15 +247,14 @@ public class SyntaxCheckerService implements Runnable {
 			}
 
 		}
-
-		return codeIndex;
+		return new int[] { codeIndex, x };
 	}
 
 	/**
 	 * Starts the Syntax Checker Service thread
 	 */
 	@Override
-	public void run() {		
+	public void run() {
 		initializeErrorWindow();
 		stopThread = false;
 		while (!stopThread) {
@@ -447,16 +455,19 @@ public class SyntaxCheckerService implements Runnable {
 				errorData[i][0] = problems[i].getMessage(); // Make this message
 															// more natural.
 				errorData[i][1] = editor.getSketch()
-				 .getCode(errorWindow.problemList.get(i).tabIndex)
-				 .getPrettyName();
-				errorData[i][2] = (problems[i].getSourceLineNumber() - mainClassOffset)
+						.getCode(errorWindow.problemList.get(i).tabIndex)
+						.getPrettyName();
+				errorData[i][2] = errorWindow.problemList.get(i).lineNumber
 						+ "";
+
+				// (problems[i].getSourceLineNumber() - mainClassOffset)
+				// + "";
 			}
 
 			DefaultTableModel tm = new DefaultTableModel(errorData,
 					ErrorWindow.columnNames);
 			errorWindow.updateTable(tm);
-			
+
 		} catch (Exception e) {
 			System.out.println("Exception at setErrorTable() " + e);
 			e.printStackTrace();
