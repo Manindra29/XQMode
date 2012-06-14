@@ -56,7 +56,9 @@ public class ErrorWindow extends JFrame {
 
 	/**
 	 * Stores all problems reported by Eclipse parser. Populated by Syntax
-	 * Checker Service.
+	 * Checker Service. This stores IProblems inside the Problem wrapper class.
+	 * 
+	 * @see Problem
 	 */
 	public ArrayList<Problem> problemList;
 
@@ -255,7 +257,6 @@ public class ErrorWindow extends JFrame {
 					if (thisEditor.getCaretOffset() != offset1) {
 						// System.out.println("offset unequal");
 						thisEditor.toFront();
-						// TODO: Add support for basic mode
 						// String classDeclaration = "public class " +
 						// thisEditor.getSketch().getName()
 						// + " extends PApplet {\n";

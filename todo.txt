@@ -6,15 +6,20 @@ O - to be pwned, X - pwned
 General
 -------
 
+O - How to tackle bugs generated due to error line numbers that are outside the pde
+	code? Like adding a } to the end of the code, causes the parser to detect the
+	} added by the pre-processor as the error line. Current solution doesn't work as
+	expected. Difficult one. 
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex)
-O - Eclipse like error bar on the left of the editor text area. Errors shown as red
-	dots. More UI design inputs from Dan, and Casey too. 
+O - Eclipse like error bar on the right of the editor text area. More UI design inputs 
+	from Dan, and Casey too. 
 O - Import statements being ignored currently, but would need to be stored during compilation
 	error check.
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
 O - Class loading technique used in Mode Contribution - Investigate.
-X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java version clash. Done.
+X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java 
+	version clash. Done.
 
 Syntax Checker Service
 ----------------------
@@ -36,10 +41,9 @@ X - Scrollable tabular view of errors, line nos.
 Error Bar
 ---------
 
-O - Error bar for each tab, with errors displayed per tab.
 O - Clicking on an error marker, scrolls to the error location.
 O - Display error as tooltip on hover. JComponent Tooltip property?
+X - Error bar to display errors for each tab.
 X - Error bar to the right of the editor. Small red rectangles as error markers.
-O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.
-O - Error markers to be static or scrollable(marker moves with the error line) ?  
+O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.  
 

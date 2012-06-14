@@ -69,6 +69,53 @@ public class ErrorBar extends JPanel {
 		addListeners();
 	}
 
+	public void updateErrorPoints2(ArrayList<Problem> problems) {
+
+		int bigCount = 0;
+		int totalLines = 0;
+		int currentTab = 0;
+		for (SketchCode sc : editor.getSketch().getCode()) {
+			if (sc.isExtension("pde")) {
+				sc.setPreprocOffset(bigCount);
+
+				try {
+					if (editor.getSketch().getCurrentCode().equals(sc)) {
+						// Adding + 1 to len because \n gets appended for each
+						// sketchcode extracted during processPDECode()
+						totalLines = Base.countLines(sc.getDocument().getText(
+								0, sc.getDocument().getLength())) + 1;
+						break;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			currentTab++;
+		}
+		// System.out.println("Total lines: " + totalLines);
+
+		// TODO: Swing Worker approach?
+		errorPoints = new ArrayList<Integer>();
+		errorPoints.clear();
+		// Each problem.getSourceLine() will have an extra line added because of
+		// class declaration in the beginnning
+		for (Problem problem : problems) {
+			if (problem.tabIndex == currentTab) {
+				// Ratio of error line to total lines
+				float y = problem.lineNumber / ((float) totalLines);
+				// Ratio multiplied by height of the error bar
+				y *= this.getHeight() - 15;
+				errorPoints.add(new Integer((int) y));
+				// System.out.println("Y: " + y);
+			}
+		}
+		if (errorPoints.size() > 0)
+			errorStatus = Color.RED;
+		else
+			errorStatus = Color.GREEN;
+		repaint();
+	}
+
 	public void updateErrorPoints(IProblem problems[]) {
 
 		int bigCount = 0;
@@ -97,7 +144,7 @@ public class ErrorBar extends JPanel {
 		}
 		// System.out.println("Total lines: " + totalLines);
 
-		// Swing Worker
+		// TODO: Swing Worker approach?
 		errorPoints = new ArrayList<Integer>();
 
 		// Each problem.getSourceLine() will have an extra line added because of
@@ -135,13 +182,11 @@ public class ErrorBar extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
 
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
 
 			}
 

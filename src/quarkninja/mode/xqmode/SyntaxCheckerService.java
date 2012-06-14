@@ -146,11 +146,13 @@ public class SyntaxCheckerService implements Runnable {
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
-			// TODO: Two sets of same data, is this the best approach? No, pass
-			// IProblem[] to ErrorWindow.updateTable
+			// Store errors returned by the ast parser
 			problems = cu.getProblems();
+
+			// Populate the error list of error window
 			if (errorWindow != null) {
 				// errorWindow.problemList = cu.getProblems();
+				errorWindow.problemList.clear();
 				for (int i = 0; i < problems.length; i++) {
 					int a[] = calculateTabIndex(problems[i]);
 					errorWindow.problemList.add(new Problem(problems[i], a[0],
@@ -176,8 +178,8 @@ public class SyntaxCheckerService implements Runnable {
 			//
 			//
 			// }
-			errorBar.updateErrorPoints(problems);
 			setErrorTable();
+			errorBar.updateErrorPoints2(errorWindow.problemList);
 			return true;
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);
@@ -193,7 +195,7 @@ public class SyntaxCheckerService implements Runnable {
 	 * 
 	 * @param problem
 	 *            - IProblem
-	 * @return
+	 * @return int[0] - tab number, int[1] - line number
 	 */
 	public int[] calculateTabIndex(IProblem problem) {
 		// String[] lines = {};// = PApplet.split(sourceString, '\n');
@@ -207,6 +209,7 @@ public class SyntaxCheckerService implements Runnable {
 				sc.setPreprocOffset(bigCount);
 
 				try {
+
 					int len = 0;
 					if (editor.getSketch().getCurrentCode().equals(sc)) {
 						// lines = PApplet.split(
@@ -247,6 +250,12 @@ public class SyntaxCheckerService implements Runnable {
 			}
 
 		}
+
+		// TODO: Dirty hack to stop the index out of bounds errors
+		// Remove this check, and add a } at the end, in the last tab to
+		// generate the error.
+		if (codeIndex >= editor.getSketch().getCodeCount())
+			codeIndex = editor.getSketch().getCodeCount() - 1;
 		return new int[] { codeIndex, x };
 	}
 
@@ -431,7 +440,7 @@ public class SyntaxCheckerService implements Runnable {
 
 		} else {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
-					+ sourceAlt + "\n}\n";
+					+ sourceAlt + "\n}";
 			basicMode = false;
 			mainClassOffset = 1;
 		}
@@ -452,6 +461,8 @@ public class SyntaxCheckerService implements Runnable {
 		try {
 			String[][] errorData = new String[problems.length][3];
 			for (int i = 0; i < problems.length; i++) {
+				// System.out
+				// .print(errorWindow.problemList.get(i).tabIndex + ", ");
 				errorData[i][0] = problems[i].getMessage(); // Make this message
 															// more natural.
 				errorData[i][1] = editor.getSketch()
@@ -463,11 +474,14 @@ public class SyntaxCheckerService implements Runnable {
 				// (problems[i].getSourceLineNumber() - mainClassOffset)
 				// + "";
 			}
-
+			// System.out.println();
 			DefaultTableModel tm = new DefaultTableModel(errorData,
 					ErrorWindow.columnNames);
 			errorWindow.updateTable(tm);
 
+		} catch (ArrayIndexOutOfBoundsException e) {
+			System.err.println(e + " at setErrorTable()");
+			e.printStackTrace();
 		} catch (Exception e) {
 			System.out.println("Exception at setErrorTable() " + e);
 			e.printStackTrace();
@@ -497,6 +511,7 @@ public class SyntaxCheckerService implements Runnable {
 	 * 
 	 * @return int - Offset
 	 */
+
 	public int xyToOffset(int x, int y) {
 
 		String[] lines = {};// = PApplet.split(sourceString, '\n');
@@ -505,12 +520,11 @@ public class SyntaxCheckerService implements Runnable {
 		int bigCount = 0;
 
 		x -= mainClassOffset;
+		try {
+			for (SketchCode sc : editor.getSketch().getCode()) {
+				if (sc.isExtension("pde")) {
+					sc.setPreprocOffset(bigCount);
 
-		for (SketchCode sc : editor.getSketch().getCode()) {
-			if (sc.isExtension("pde")) {
-				sc.setPreprocOffset(bigCount);
-
-				try {
 					int len = 0;
 					if (editor.getSketch().getCurrentCode().equals(sc)) {
 						lines = PApplet.split(
@@ -528,38 +542,44 @@ public class SyntaxCheckerService implements Runnable {
 					// Adding + 1 to len because \n gets appended for each
 					// sketchcode extracted during processPDECode()
 					if (x >= len) {
+						// System.out.println("x,len" + x + "," + len);
 						x -= len;
+						codeIndex++;
+
 					} else {
-						// System.out.println(" x = " +
-						// x +
-						// "in tab: " +
-						// editor.getSketch().getCode(codeIndex).getPrettyName());
-						// if(errorWindow.hasFocus())
+						if (codeIndex >= editor.getSketch().getCodeCount())
+							codeIndex = editor.getSketch().getCodeCount() - 1;
 						editor.getSketch().setCurrentCode(codeIndex);
 						break;
 					}
-					codeIndex++;
-
-				} catch (Exception e) {
-					System.out.println("Document Exception in xyToOffset");
-
-					e.printStackTrace();
 
 				}
 				bigCount += sc.getLineCount();
 			}
 
-		}
+			// Using setCurrentCode again below. A dirty method. How does one
+			// tackle error locations which are generated by the parser outside
+			// the line number of the source visible in the pde? Like adding a }
+			// at the end of the code, the extra } added by the pre processor is
+			// the error source(detected by the parser). Tab switching has to be
+			// done this way then. TODO
 
-		// Count chars till the end of previous line(x-1), keeping in mind x
-		// starts from 1
-		// System.out.println(" offset x: " + x);
-		for (int i = 0; i < x - 1; i++) {
-			offset += lines[i].length() + 1;
-		}
-		// Line Columns start from 1
-		offset += y == 0 ? 0 : y - 1;
+			if (codeIndex >= editor.getSketch().getCodeCount())
+				codeIndex = editor.getSketch().getCodeCount() - 1;
+			editor.getSketch().setCurrentCode(codeIndex);
 
+			// Count chars till the end of previous line(x-1), keeping in mind x
+			// starts from 1
+			for (int i = 0; i < x - 1; i++) {
+				if (i < lines.length)
+					offset += lines[i].length() + 1;
+			}
+			// Line Columns start from 1
+			offset += y == 0 ? 0 : y - 1;
+		} catch (Exception e) {
+			System.out.println("Exception in xyToOffset");
+			e.printStackTrace();
+		}
 		return offset;
 	}
 
