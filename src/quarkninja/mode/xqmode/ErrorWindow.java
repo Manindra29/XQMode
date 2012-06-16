@@ -235,38 +235,19 @@ public class ErrorWindow extends JFrame {
 					return;
 				if (errorTable.getSelectedRow() < problemList.size()
 						&& errorTable.getSelectedRow() >= 0) {
-					// System.out.println(" | Line no selected: "
-					// +
-					// problemList[errorTable.getSelectedRow()].getSourceLineNumber()
-					// + " , "
-					// +
-					// problemList[errorTable.getSelectedRow()].getSourceStart());
+					if (thisErrorWindow.hasFocus())
+						return;
+					
 					int offset1 = syntaxCheckerService.xyToOffset(
 							problemList.get(errorTable.getSelectedRow())
-									.iProblem.getSourceLineNumber(), 0); // -
-																// 1
-																// for
-																// class
-																// declaration
-																// statement
+									.iProblem.getSourceLineNumber(), 0);
 					int offset2 = syntaxCheckerService.xyToOffset(
 							problemList.get(errorTable.getSelectedRow())
 									.iProblem.getSourceLineNumber() + 1, 0);
-					if (thisErrorWindow.hasFocus())
-						return;
+					
 					if (thisEditor.getCaretOffset() != offset1) {
 						// System.out.println("offset unequal");
-						thisEditor.toFront();
-						// String classDeclaration = "public class " +
-						// thisEditor.getSketch().getName()
-						// + " extends PApplet {\n";
-						// offset = classDeclaration.length();
-						// normalizeOffset();
-						// thisEditor.setSelection(normalizeOffset(
-						// problemList[errorTable.getSelectedRow()].getSourceStart()
-						// - offset),
-						// normalizeOffset(problemList[errorTable.getSelectedRow()].getSourceEnd()
-						// - offset+1));
+						thisEditor.toFront();					
 						thisEditor.setSelection(offset1, offset2 - 1);
 						// System.out.println("---");
 					}
