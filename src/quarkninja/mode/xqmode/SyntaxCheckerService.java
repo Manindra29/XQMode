@@ -108,6 +108,7 @@ public class SyntaxCheckerService implements Runnable {
 				// One thread sleeps while other continues running - the
 				// troubles of multithreading. Sigh, no more NPEs.
 				Thread.sleep(500);
+				errorBar.errorWindow = errorWindow;
 			} catch (InterruptedException e1) {
 
 				e1.printStackTrace();
@@ -179,7 +180,7 @@ public class SyntaxCheckerService implements Runnable {
 			//
 			// }
 			setErrorTable();
-			errorBar.updateErrorPoints2(errorWindow.problemList);
+			errorBar.updateErrorPoints(errorWindow.problemList);
 			return true;
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);

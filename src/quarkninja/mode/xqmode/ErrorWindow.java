@@ -22,8 +22,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.eclipse.jdt.core.compiler.IProblem;
-
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.SketchCode;
@@ -52,7 +50,7 @@ public class ErrorWindow extends JFrame {
 	private DockTool2Base Docker;
 	public SyntaxCheckerService syntaxCheckerService;
 
-	public static final String[] columnNames = { "Problem","Tab", "Line" };
+	public static final String[] columnNames = { "Problem", "Tab", "Line" };
 
 	/**
 	 * Stores all problems reported by Eclipse parser. Populated by Syntax
@@ -205,6 +203,29 @@ public class ErrorWindow extends JFrame {
 		return true;
 	}
 
+	public void scrollToErrorLine(int errorIndex) {
+		if (thisEditor == null)
+			return;
+		if (errorIndex < problemList.size() && errorIndex >= 0) {
+			if (thisErrorWindow.hasFocus())
+				return;
+
+			int offset1 = syntaxCheckerService.xyToOffset(problemList
+					.get(errorIndex).iProblem
+					.getSourceLineNumber(), 0);
+			int offset2 = syntaxCheckerService.xyToOffset(problemList
+					.get(errorIndex).iProblem
+					.getSourceLineNumber() + 1, 0);
+
+			if (thisEditor.getCaretOffset() != offset1) {
+				// System.out.println("offset unequal");
+				thisEditor.toFront();
+				thisEditor.setSelection(offset1, offset2 - 1);
+				// System.out.println("---");
+			}
+		}
+	}
+
 	/**
 	 * Adds various listeners to components of EditorWindow and also to the
 	 * Editor window
@@ -228,30 +249,32 @@ public class ErrorWindow extends JFrame {
 			 */
 			synchronized public void mouseReleased(MouseEvent e) {
 
+				scrollToErrorLine(errorTable.getSelectedRow());
 				// System.out.print("Row clicked: " +
 				// (errorTable.getSelectedRow() + 1));
 				// let's try to get the line no.
-				if (thisEditor == null)
-					return;
-				if (errorTable.getSelectedRow() < problemList.size()
-						&& errorTable.getSelectedRow() >= 0) {
-					if (thisErrorWindow.hasFocus())
-						return;
-					
-					int offset1 = syntaxCheckerService.xyToOffset(
-							problemList.get(errorTable.getSelectedRow())
-									.iProblem.getSourceLineNumber(), 0);
-					int offset2 = syntaxCheckerService.xyToOffset(
-							problemList.get(errorTable.getSelectedRow())
-									.iProblem.getSourceLineNumber() + 1, 0);
-					
-					if (thisEditor.getCaretOffset() != offset1) {
-						// System.out.println("offset unequal");
-						thisEditor.toFront();					
-						thisEditor.setSelection(offset1, offset2 - 1);
-						// System.out.println("---");
-					}
-				}
+				// if (thisEditor == null)
+				// return;
+				// if (errorTable.getSelectedRow() < problemList.size()
+				// && errorTable.getSelectedRow() >= 0) {
+				// if (thisErrorWindow.hasFocus())
+				// return;
+				//
+				// int offset1 = syntaxCheckerService.xyToOffset(
+				// problemList.get(errorTable.getSelectedRow())
+				// .iProblem.getSourceLineNumber(), 0);
+				// int offset2 = syntaxCheckerService.xyToOffset(
+				// problemList.get(errorTable.getSelectedRow())
+				// .iProblem.getSourceLineNumber() + 1, 0);
+				//
+				// if (thisEditor.getCaretOffset() != offset1) {
+				// // System.out.println("offset unequal");
+				// thisEditor.toFront();
+				// thisEditor.setSelection(offset1, offset2 - 1);
+				// // System.out.println("---");
+				// }
+				// }
+				
 			}
 		});
 

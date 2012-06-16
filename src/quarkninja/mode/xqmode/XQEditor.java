@@ -6,7 +6,6 @@ import java.awt.event.WindowListener;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 
 import processing.app.Base;
 import processing.app.EditorState;
