@@ -205,58 +205,101 @@ public class SyntaxCheckerService implements Runnable {
 
 		int x = problem.getSourceLineNumber() - mainClassOffset;
 
-		for (SketchCode sc : editor.getSketch().getCode()) {
-			if (sc.isExtension("pde")) {
-				sc.setPreprocOffset(bigCount);
-
-				try {
-
+		// for (SketchCode sc : editor.getSketch().getCode()) {
+		// if (sc.isExtension("pde")) {
+		// sc.setPreprocOffset(bigCount);
+		//
+		// try {
+		//
+		// int len = 0;
+		// if (editor.getSketch().getCurrentCode().equals(sc)) {
+		// // lines = PApplet.split(
+		// // sc.getDocument().getText(0,
+		// // sc.getDocument().getLength()), '\n');
+		// // System.out.println("Getting from document "
+		// // + sc.getLineCount() + "," + lines.length);
+		// len = Base.countLines(sc.getDocument().getText(0,
+		// sc.getDocument().getLength())) + 1;
+		// } else {
+		// // lines = PApplet.split(sc.getProgram(), '\n');
+		// len = Base.countLines(sc.getProgram()) + 1;
+		// }
+		//
+		// // Adding + 1 to len because \n gets appended for each
+		// // sketchcode extracted during processPDECode()
+		// if (x >= len) {
+		// x -= len;
+		// } else {
+		// // System.out.println(" x = " +
+		// // x +
+		// // "in tab: " +
+		// // editor.getSketch().getCode(codeIndex).getPrettyName());
+		// // if(errorWindow.hasFocus())
+		// // editor.getSketch().setCurrentCode(codeIndex);
+		// break;
+		// }
+		// codeIndex++;
+		//
+		// } catch (Exception e) {
+		// System.out.println("Document Exception in xyToOffset");
+		//
+		// e.printStackTrace();
+		//
+		// }
+		// bigCount += sc.getLineCount();
+		//
+		// }
+		//
+		// }
+		//
+		// // TODO: Dirty hack to stop the index out of bounds errors
+		// // Remove this check, and add a } at the end, in the last tab to
+		// // generate the error.
+		// if (codeIndex >= editor.getSketch().getCodeCount())
+		// codeIndex = editor.getSketch().getCodeCount() - 1;
+		try {
+			for (SketchCode sc : editor.getSketch().getCode()) {
+				if (sc.isExtension("pde")) {
+					sc.setPreprocOffset(bigCount);
 					int len = 0;
 					if (editor.getSketch().getCurrentCode().equals(sc)) {
-						// lines = PApplet.split(
-						// sc.getDocument().getText(0,
-						// sc.getDocument().getLength()), '\n');
-						// System.out.println("Getting from document "
-						// + sc.getLineCount() + "," + lines.length);
 						len = Base.countLines(sc.getDocument().getText(0,
 								sc.getDocument().getLength())) + 1;
 					} else {
-						// lines = PApplet.split(sc.getProgram(), '\n');
 						len = Base.countLines(sc.getProgram()) + 1;
 					}
+
+					// System.out.println("x,len, CI: " + x + "," + len + ","
+					// + codeIndex);
 
 					// Adding + 1 to len because \n gets appended for each
 					// sketchcode extracted during processPDECode()
 					if (x >= len) {
-						x -= len;
+
+						// We're in the last tab and the line count is greater
+						// than the no.
+						// of lines in the tab,
+						if (codeIndex >= editor.getSketch().getCodeCount() - 1) {
+							x = len;
+							break;
+						} else {
+							x -= len;
+							codeIndex++;
+						}
 					} else {
-						// System.out.println(" x = " +
-						// x +
-						// "in tab: " +
-						// editor.getSketch().getCode(codeIndex).getPrettyName());
-						// if(errorWindow.hasFocus())
-						// editor.getSketch().setCurrentCode(codeIndex);
+
+						if (codeIndex >= editor.getSketch().getCodeCount())
+							codeIndex = editor.getSketch().getCodeCount() - 1;
 						break;
 					}
-					codeIndex++;
-
-				} catch (Exception e) {
-					System.out.println("Document Exception in xyToOffset");
-
-					e.printStackTrace();
 
 				}
 				bigCount += sc.getLineCount();
-
 			}
-
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 
-		// TODO: Dirty hack to stop the index out of bounds errors
-		// Remove this check, and add a } at the end, in the last tab to
-		// generate the error.
-		if (codeIndex >= editor.getSketch().getCodeCount())
-			codeIndex = editor.getSketch().getCodeCount() - 1;
 		return new int[] { codeIndex, x };
 	}
 

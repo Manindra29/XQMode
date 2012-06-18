@@ -7,7 +7,8 @@ General
 -------
 
 O - Explore adding components to Editor window. Done to some extent. 
-O - Make messages more user friendly. (Think regex)
+O - Make messages more user friendly. (Think regex) To be done after compilation check is 
+	complete.
 O - Eclipse like error bar on the right of the editor text area. More UI design inputs 
 	from Dan, and Casey too. 
 O - Import statements being ignored currently, but would need to be stored during compilation
@@ -41,8 +42,8 @@ X - Scrollable tabular view of errors, line nos.
 Error Bar
 ---------
 
-O - Clicking on an error marker, scrolls to the error location.
-O - Display error as tooltip on hover. JComponent Tooltip property?
+X - Display error as tooltip on hover.
+X - Clicking on an error marker, scrolls to the error location. Done.
 X - Error bar to display errors for each tab.
 X - Error bar to the right of the editor. Small red rectangles as error markers.
 O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.  

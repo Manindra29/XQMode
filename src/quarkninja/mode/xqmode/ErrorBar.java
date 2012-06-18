@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -196,8 +197,47 @@ public class ErrorBar extends JPanel {
 					}
 				}
 			}
-
 		});
+		
+		this.addMouseMotionListener(new MouseMotionListener() {
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				// System.out.println(e);
+				for (Integer y : errorPoints) {
+					if (e.getY() >= y.intValue()
+							&& e.getY() <= y.intValue() + errorMarkerHeight) {
+						// System.out.println("Index: " +
+						// errorPoints.indexOf(y));
+						int currentTab = editor.getSketch().getCodeIndex(
+								editor.getSketch().getCurrentCode());
+						int currentTabErrorCount = 0;
+
+						for (int i = 0; i < errorWindow.problemList.size(); i++) {
+							Problem p = errorWindow.problemList.get(i);
+							if (p.tabIndex == currentTab) {
+								if (currentTabErrorCount == errorPoints
+										.indexOf(y)) {
+//									System.out.println("Roger that.");
+									setToolTipText(p.iProblem.getMessage());
+
+									return;
+								} else {
+									currentTabErrorCount++;
+									// System.out.println("Still looking..");
+								}
+							}
+
+						}
+					}
+				}
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent arg0) {
+			}
+		});
+
 	}
 
 }
