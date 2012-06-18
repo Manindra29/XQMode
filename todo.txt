@@ -28,10 +28,23 @@ Syntax Checker Service
 O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
 X - Syntax checking works, no concurrency bugs found yet.
 
+Compilation Error Check (CEC)
+-----------------------------
+
+O - Process import statements to find extra libraries to be added.
+O - Add all the import statements before class declaration.
+O - Add Interface for CEC.
+O - Figure out how/where to store the CEC. Another JAR? Or just as a .class file?
+O - Classload CEC, addding the extra library jars to the classpath(url list)
+O - Compilation check should be done only if no syntax errors found. Like a 2 pass filter.
+O - Errors/Warnings from CEC to be added to the ErrorWindow Problem List.
+O - Serializable warnings to filtered out.
+O - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
+
 Error Window
 ------------
 
-O - SwingWorker or synchronized for mouse event handler?
+O - SwingWorker or synchronized for mouse event handler? Synchronized working fine for now.
 X - Handle basic/static mode offsets. After all it's used by absolute beginners.
 X - Scroll to location multi tab. Done
 X - Will preprocessing screw with the offsets? Yes. :( Switched back to selecting problem line.

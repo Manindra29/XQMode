@@ -1,15 +1,18 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
+import javax.xml.soap.Text;
 
 import processing.app.Base;
 import processing.app.EditorState;
 import processing.app.Mode;
+import processing.app.syntax.TextAreaPainter;
 import processing.mode.java.JavaEditor;
 
 /**
@@ -37,6 +40,8 @@ public class XQEditor extends JavaEditor {
 		JPanel textAndError = new JPanel();
 
 		Box box = (Box) textarea.getParent();
+		TextAreaPainter tap =  textarea.getPainter();
+//		tap.setCaretColor(Color.red);
 		box.remove(2); // Remove textArea from it's container, i.e Box
 		textAndError.setLayout(new BorderLayout());
 		textAndError.add(errorBar, BorderLayout.EAST);

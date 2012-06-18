@@ -22,7 +22,9 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import processing.app.Base;
 import processing.app.Editor;
+import processing.app.Library;
 import processing.app.SketchCode;
+import processing.app.SketchException;
 import processing.core.PApplet;
 
 /**
@@ -454,7 +456,7 @@ public class SyntaxCheckerService implements Runnable {
 			int len = piece.length(); // how much to trim out
 
 			programImports.add(piece); // the package name
-			// System.out.println("Import -> " + piece);
+			 System.out.println("Import -> " + piece);
 
 			// find index of this import in the program
 			int idx = sourceAlt.indexOf(piece);
@@ -468,6 +470,9 @@ public class SyntaxCheckerService implements Runnable {
 					+ sourceAlt.substring(idx + len);
 
 		} while (true);
+		
+		prepareImports(programImports);
+		
 
 		String className = (editor == null) ? "DefaultClass" : editor
 				.getSketch().getName();
@@ -496,6 +501,24 @@ public class SyntaxCheckerService implements Runnable {
 		// + editor.getSketch().getName());
 
 		return sourceAlt;
+	}
+
+	private void prepareImports(ArrayList<String> programImports) {
+		for (String item : programImports) {
+			int dot = item.lastIndexOf('.');
+			String entry = (dot == -1) ? item : item.substring(0, dot);
+			
+			entry = entry.substring(6).trim();
+			System.out.println(entry);
+			try {
+				Library library = editor.getMode().getLibrary(entry);
+				System.out.println("  found " + library.getClassPath().substring(1));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 	}
 
 	/**
