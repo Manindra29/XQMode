@@ -13,6 +13,7 @@ O - Eclipse like error bar on the right of the editor text area. More UI design 
 	from Dan, and Casey too. 
 O - Import statements being ignored currently, but would need to be stored during compilation
 	error check.
+O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? Lag?
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
 O - Class loading technique used in Mode Contribution - Investigate.
 O - How to tackle bugs generated due to error line numbers that are outside the pde
@@ -31,12 +32,16 @@ X - Syntax checking works, no concurrency bugs found yet.
 Compilation Error Check (CEC)
 -----------------------------
 
-O - Process import statements to find extra libraries to be added.
-O - Add all the import statements before class declaration.
-O - Add Interface for CEC.
-O - Figure out how/where to store the CEC. Another JAR? Or just as a .class file?
+O - Process import statements to find extra libraries to be added - Buggy/May be removed completely.
+X - Add all the import statements before class declaration.
+X - Add Interface for CEC.
+X - Figure out how/where to store the CEC. Another JAR? Or just as a .class file?
 O - Classload CEC, addding the extra library jars to the classpath(url list)
-O - Compilation check should be done only if no syntax errors found. Like a 2 pass filter.
+	This is causing problems, the Interface is not being recognized correctly, class cast exceptions
+	are getting thrown. Current workaround is adding XQMode.jar to P5 classpath. Bummer.
+X - Use P5's preprocess command. My preprocess doesn't convert 0.5 to 0.5f, void draw() to
+	public void draw() etc. Better off using the P5 method.
+O - Compilation check should be done only if no syntax errors found. Like a 2 pass filter.	
 O - Errors/Warnings from CEC to be added to the ErrorWindow Problem List.
 O - Serializable warnings to filtered out.
 O - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
