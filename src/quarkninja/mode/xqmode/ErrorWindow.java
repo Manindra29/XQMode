@@ -48,7 +48,7 @@ public class ErrorWindow extends JFrame {
 	public Editor thisEditor;
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
-	public SyntaxCheckerService syntaxCheckerService;
+	public ErrorCheckerService syntaxCheckerService;
 
 	public static final String[] columnNames = { "Problem", "Tab", "Line" };
 
@@ -74,7 +74,7 @@ public class ErrorWindow extends JFrame {
 		});
 	}
 
-	public ErrorWindow(Editor editor, SyntaxCheckerService syncheck) {
+	public ErrorWindow(Editor editor, ErrorCheckerService syncheck) {
 		thisErrorWindow = this;
 		syntaxCheckerService = syncheck;
 		thisEditor = editor;

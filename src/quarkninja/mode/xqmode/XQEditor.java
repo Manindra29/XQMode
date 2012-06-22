@@ -24,7 +24,7 @@ public class XQEditor extends JavaEditor {
 	XQMode xqmode;
 	protected Thread syntaxCheckerThread = null;
 	protected ErrorWindow errorWindow;
-	protected SyntaxCheckerService synCheck;
+	protected ErrorCheckerService synCheck;
 	protected ErrorBar errorBar;
 
 	protected XQEditor(Base base, String path, EditorState state, Mode mode) {
@@ -61,7 +61,7 @@ public class XQEditor extends JavaEditor {
 	 */
 	private void initializeSyntaxChecker() {
 		if (syntaxCheckerThread == null) {
-			synCheck = new SyntaxCheckerService(errorWindow, errorBar);
+			synCheck = new ErrorCheckerService(errorWindow, errorBar);
 			synCheck.editor = this;
 			syntaxCheckerThread = new Thread(synCheck);
 			try {
