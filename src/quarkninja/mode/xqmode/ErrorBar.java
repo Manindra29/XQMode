@@ -30,6 +30,9 @@ import processing.app.SketchCode;
 public class ErrorBar extends JPanel {
 	public int height;
 	public final int errorMarkerHeight = 4;
+	public final Color errorColor = new Color(0xED2630);
+	public final Color warningColor = new Color(0xFFC30E);
+
 	XQEditor editor;
 	public ErrorWindow errorWindow;
 	Color errorStatus = Color.GREEN;
@@ -37,7 +40,7 @@ public class ErrorBar extends JPanel {
 	 * Stores the Y co-ordinates of the errors along the error bar. X
 	 * co-ordinate of all points is fixed.
 	 */
-	ArrayList<Integer> errorPoints = new ArrayList<Integer>();
+	ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -47,10 +50,14 @@ public class ErrorBar extends JPanel {
 		g.fillRect(0, 0, getWidth(), getHeight());
 		// g.setColor(new Color(0x2C343D));
 		// g.fillRect(0, 0, getWidth(), getHeight() - 15);
-		g.setColor(new Color(0xED2630));
-		for (Integer y : errorPoints) {
+		// g.setColor();
+		for (ErrorMarker emarker : errorPoints) {
 			// g.fillOval(getWidth()/2, y, (getWidth() - 6), (getWidth() - 6));
-			g.fillRect(2, y, (getWidth() - 3), errorMarkerHeight);
+			if (emarker.type == ErrorMarker.Error)
+				g.setColor(errorColor);
+			else
+				g.setColor(warningColor);
+			g.fillRect(2, emarker.y, (getWidth() - 3), errorMarkerHeight);
 		}
 	}
 
@@ -95,7 +102,7 @@ public class ErrorBar extends JPanel {
 		// System.out.println("Total lines: " + totalLines);
 
 		// TODO: Swing Worker approach?
-		errorPoints = new ArrayList<Integer>();
+		errorPoints = new ArrayList<ErrorMarker>();
 		errorPoints.clear();
 		// Each problem.getSourceLine() will have an extra line added because of
 		// class declaration in the beginnning
@@ -105,7 +112,8 @@ public class ErrorBar extends JPanel {
 				float y = problem.lineNumber / ((float) totalLines);
 				// Ratio multiplied by height of the error bar
 				y *= this.getHeight() - 15;
-				errorPoints.add(new Integer((int) y));
+				errorPoints.add(new ErrorMarker((int) y, problem.iProblem
+						.isError() ? ErrorMarker.Error : ErrorMarker.Warning));
 				// System.out.println("Y: " + y);
 			}
 		}
@@ -170,9 +178,9 @@ public class ErrorBar extends JPanel {
 		this.addMouseListener(new MouseAdapter() {
 			@Override
 			synchronized public void mouseClicked(MouseEvent e) {
-				for (Integer y : errorPoints) {
-					if (e.getY() >= y.intValue()
-							&& e.getY() <= y.intValue() + errorMarkerHeight) {
+				for (ErrorMarker eMarker : errorPoints) {
+					if (e.getY() >= eMarker.y
+							&& e.getY() <= eMarker.y + errorMarkerHeight) {
 						// System.out.println("Index: " +
 						// errorPoints.indexOf(y));
 						int currentTab = editor.getSketch().getCodeIndex(
@@ -183,7 +191,7 @@ public class ErrorBar extends JPanel {
 							Problem p = errorWindow.problemList.get(i);
 							if (p.tabIndex == currentTab) {
 								if (currentTabErrorCount == errorPoints
-										.indexOf(y)) {
+										.indexOf(eMarker)) {
 									// System.out.println("Roger that.");
 									errorWindow.scrollToErrorLine(i);
 									return;
@@ -198,15 +206,15 @@ public class ErrorBar extends JPanel {
 				}
 			}
 		});
-		
+
 		this.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				// System.out.println(e);
-				for (Integer y : errorPoints) {
-					if (e.getY() >= y.intValue()
-							&& e.getY() <= y.intValue() + errorMarkerHeight) {
+				for (ErrorMarker eMarker : errorPoints) {
+					if (e.getY() >= eMarker.y
+							&& e.getY() <= eMarker.y + errorMarkerHeight) {
 						// System.out.println("Index: " +
 						// errorPoints.indexOf(y));
 						int currentTab = editor.getSketch().getCodeIndex(
@@ -217,9 +225,12 @@ public class ErrorBar extends JPanel {
 							Problem p = errorWindow.problemList.get(i);
 							if (p.tabIndex == currentTab) {
 								if (currentTabErrorCount == errorPoints
-										.indexOf(y)) {
-//									System.out.println("Roger that.");
-									setToolTipText(p.iProblem.getMessage());
+										.indexOf(eMarker)) {
+									// System.out.println("Roger that.");
+									String msg = (p.iProblem.isError() ? "Error: "
+											: "Warning: ")
+													+ p.iProblem.getMessage();
+									setToolTipText(msg);
 
 									return;
 								} else {
@@ -238,6 +249,18 @@ public class ErrorBar extends JPanel {
 			}
 		});
 
+	}
+
+	private class ErrorMarker {
+		public int y;
+		public int type = -1;
+		public static final int Error = 1;
+		public static final int Warning = 2;
+
+		public ErrorMarker(int y, int type) {
+			this.y = y;
+			this.type = type;
+		}
 	}
 
 }

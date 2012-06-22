@@ -27,6 +27,7 @@
 	<property name="build" value="build" />
 	<property name="bin" value="bin" />
 	<property name="dist" value="dist" />
+	<property name="javadoc" value="javadoc" />
 
 	<path id="library-classpath">
 		<fileset dir="${processing.classes}">
@@ -100,7 +101,7 @@
 		</echo>
 		<copy todir="${processing.modes}/">
 			<fileset dir="${dist}" />
-		</copy>		
+		</copy>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - -
@@ -109,6 +110,17 @@
 	<target name="clean">
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - -
+	    GENERATE JAVADOC
+	 - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="generate.javadoc" depends="">
+		<javadoc sourcepath="${src}" destdir="${javadoc}">
+			<classpath>
+				<path refid="library-classpath" />
+			</classpath>
+		</javadoc>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - -

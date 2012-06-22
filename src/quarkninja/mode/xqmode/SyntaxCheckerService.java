@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,12 +54,13 @@ public class SyntaxCheckerService implements Runnable {
 
 	private ASTParser parser;
 	public Editor editor;
-	private boolean stopThread = false;
+	public boolean stopThread = false;
 	public ErrorWindow errorWindow;
 	public ErrorBar errorBar;
 	private IProblem[] problems;
 	public String className, sourceCode;
 	public URL[] classpath;
+	private boolean compileCheck;
 
 	/**
 	 * How many lines are present till the initial class declaration? In basic
@@ -78,6 +80,7 @@ public class SyntaxCheckerService implements Runnable {
 			"import java.io.*;", "import java.net.*;", "import java.text.*;",
 			"import java.util.*;", "import java.util.zip.*;",
 			"import java.util.regex.*;", };
+	public ArrayList<URL> classpathJars;
 
 	public static void main(String[] args) {
 
@@ -175,7 +178,11 @@ public class SyntaxCheckerService implements Runnable {
 	 * @return true - only if no syntax errors found.
 	 */
 	public boolean checkCode() {
+		// Rest stuff here, maybe make reset()?
 		String source = "";
+		sourceCode = "";
+		compileCheck = false;
+
 		try {
 			if (editor != null)
 				source = preprocessCode();
@@ -192,6 +199,7 @@ public class SyntaxCheckerService implements Runnable {
 
 			// Ben has decided to move on to 1.6. Yay!
 			JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
 			parser.setCompilerOptions(options);
 			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
@@ -232,8 +240,14 @@ public class SyntaxCheckerService implements Runnable {
 			//
 			//
 			// }
-			preProcessP5style();
 
+			if (problems.length == 0) {
+				// System.out
+				// .println("No syntax errors. Let the compilation begin!");
+				sourceCode = preProcessP5style();
+				compileCheck();
+				compileCheck = true;
+			}
 			if (editor != null) {
 				setErrorTable();
 				errorBar.updateErrorPoints(errorWindow.problemList);
@@ -251,11 +265,11 @@ public class SyntaxCheckerService implements Runnable {
 	/**
 	 * Preprocess PDE code to pure Java, P5 style.
 	 */
-	private void preProcessP5style() {
+	private String preProcessP5style() {
 		if (problems.length != 0) {
 			System.err
 					.println("Resolve syntax errors before P5 preprocessor does its thing.");
-			return;
+			return null;
 		}
 		PdePreprocessor preprocessor = new PdePreprocessor(editor.getSketch()
 				.getName());
@@ -335,11 +349,24 @@ public class SyntaxCheckerService implements Runnable {
 		try {
 			PreprocessorResult result = preprocessor.write(writer,
 					bigCode.toString(), codeFolderPackages);
-			System.out.println(writer.getBuffer().toString()
-					+ "P5 preproc.\n--"
-					+ (System.currentTimeMillis() - lastTimeStamp));
+			className = result.className;
+			prepareImports(result.extraImports);
+			sourceCode = writer.getBuffer().toString();
+			int position = sourceCode.indexOf("{");
+			int lines = 0;
+			for (int i = 0; i < position; i++) {
+				if (sourceCode.charAt(i) == '\n')
+					lines++;
+			}
+			lines += 3;
+			// System.out.println("Lines: " + lines);
+			mainClassOffset = lines;
+			// System.out.println(writer.getBuffer().toString()
+			// + "P5 preproc.\n--"
+			// + (System.currentTimeMillis() - lastTimeStamp));
 			// System.out.println("Result: " + result.extraImports);
 			lastTimeStamp = System.currentTimeMillis();
+
 		} catch (RecognitionException e) {
 			System.err.println(e);
 		} catch (TokenStreamException e) {
@@ -347,66 +374,84 @@ public class SyntaxCheckerService implements Runnable {
 		} catch (SketchException e) {
 			System.err.println(e);
 		}
-
+		return writer.getBuffer().toString();
 	}
 
 	private void compileCheck() {
 		try {
+
+			// NOTE TO SELF: If classpath contains null Strings
+			// URLClassLoader gets angry. Drops NPE bombs.
+
 			// File f = new File(
 			// "resources/CompilationCheckerClasses");
-			System.out.println(1);
-			File f = new File("E:/TestStuff/bin");
-			// File jarFile = new
-			//
-			// File("C:Users/QuarkNinja/Documents/Processing/modes/XQMode/mode/XQMode.jar");
-			// File f2 = new File(
-			//
-			// "C:/Users/QuarkNinja/Documents/Processing/libraries/peasycam/library/peasycam.jar");
-			// jarFile.toURI().toURL(),
-			classpath = new URL[] { f.toURI().toURL() };
-			// classpath[classPathCount++] = f.toURI().toURL();
-			System.out.println("CP count: " + classPathCount);
-			for (int i = 0; i < classpath.length; i++) {
-				if (classpath[i] != null)
-					System.out.println(classpath[i]);
-				else
-					break;
+			// System.out.println(1);
+			File f = new File(
+					"E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
+			classpath = new URL[classpathJars.size() + 1];
+			for (int i = 0; i < classpathJars.size(); i++) {
+				classpath[i] = classpathJars.get(i);
 			}
-			System.out.println("-- " + classpath.length);
-			System.out.println(2);
+
+			classpath[classpath.length - 1] = f.toURI().toURL();
+
+			// for (int i = 0; i < classpath.length; i++) {
+			// if (classpath[i] != null)
+			// System.out.println(classpath[i]);
+			// else
+			// break;
+			// }
+			// System.out.println("-- " + classpath.length);
+			// System.out.println(2);
 			URLClassLoader classLoader = new URLClassLoader(classpath);
-			System.out.println(3);
+			// System.out.println(3);
 			// quarkninja.mode.xqmode.CompilationChecker
 			Class<?> checkerClass = Class.forName("CompilationChecker", true,
 					classLoader);
-			System.out.println(4);
+			// System.out.println(4);
 			CompilationCheckerInterface compCheck = (CompilationCheckerInterface) checkerClass
 					.newInstance();
-			System.out.println(sourceCode);
-			System.out.println("-------------------------------------");
 
-			compCheck.getErrors(className, sourceCode);
+			IProblem[] prob = compCheck.getErrors(className, sourceCode);
+			if (problems == null || problems.length == 0) {
+				problems = new IProblem[prob.length];
+			}
+			// int errorCount = 0, warningCount = 0;
+			for (int i = 0, k = 0; i < prob.length; i++) {
+				IProblem problem = prob[i];
+				if (problem == null) {
+					System.out.println(i + " is null.");
+					continue;
+				}
+				if (problem.getID() == IProblem.UnusedImport
+						|| problem.getID() == IProblem.MissingSerialVersion)
+					continue;
+				problems[k++] = problem;
+				// StringBuffer buffer = new StringBuffer();
+				// buffer.append(problem.getMessage());
+				// buffer.append(" | line: ");
+				// buffer.append(problem.getSourceLineNumber());
+				// String msg = buffer.toString();
+				// if (problem.isError()) {
+				// msg = "Error: " + msg;
+				// errorCount++;
+				// } else if (problem.isWarning()) {
+				// msg = "Warning: " + msg;
+				// warningCount++;
+				// }
+				// System.out.println(msg);
+				int a[] = calculateTabIndexAndLineNumber(problem);
+				errorWindow.problemList.add(new Problem(problem, a[0], a[1]));
+			}
+			// System.out.println("Total warnings: " + warningCount
+			// + ", Total errors: " + errorCount + " , Len: "
+			// + prob.length);
 
-			// Populate the error list of error window
-			// if (errorWindow != null) {
-			// // errorWindow.problemList = cu.getProblems();
-			// for (int i = 0; i < problems.length; i++) {
-			// int a[] = calculateTabIndexAndLineNumber(problems[i]);
-			// errorWindow.problemList.add(new Problem(problems[i], a[0],
-			// a[1]));
-			// // System.out.println(editor.getSketch()
-			// // .getCode(a)
-			// // .getPrettyName()
-			// // + "-> " + problems[i].getSourceLineNumber());
-			//
-			// }
-			// }
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Compilecheck Problem. " + e);
 		}
-		System.out.println("Compilecheck, Done.");
-		classPathCount = 0;
+		// System.out.println("Compilecheck, Done.");
 		// stopThread();
 	}
 
@@ -637,7 +682,7 @@ public class SyntaxCheckerService implements Runnable {
 
 		} while (true);
 
-		prepareImports(programImports);
+		// prepareImports(programImports);
 
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()
 				.getName();
@@ -678,17 +723,15 @@ public class SyntaxCheckerService implements Runnable {
 		return sourceAlt;
 	}
 
-	int classPathCount = 0;
-
-	private void prepareImports(ArrayList<String> programImports) {
-		classpath = new URL[100];
-
+	private void prepareImports(List<String> programImports) {
+		classpathJars = new ArrayList<URL>();
+		String entry = "";
 		// System.out.println("Imports: " + programImports.size());
 		for (String item : programImports) {
 			int dot = item.lastIndexOf('.');
-			String entry = (dot == -1) ? item : item.substring(0, dot);
+			entry = (dot == -1) ? item : item.substring(0, dot);
 
-			entry = entry.substring(6).trim();
+			// entry = entry.substring(6).trim();
 			// System.out.println(entry);
 			try {
 				Library library = editor.getMode().getLibrary(entry);
@@ -698,8 +741,7 @@ public class SyntaxCheckerService implements Runnable {
 				for (int i = 0; i < libraryPath.length / 2; i++) {
 					// System.out.println(new
 					// File(libraryPath[i]).toURI().toURL());
-					classpath[classPathCount++] = new File(libraryPath[i])
-							.toURI().toURL();
+					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
 				}
 				// System.out.println("-- ");
 				// classpath[count] = (new File(library.getClassPath()
@@ -707,7 +749,9 @@ public class SyntaxCheckerService implements Runnable {
 				// System.out.println("  found ");
 				// System.out.println(library.getClassPath().substring(1));
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println("Yikes!" + e);
+				System.out.println("Was processing: " + entry);
+				// e.printStackTrace();
 			}
 
 		}
@@ -754,8 +798,12 @@ public class SyntaxCheckerService implements Runnable {
 		if (slashAnimationIndex == slashAnimation.length)
 			slashAnimationIndex = 0;
 		if (editor != null) {
-			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
-					+ " " + slashAnimation[slashAnimationIndex]);
+			errorWindow.setTitle("Problems - "
+					+ editor.getSketch().getName()
+					+ " "
+					+ (compileCheck ? slashAnimation[slashAnimationIndex]
+							+ slashAnimation[slashAnimationIndex]
+							: slashAnimation[slashAnimationIndex]));
 		}
 	}
 

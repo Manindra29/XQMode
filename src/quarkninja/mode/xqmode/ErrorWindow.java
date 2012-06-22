@@ -25,6 +25,8 @@ import javax.swing.table.TableModel;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.SketchCode;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * Error Window that displays a tablular list of errors. Clicking on an error
@@ -94,8 +96,20 @@ public class ErrorWindow extends JFrame {
 	private void prepareFrame() { // Not createAndShowGUI().
 		Base.setIcon(this);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		// Default size: setBounds(100, 100, 458, 160);
 		setBounds(100, 100, 458, 160);
 		contentPane = new JPanel();
+		contentPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					// TODO: Remove this later. For stopping syntax
+					// checker.
+					syntaxCheckerService.stopThread();
+					System.out.println("Syntax checker thread paused.");
+				}
+			}
+		});
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -210,12 +224,12 @@ public class ErrorWindow extends JFrame {
 			if (thisErrorWindow.hasFocus())
 				return;
 
-			int offset1 = syntaxCheckerService.xyToOffset(problemList
-					.get(errorIndex).iProblem
-					.getSourceLineNumber(), 0);
-			int offset2 = syntaxCheckerService.xyToOffset(problemList
-					.get(errorIndex).iProblem
-					.getSourceLineNumber() + 1, 0);
+			int offset1 = syntaxCheckerService.xyToOffset(
+					problemList.get(errorIndex).iProblem.getSourceLineNumber(),
+					0);
+			int offset2 = syntaxCheckerService
+					.xyToOffset(problemList.get(errorIndex).iProblem
+							.getSourceLineNumber() + 1, 0);
 
 			if (thisEditor.getCaretOffset() != offset1) {
 				// System.out.println("offset unequal");
@@ -274,7 +288,7 @@ public class ErrorWindow extends JFrame {
 				// // System.out.println("---");
 				// }
 				// }
-				
+
 			}
 		});
 
