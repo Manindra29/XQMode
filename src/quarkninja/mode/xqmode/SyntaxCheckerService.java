@@ -60,7 +60,9 @@ public class SyntaxCheckerService implements Runnable {
 	private IProblem[] problems;
 	public String className, sourceCode;
 	public URL[] classpath;
-	private boolean compileCheck;
+	public boolean compileCheck;
+	private StringBuffer rawCode;
+	private int scPreProcOffset = 0;
 
 	/**
 	 * How many lines are present till the initial class declaration? In basic
@@ -105,7 +107,6 @@ public class SyntaxCheckerService implements Runnable {
 					.newInstance();
 			compCheck.getErrors("HelloPeasy", syncheck.preprocessCode());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -173,15 +174,16 @@ public class SyntaxCheckerService implements Runnable {
 	}
 
 	/**
-	 * Perform syntax check
+	 * Perform error check
 	 * 
-	 * @return true - only if no syntax errors found.
+	 * @return true - if checking was completed succesfully.
 	 */
 	public boolean checkCode() {
-		// Rest stuff here, maybe make reset()?
+		// Reset stuff here, maybe make reset()?
 		String source = "";
 		sourceCode = "";
 		compileCheck = false;
+		lastTimeStamp = System.currentTimeMillis();
 
 		try {
 			if (editor != null)
@@ -235,12 +237,6 @@ public class SyntaxCheckerService implements Runnable {
 			// }
 			// }
 
-			// compileCheck();
-
-			//
-			//
-			// }
-
 			if (problems.length == 0) {
 				// System.out
 				// .println("No syntax errors. Let the compilation begin!");
@@ -263,7 +259,8 @@ public class SyntaxCheckerService implements Runnable {
 	long lastTimeStamp = System.currentTimeMillis();
 
 	/**
-	 * Preprocess PDE code to pure Java, P5 style.
+	 * Preprocess PDE code to pure Java, P5 style. This is used only after
+	 * eclipse ast parser has okayed the source code. SyntaxError
 	 */
 	private String preProcessP5style() {
 		if (problems.length != 0) {
@@ -273,40 +270,6 @@ public class SyntaxCheckerService implements Runnable {
 		}
 		PdePreprocessor preprocessor = new PdePreprocessor(editor.getSketch()
 				.getName());
-		// StringBuffer bigCode = new StringBuffer();
-		// int bigCount = 0;
-		// for (SketchCode sc : editor.getSketch().getCode()) {
-		// if (sc.isExtension("pde")) {
-		// sc.setPreprocOffset(bigCount);
-		// bigCode.append(sc.getProgram());
-		// bigCode.append('\n');
-		// bigCount += sc.getLineCount();
-		// }
-		// }
-		StringBuffer bigCode = new StringBuffer();
-		int bigCount = 0;
-		for (SketchCode sc : editor.getSketch().getCode()) {
-			if (sc.isExtension("pde")) {
-				sc.setPreprocOffset(bigCount);
-
-				try {
-
-					if (editor.getSketch().getCurrentCode().equals(sc))
-						bigCode.append(sc.getDocument().getText(0,
-								sc.getDocument().getLength()));
-					else {
-						bigCode.append(sc.getProgram());
-					}
-					bigCode.append('\n');
-				} catch (Exception e) {
-					System.err
-							.println("Exception in preprocessCode() - bigCode "
-									+ e.toString());
-				}
-				bigCode.append('\n');
-				bigCount += sc.getLineCount();
-			}
-		}
 
 		String[] codeFolderPackages = null;
 		if (editor.getSketch().hasCodeFolder()) {
@@ -336,7 +299,7 @@ public class SyntaxCheckerService implements Runnable {
 					if (sketchRenderer.equals("P2D")
 							|| sketchRenderer.equals("P3D")
 							|| sketchRenderer.equals("OPENGL")) {
-						bigCode.insert(0, "import processing.opengl.*; ");
+						rawCode.insert(0, "import processing.opengl.*; ");
 					}
 				}
 			}
@@ -348,7 +311,7 @@ public class SyntaxCheckerService implements Runnable {
 		StringWriter writer = new StringWriter();
 		try {
 			PreprocessorResult result = preprocessor.write(writer,
-					bigCode.toString(), codeFolderPackages);
+					rawCode.toString(), codeFolderPackages);
 			className = result.className;
 			prepareImports(result.extraImports);
 			sourceCode = writer.getBuffer().toString();
@@ -365,8 +328,6 @@ public class SyntaxCheckerService implements Runnable {
 			// + "P5 preproc.\n--"
 			// + (System.currentTimeMillis() - lastTimeStamp));
 			// System.out.println("Result: " + result.extraImports);
-			lastTimeStamp = System.currentTimeMillis();
-
 		} catch (RecognitionException e) {
 			System.err.println(e);
 		} catch (TokenStreamException e) {
@@ -395,17 +356,10 @@ public class SyntaxCheckerService implements Runnable {
 
 			classpath[classpath.length - 1] = f.toURI().toURL();
 
-			// for (int i = 0; i < classpath.length; i++) {
-			// if (classpath[i] != null)
-			// System.out.println(classpath[i]);
-			// else
-			// break;
-			// }
 			// System.out.println("-- " + classpath.length);
 			// System.out.println(2);
 			URLClassLoader classLoader = new URLClassLoader(classpath);
 			// System.out.println(3);
-			// quarkninja.mode.xqmode.CompilationChecker
 			Class<?> checkerClass = Class.forName("CompilationChecker", true,
 					classLoader);
 			// System.out.println(4);
@@ -485,8 +439,6 @@ public class SyntaxCheckerService implements Runnable {
 					// System.out.println("x,len, CI: " + x + "," + len + ","
 					// + codeIndex);
 
-					// Adding + 1 to len because \n gets appended for each
-					// sketchcode extracted during processPDECode()
 					if (x >= len) {
 
 						// We're in the last tab and the line count is greater
@@ -510,7 +462,8 @@ public class SyntaxCheckerService implements Runnable {
 				bigCount += sc.getLineCount();
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			System.err
+					.println("Things got messed up in SyntaxCheckerService.calculateTabIndexAndLineNumber()");
 		}
 
 		return new int[] { codeIndex, x };
@@ -581,33 +534,33 @@ public class SyntaxCheckerService implements Runnable {
 			if (editor == null) {
 				System.out.println("Reading .java file: " + PATH);
 			} else {
-				StringBuffer bigCode = new StringBuffer();
-				int bigCount = 0;
+				rawCode = new StringBuffer();
+
 				for (SketchCode sc : editor.getSketch().getCode()) {
 					if (sc.isExtension("pde")) {
-						sc.setPreprocOffset(bigCount);
+						sc.setPreprocOffset(scPreProcOffset);
 
 						try {
 
 							if (editor.getSketch().getCurrentCode().equals(sc))
-								bigCode.append(sc.getDocument().getText(0,
+								rawCode.append(sc.getDocument().getText(0,
 										sc.getDocument().getLength()));
 							else {
-								bigCode.append(sc.getProgram());
+								rawCode.append(sc.getProgram());
 
 							}
-							bigCode.append('\n');
+							rawCode.append('\n');
 						} catch (Exception e) {
 							System.err
 									.println("Exception in preprocessCode() - bigCode "
 											+ e.toString());
 						}
-						bigCode.append('\n');
-						bigCount += sc.getLineCount();
+						rawCode.append('\n');
+						scPreProcOffset += sc.getLineCount();
 					}
 				}
 
-				sourceAlt = bigCode.toString();
+				sourceAlt = rawCode.toString();
 				// System.out.println("Obtaining source from editor.");
 			}
 		} catch (Exception e) {
@@ -704,7 +657,7 @@ public class SyntaxCheckerService implements Runnable {
 			mainClassOffset = 1;
 		}
 		// TODO: Convert non ascii characters
-		// sourceAlt = substituteUnicode(sourceAlt);
+		sourceAlt = substituteUnicode(sourceAlt);
 
 		// Add imports back at the top
 		int importOffset = programImports.size() + defaultImports.length;
@@ -733,8 +686,13 @@ public class SyntaxCheckerService implements Runnable {
 
 			// entry = entry.substring(6).trim();
 			// System.out.println(entry);
+			if (ignorableImport(entry)) {
+				System.out.println("Ignoring: " + entry);
+				continue;
+			}
+			Library library = null;
 			try {
-				Library library = editor.getMode().getLibrary(entry);
+				library = editor.getMode().getLibrary(entry);
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), ';');
 				// TODO: Investigate the jar path added twice issue here
@@ -749,6 +707,10 @@ public class SyntaxCheckerService implements Runnable {
 				// System.out.println("  found ");
 				// System.out.println(library.getClassPath().substring(1));
 			} catch (Exception e) {
+				if(library == null){
+					System.err.println("XQMODE: Yikes! Can't find \"" + entry + "\" library!");
+					return;
+				}
 				System.out.println("Yikes!" + e);
 				System.out.println("Was processing: " + entry);
 				// e.printStackTrace();
@@ -756,6 +718,14 @@ public class SyntaxCheckerService implements Runnable {
 
 		}
 
+	}
+
+	private boolean ignorableImport(String packageName) {
+		if (packageName.startsWith("processing.")
+				|| packageName.startsWith("java.")) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -798,12 +768,10 @@ public class SyntaxCheckerService implements Runnable {
 		if (slashAnimationIndex == slashAnimation.length)
 			slashAnimationIndex = 0;
 		if (editor != null) {
-			errorWindow.setTitle("Problems - "
-					+ editor.getSketch().getName()
-					+ " "
-					+ (compileCheck ? slashAnimation[slashAnimationIndex]
-							+ slashAnimation[slashAnimationIndex]
-							: slashAnimation[slashAnimationIndex]));
+			String info = slashAnimation[slashAnimationIndex] + " T:"
+					+ (System.currentTimeMillis() - lastTimeStamp) + "ms";
+			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
+					+ " " + info);
 		}
 	}
 
@@ -891,6 +859,43 @@ public class SyntaxCheckerService implements Runnable {
 		}
 		// System.out.println("---");
 		return offset;
+	}
+
+	public static String substituteUnicode(String program) {
+		// check for non-ascii chars (these will be/must be in unicode format)
+		char p[] = program.toCharArray();
+		int unicodeCount = 0;
+		for (int i = 0; i < p.length; i++) {
+			if (p[i] > 127)
+				unicodeCount++;
+		}
+		if (unicodeCount == 0)
+			return program;
+		// if non-ascii chars are in there, convert to unicode escapes
+		// add unicodeCount * 5.. replacing each unicode char
+		// with six digit uXXXX sequence (xxxx is in hex)
+		// (except for nbsp chars which will be a replaced with a space)
+		int index = 0;
+		char p2[] = new char[p.length + unicodeCount * 5];
+		for (int i = 0; i < p.length; i++) {
+			if (p[i] < 128) {
+				p2[index++] = p[i];
+			} else if (p[i] == 160) { // unicode for non-breaking space
+				p2[index++] = ' ';
+			} else {
+				int c = p[i];
+				p2[index++] = '\\';
+				p2[index++] = 'u';
+				char str[] = Integer.toHexString(c).toCharArray();
+				// add leading zeros, so that the length is 4
+				// for (int i = 0; i < 4 - str.length; i++) p2[index++] = '0';
+				for (int m = 0; m < 4 - str.length; m++)
+					p2[index++] = '0';
+				System.arraycopy(str, 0, p2, index, str.length);
+				index += str.length;
+			}
+		}
+		return new String(p2, 0, index);
 	}
 
 	public static String readFile(File file) throws IOException {

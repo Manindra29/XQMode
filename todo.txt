@@ -11,9 +11,8 @@ O - Make messages more user friendly. (Think regex) To be done after compilation
 	complete.
 O - Eclipse like error bar on the right of the editor text area. More UI design inputs 
 	from Dan, and Casey too. 
-O - Import statements being ignored currently, but would need to be stored during compilation
-	error check.
-O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? Lag?
+O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? 
+	Lag? Overhead on my Dell XPS is around 70-130 ms. 
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
 O - Class loading technique used in Mode Contribution - Investigate.
 O - How to tackle bugs generated due to error line numbers that are outside the pde
@@ -33,9 +32,9 @@ Compilation Error Check (CEC)
 -----------------------------
 
 X - Process import statements to find extra libraries to be added. Done.
-X - Add all the import statements before class declaration - P5 preprocessor does it in style.
+X - Add all the import statements before class declaration - P5 preprocessor does it like a boss.
 X - Add Interface for CEC.
-X - Figure out how/where to store the CEC. Another JAR? Or just as a .class file?
+X - Figure out how/where to store the CEC. Another JAR? Or just as a .class file? - Class file.
 X - Classload CEC, addding the extra library jars to the classpath(url list)
 	This is causing problems, the Interface is not being recognized correctly, class cast exceptions
 	are getting thrown. Current workaround is adding XQMode.jar to P5 classpath. Bummer.
@@ -45,11 +44,11 @@ X - Compilation check should be done only if no syntax errors found. Like a 2 pa
 	Infact, even eclipse shows warnings only when code has no syntax errors!
 X - mainClassOffset to be recalculated for CEC.
 X - Errors/Warnings from CEC to be added to the ErrorWindow Problem List.
-O - Create a list of ignorable warnings
+O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.
-O - Ignore Unused import warning for default imports only.
-O - Ignore processing of java.* imports.
-O - Handle library not found scenarios.	
+O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
+X - Ignore processing of java.* imports.
+O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?	
 O - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
 
 Error Window

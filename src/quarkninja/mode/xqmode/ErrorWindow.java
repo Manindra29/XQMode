@@ -25,8 +25,6 @@ import javax.swing.table.TableModel;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.SketchCode;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 /**
  * Error Window that displays a tablular list of errors. Clicking on an error

@@ -36,6 +36,7 @@ public class ErrorBar extends JPanel {
 	XQEditor editor;
 	public ErrorWindow errorWindow;
 	Color errorStatus = Color.GREEN;
+	
 	/**
 	 * Stores the Y co-ordinates of the errors along the error bar. X
 	 * co-ordinate of all points is fixed.
@@ -124,55 +125,6 @@ public class ErrorBar extends JPanel {
 		repaint();
 	}
 
-	// public void updateErrorPoints(IProblem problems[]) {
-	//
-	// int bigCount = 0;
-	// int totalLines = 0;
-	// for (SketchCode sc : editor.getSketch().getCode()) {
-	// if (sc.isExtension("pde")) {
-	// sc.setPreprocOffset(bigCount);
-	//
-	// try {
-	// int len = 0;
-	// if (editor.getSketch().getCurrentCode().equals(sc)) {
-	// len = Base.countLines(sc.getDocument().getText(0,
-	// sc.getDocument().getLength())) + 1;
-	// } else {
-	// len = Base.countLines(sc.getProgram()) + 1;
-	// }
-	// totalLines += len;
-	// // Adding + 1 to len because \n gets appended for each
-	// // sketchcode extracted during processPDECode()
-	//
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// bigCount += sc.getLineCount();
-	// }
-	// }
-	// // System.out.println("Total lines: " + totalLines);
-	//
-	// // TODO: Swing Worker approach?
-	// errorPoints = new ArrayList<Integer>();
-	//
-	// // Each problem.getSourceLine() will have an extra line added because of
-	// // class declaration in the beginnning
-	// for (IProblem problem : problems) {
-	// // Ratio of error line to total lines
-	// float y = (problem.getSourceLineNumber() - 1)
-	// / ((float) totalLines);
-	// // Ratio multiplied by height of the error bar
-	// y *= this.getHeight() - 15;
-	// errorPoints.add(new Integer((int) y));
-	// // System.out.println("Y: " + y);
-	// }
-	// if (errorPoints.size() > 0)
-	// errorStatus = Color.RED;
-	// else
-	// errorStatus = Color.GREEN;
-	// repaint();
-	// }
-
 	private void addListeners() {
 
 		this.addMouseListener(new MouseAdapter() {
@@ -229,7 +181,7 @@ public class ErrorBar extends JPanel {
 									// System.out.println("Roger that.");
 									String msg = (p.iProblem.isError() ? "Error: "
 											: "Warning: ")
-													+ p.iProblem.getMessage();
+											+ p.iProblem.getMessage();
 									setToolTipText(msg);
 
 									return;
