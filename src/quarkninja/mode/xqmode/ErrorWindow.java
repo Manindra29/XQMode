@@ -33,7 +33,6 @@ import processing.app.SketchCode;
  * @author Manindra Moharana
  * 
  */
-@SuppressWarnings("serial")
 public class ErrorWindow extends JFrame {
 
 	private JPanel contentPane;

@@ -18,7 +18,6 @@ import processing.mode.java.JavaEditor;
  * @author Manindra Moharana
  * 
  */
-@SuppressWarnings("serial")
 public class XQEditor extends JavaEditor {
 
 	XQMode xqmode;
@@ -34,26 +33,30 @@ public class XQEditor extends JavaEditor {
 		errorBar = new ErrorBar(this, textarea.getMinimumSize().height);
 		initializeSyntaxChecker();
 
+		// - Start
 		JPanel textAndError = new JPanel();
-
 		Box box = (Box) textarea.getParent();
 		box.remove(2); // Remove textArea from it's container, i.e Box
 		textAndError.setLayout(new BorderLayout());
 		textAndError.add(errorBar, BorderLayout.EAST);
+		textarea.setBounds(0, 0, errorBar.getX() - 1, textarea.getHeight());
+		textAndError.add(textarea);
+		box.add(textAndError);
+		// - End
+		
 		// textarea.setBounds(errorBar.getX() + errorBar.getWidth(),
 		// errorBar.getY(), textarea.getWidth(), textarea.getHeight());
-		textarea.setBounds(0, 0, errorBar.getX() - 1, textarea.getHeight());
-		for (int i = 0; i < consolePanel.getComponentCount(); i++) {
-			System.out.println("Console: " + consolePanel.getComponent(i));
-		}
+		
+		// for (int i = 0; i < consolePanel.getComponentCount(); i++) {
+		// System.out.println("Console: " + consolePanel.getComponent(i));
+		// }
 		// consolePanel.remove(1);
 		// JTable table = new JTable(new String[][] { { "Problems", "Line no" },
 		// { "Missing semicolon", "12" },
 		// { "Extra  )", "15" },{ "Missing semicolon", "34" } },
 		// new String[] { "A", "B" });
 		// consolePanel.add(table);
-		textAndError.add(textarea);
-		box.add(textAndError);
+		
 	}
 
 	/**
@@ -63,6 +66,7 @@ public class XQEditor extends JavaEditor {
 		if (syntaxCheckerThread == null) {
 			synCheck = new ErrorCheckerService(errorWindow, errorBar);
 			synCheck.editor = this;
+			
 			syntaxCheckerThread = new Thread(synCheck);
 			try {
 				syntaxCheckerThread.start();

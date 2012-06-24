@@ -36,11 +36,16 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 /**
- * Syntax Checking Service for XQMode.<br>
+ * Error Checking Service for XQMode.<br>
  * 
  * Fetches code from editor every few seconds, converts it into pure java and
  * runs it through the Eclipse AST parser. Parser detects the syntax errors.
- * Errors are passed on to Error Window to be displayed to the user.
+ * Errors are passed on to Error Window to be displayed to the user. If no
+ * syntax errors are detected, code is further processed into compilable form by
+ * the P5 preprocessor. Contributed libraries' jars are added to classpath and
+ * Compiler is loaded by URLCLassLoader putting the extra jars in its classpath.
+ * Compilation is done are errors are passed on to Error Window to be displayed
+ * to the user.
  * 
  * All this happens in a separate thread, so that PDE keeps running without any
  * hiccups.
@@ -73,21 +78,22 @@ public class ErrorCheckerService implements Runnable {
 	public int mainClassOffset;
 	public boolean basicMode = false;
 
-	public static final String[] defaultImports = {
-			"import processing.core.*;", "import processing.xml.*;",
-			"import java.applet.*;", "import java.awt.Dimension;",
-			"import java.awt.Frame; ", "import java.awt.event.MouseEvent;",
-			"import java.awt.event.KeyEvent;",
-			"import java.awt.event.FocusEvent;", "import java.awt.Image;",
-			"import java.io.*;", "import java.net.*;", "import java.text.*;",
-			"import java.util.*;", "import java.util.zip.*;",
-			"import java.util.regex.*;", };
+	// public static final String[] defaultImports = {
+	// "import processing.core.*;", "import processing.xml.*;",
+	// "import java.applet.*;", "import java.awt.Dimension;",
+	// "import java.awt.Frame; ", "import java.awt.event.MouseEvent;",
+	// "import java.awt.event.KeyEvent;",
+	// "import java.awt.event.FocusEvent;", "import java.awt.Image;",
+	// "import java.io.*;", "import java.net.*;", "import java.text.*;",
+	// "import java.util.*;", "import java.util.zip.*;",
+	// "import java.util.regex.*;", };
 	public ArrayList<URL> classpathJars;
 
 	public static void main(String[] args) {
 
 		try {
 			ErrorCheckerService syncheck = new ErrorCheckerService();
+			syncheck.showClassPath();
 			// syncheck.checkCode();
 			// syncheck.preprocessCode();
 			// File f = new File(
@@ -105,7 +111,8 @@ public class ErrorCheckerService implements Runnable {
 					classLoader);
 			CompilationCheckerInterface compCheck = (CompilationCheckerInterface) checkerClass
 					.newInstance();
-			compCheck.getErrors("HelloPeasy", syncheck.preprocessCode());
+			System.out.println(compCheck.getErrors("HelloPeasy",
+					syncheck.preprocessCode())[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -135,33 +142,37 @@ public class ErrorCheckerService implements Runnable {
 	/**
 	 * Initialiazes the Error Window from Syntax Checker Service
 	 */
-	private void initializeErrorWindow() {
+	public void initializeErrorWindow() {
 		if (editor == null)
 			return;
+		final ErrorCheckerService thisService = this;
 		if (errorWindow == null) {
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			// EventQueue.invokeLater(new Runnable() {
+			// public void run() {
+			// try {
+			errorWindow = new ErrorWindow(editor, thisService);
+			errorWindow.setVisible(true);
+			System.out.println("EW Init");
+			// } catch (Exception e) {
+			// e.printStackTrace();
+			// }
+			// }
+			// });
 			try {
-				errorWindow = new ErrorWindow(editor, this);
-				errorWindow.setVisible(true);
-				if (editor != null) {
-					errorWindow.setTitle("Problems - "
-							+ editor.getSketch().getName() + " "
-							+ slashAnimation[slashAnimationIndex]);
-				}
+
+				// if (editor != null) {
+				// errorWindow.setTitle("Problems - "
+				// + editor.getSketch().getName() + " "
+				// + slashAnimation[slashAnimationIndex]);
+				// }
 				// One thread sleeps while other continues running - the
 				// troubles of multithreading. Sigh, no more NPEs.
-				Thread.sleep(500);
+				System.out.println("Sleep 1");
+				// Thread.sleep(500);
+				System.out.println("Sleep 2");
 				errorBar.errorWindow = errorWindow;
-			} catch (InterruptedException e1) {
-
+			} catch (Exception e1) {
+				System.out.println("Stuck Here.");
 				e1.printStackTrace();
 			}
 			if (editor == null) {
@@ -171,6 +182,17 @@ public class ErrorCheckerService implements Runnable {
 						.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			}
 		}
+	}
+
+	public void showClassPath() {
+		String cp = System.getProperty("java.class.path");
+		System.out.println("------Classpath------");
+		String cps[] = PApplet.split(cp, ';');
+		for (int i = 0; i < cps.length; i++) {
+			System.out.println(cps[i]);
+		}
+		System.out.println("---------------------");
+		// System.out.println(cp);
 	}
 
 	/**
@@ -244,6 +266,7 @@ public class ErrorCheckerService implements Runnable {
 				compileCheck();
 				compileCheck = true;
 			}
+			// showClassPath();
 			if (editor != null) {
 				setErrorTable();
 				errorBar.updateErrorPoints(errorWindow.problemList);
@@ -289,24 +312,24 @@ public class ErrorCheckerService implements Runnable {
 			// javaLibraryPath = "";
 		}
 
-		String[] sizeInfo;
-		try {
-			sizeInfo = preprocessor.initSketchSize(editor.getSketch()
-					.getCode(0).getProgram(), false);
-			if (sizeInfo != null) {
-				String sketchRenderer = sizeInfo[3];
-				if (sketchRenderer != null) {
-					if (sketchRenderer.equals("P2D")
-							|| sketchRenderer.equals("P3D")
-							|| sketchRenderer.equals("OPENGL")) {
-						rawCode.insert(0, "import processing.opengl.*; ");
-					}
-				}
-			}
-
-		} catch (SketchException e) {
-			System.err.println(e);
-		}
+		// String[] sizeInfo;
+		// try {
+		// sizeInfo = preprocessor.initSketchSize(editor.getSketch()
+		// .getCode(0).getProgram(), false);
+		// if (sizeInfo != null) {
+		// String sketchRenderer = sizeInfo[3];
+		// if (sketchRenderer != null) {
+		// if (sketchRenderer.equals("P2D")
+		// || sketchRenderer.equals("P3D")
+		// || sketchRenderer.equals("OPENGL")) {
+		// rawCode.insert(0, "import processing.opengl.*; ");
+		// }
+		// }
+		// }
+		//
+		// } catch (SketchException e) {
+		// System.err.println(e);
+		// }
 		// PdePreprocessor.parseSketchSize(sketch.getMainProgram(), false);
 		StringWriter writer = new StringWriter();
 		try {
@@ -324,7 +347,7 @@ public class ErrorCheckerService implements Runnable {
 			lines += 3;
 			// System.out.println("Lines: " + lines);
 			mainClassOffset = lines;
-			// System.out.println(writer.getBuffer().toString()
+			// System.out.println(writer.getBuffer().toString());
 			// + "P5 preproc.\n--"
 			// + (System.currentTimeMillis() - lastTimeStamp));
 			// System.out.println("Result: " + result.extraImports);
@@ -347,13 +370,21 @@ public class ErrorCheckerService implements Runnable {
 			// File f = new File(
 			// "resources/CompilationCheckerClasses");
 			// System.out.println(1);
-			File f = new File(
-					"E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
+			// File f = new File(
+			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
+			File f = new File(editor.getBase().getSketchbookFolder()
+					.getAbsolutePath()
+					+ File.separator
+					+ "modes"
+					+ File.separator
+					+ "XQMode"
+					+ File.separator + "CompilationCheckerClasses");
 			classpath = new URL[classpathJars.size() + 1];
 			for (int i = 0; i < classpathJars.size(); i++) {
 				classpath[i] = classpathJars.get(i);
+				// System.out.println(classpathJars.get(i));
 			}
-
+			// System.out.println("---------" + classpath.length);
 			classpath[classpath.length - 1] = f.toURI().toURL();
 
 			// System.out.println("-- " + classpath.length);
@@ -402,7 +433,7 @@ public class ErrorCheckerService implements Runnable {
 			// + prob.length);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			System.err.println("Compilecheck Problem. " + e);
 		}
 		// System.out.println("Compilecheck, Done.");
@@ -656,18 +687,19 @@ public class ErrorCheckerService implements Runnable {
 			basicMode = false;
 			mainClassOffset = 1;
 		}
-		// TODO: Convert non ascii characters
+
+		// Handle unicode characters
 		sourceAlt = substituteUnicode(sourceAlt);
 
 		// Add imports back at the top
-		int importOffset = programImports.size() + defaultImports.length;
-		mainClassOffset += importOffset;
-		for (int i = programImports.size() - 1; i >= 0; i--) {
-			sourceAlt = programImports.get(i) + "\n" + sourceAlt;
-		}
-		for (int i = defaultImports.length - 1; i >= 0; i--) {
-			sourceAlt = defaultImports[i] + "\n" + sourceAlt;
-		}
+		// int importOffset = programImports.size() + defaultImports.length;
+		// mainClassOffset += importOffset;
+		// for (int i = programImports.size() - 1; i >= 0; i--) {
+		// sourceAlt = programImports.get(i) + "\n" + sourceAlt;
+		// }
+		// for (int i = defaultImports.length - 1; i >= 0; i--) {
+		// sourceAlt = defaultImports[i] + "\n" + sourceAlt;
+		// }
 
 		// System.out.println("-->\n" + sourceAlt + "\n<--");
 		// System.out.println("PDE code processed - "
@@ -685,7 +717,7 @@ public class ErrorCheckerService implements Runnable {
 			entry = (dot == -1) ? item : item.substring(0, dot);
 
 			// entry = entry.substring(6).trim();
-			// System.out.println(entry);
+			// System.out.println("Entry--" + entry);
 			if (ignorableImport(entry)) {
 				System.out.println("Ignoring: " + entry);
 				continue;
@@ -693,11 +725,12 @@ public class ErrorCheckerService implements Runnable {
 			Library library = null;
 			try {
 				library = editor.getMode().getLibrary(entry);
+				System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
-						.substring(1).trim(), ';');
+						.substring(1).trim(), (Base.isWindows() ? ';' : ':'));
 				// TODO: Investigate the jar path added twice issue here
 				for (int i = 0; i < libraryPath.length / 2; i++) {
-					// System.out.println(new
+					// System.out.println(entry+" ::"+new
 					// File(libraryPath[i]).toURI().toURL());
 					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
 				}
@@ -707,8 +740,9 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println("  found ");
 				// System.out.println(library.getClassPath().substring(1));
 			} catch (Exception e) {
-				if(library == null){
-					System.err.println("XQMODE: Yikes! Can't find \"" + entry + "\" library!");
+				if (library == null) {
+					System.err.println("XQMODE: Yikes! Can't find \"" + entry
+							+ "\" library!");
 					return;
 				}
 				System.out.println("Yikes!" + e);
@@ -720,6 +754,12 @@ public class ErrorCheckerService implements Runnable {
 
 	}
 
+	/**
+	 * Ignore processing packages, java.*.*. etc.
+	 * 
+	 * @param packageName
+	 * @return boolean
+	 */
 	private boolean ignorableImport(String packageName) {
 		if (packageName.startsWith("processing.")
 				|| packageName.startsWith("java.")) {
@@ -861,6 +901,15 @@ public class ErrorCheckerService implements Runnable {
 		return offset;
 	}
 
+	/**
+	 * Replaces non-ascii characters with their unicode escape sequences and
+	 * stuff. Used as it is from
+	 * processing.src.processing.mode.java.preproc.PdePreprocessor
+	 * 
+	 * @param program
+	 *            - Input String containing non ascii characters
+	 * @return String - Converted String
+	 */
 	public static String substituteUnicode(String program) {
 		// check for non-ascii chars (these will be/must be in unicode format)
 		char p[] = program.toCharArray();

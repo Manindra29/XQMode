@@ -6,6 +6,8 @@ O - to be pwned, X - pwned
 General
 -------
 
+O - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
+O - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10). I. Hate. Mac.
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex) To be done after compilation check is 
 	complete.
@@ -49,7 +51,7 @@ O - Create a list of ignorable warnings - Discuss with Dan
 O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
 X - Ignore processing of java.* imports.
 O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?	
-O - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
+X - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
 
 Error Window
 ------------

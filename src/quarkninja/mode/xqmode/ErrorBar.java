@@ -16,17 +16,16 @@ import processing.app.Base;
 import processing.app.SketchCode;
 
 /**
- * The bar on the left of the text area whih displays all errors as dots. <br>
+ * The bar on the left of the text area whih displays all errors as rectangles. <br>
  * <br>
- * Current idea: All errors of a sketch are drawn on the bar, clikcing on one,
- * scrolls to the tab and location. Red dot not in sync with the error line.
- * Similar to eclipse's right error bar which displays the overall errors in a
- * document
+ * Current idea: All errors and warnings of a sketch are drawn on the bar,
+ * clikcing on one, scrolls to the tab and location. Error messages displayed on
+ * hover. Markers are not in sync with the error line. Similar to eclipse's
+ * right error bar which displays the overall errors in a document
  * 
  * @author Manindra Moharana
  * 
  */
-@SuppressWarnings("serial")
 public class ErrorBar extends JPanel {
 	public int height;
 	public final int errorMarkerHeight = 4;
@@ -36,10 +35,9 @@ public class ErrorBar extends JPanel {
 	XQEditor editor;
 	public ErrorWindow errorWindow;
 	Color errorStatus = Color.GREEN;
-	
+
 	/**
-	 * Stores the Y co-ordinates of the errors along the error bar. X
-	 * co-ordinate of all points is fixed.
+	 * Stores error markers displayed along the error bar.
 	 */
 	ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
 
@@ -77,6 +75,12 @@ public class ErrorBar extends JPanel {
 		addListeners();
 	}
 
+	/**
+	 * Update error markers in te error bar.
+	 * 
+	 * @param problems
+	 *            - List of problems.
+	 */
 	public void updateErrorPoints(ArrayList<Problem> problems) {
 
 		int bigCount = 0;
@@ -125,6 +129,9 @@ public class ErrorBar extends JPanel {
 		repaint();
 	}
 
+	/**
+	 * Add various mouse listeners.
+	 */
 	private void addListeners() {
 
 		this.addMouseListener(new MouseAdapter() {
@@ -203,6 +210,12 @@ public class ErrorBar extends JPanel {
 
 	}
 
+	/**
+	 * Error markers displayed on the Error Bar.
+	 * 
+	 * @author Manindra Moharana
+	 * 
+	 */
 	private class ErrorMarker {
 		public int y;
 		public int type = -1;
