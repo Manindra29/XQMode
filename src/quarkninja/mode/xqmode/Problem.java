@@ -20,4 +20,9 @@ public class Problem {
 		this.tabIndex = tabIndex;
 		this.lineNumber = lineNumber;
 	}
+
+	public String display() {
+		return new String("Tab" + tabIndex + ",LN" + lineNumber + "PROB:"
+				+ iProblem.getMessage());
+	}
 }

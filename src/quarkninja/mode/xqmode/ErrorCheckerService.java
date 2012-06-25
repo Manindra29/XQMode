@@ -1,6 +1,5 @@
 package quarkninja.mode.xqmode;
 
-import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,7 +67,7 @@ public class ErrorCheckerService implements Runnable {
 	public boolean compileCheck;
 	private StringBuffer rawCode;
 	private int scPreProcOffset = 0;
-
+	public ArrayList<Problem> probList;
 	/**
 	 * How many lines are present till the initial class declaration? In basic
 	 * mode, this would include imports, class declaration and setup
@@ -170,7 +169,7 @@ public class ErrorCheckerService implements Runnable {
 				System.out.println("Sleep 1");
 				// Thread.sleep(500);
 				System.out.println("Sleep 2");
-				errorBar.errorWindow = errorWindow;
+				// errorBar.errorWindow = errorWindow;
 			} catch (Exception e1) {
 				System.out.println("Stuck Here.");
 				e1.printStackTrace();
@@ -229,15 +228,25 @@ public class ErrorCheckerService implements Runnable {
 
 			// Store errors returned by the ast parser
 			problems = cu.getProblems();
-
+			if (problems.length > 0)
+				System.out.println("Syntax error count: " + problems.length);
+			probList = new ArrayList<Problem>();
+//			errorWindow.problemList.clear();
+			for (int i = 0; i < problems.length; i++) {
+				int a[] = calculateTabIndexAndLineNumber(problems[i]);
+				probList.add(new Problem(problems[i], a[0], a[1]));
+//				errorWindow.problemList
+//						.add(new Problem(problems[i], a[0], a[1]));
+			}
 			// Populate the error list of error window
 			if (errorWindow != null) {
 				// errorWindow.problemList = cu.getProblems();
-				errorWindow.problemList.clear();
+				// errorWindow.problemList.clear();
 				for (int i = 0; i < problems.length; i++) {
-					int a[] = calculateTabIndexAndLineNumber(problems[i]);
-					errorWindow.problemList.add(new Problem(problems[i], a[0],
-							a[1]));
+					// int a[] = calculateTabIndexAndLineNumber(problems[i]);
+					// errorWindow.problemList.add(new Problem(problems[i],
+					// a[0],
+					// a[1]));
 					// System.out.println(editor.getSketch()
 					// .getCode(a)
 					// .getPrettyName()
@@ -264,12 +273,17 @@ public class ErrorCheckerService implements Runnable {
 				// .println("No syntax errors. Let the compilation begin!");
 				sourceCode = preProcessP5style();
 				compileCheck();
+				if (problems.length > 0)
+					System.out.print("Compile error count: " + problems.length
+							+ "---"
+							+ (System.currentTimeMillis() - lastTimeStamp)
+							+ "ms || ");
 				compileCheck = true;
 			}
 			// showClassPath();
 			if (editor != null) {
-				setErrorTable();
-				errorBar.updateErrorPoints(errorWindow.problemList);
+//				setErrorTable();
+				errorBar.updateErrorPoints(probList);
 				return true;
 			}
 		} catch (Exception e) {
@@ -426,7 +440,8 @@ public class ErrorCheckerService implements Runnable {
 				// }
 				// System.out.println(msg);
 				int a[] = calculateTabIndexAndLineNumber(problem);
-				errorWindow.problemList.add(new Problem(problem, a[0], a[1]));
+				probList.add(new Problem(problem, a[0], a[1]));
+//				errorWindow.problemList.add(new Problem(problem, a[0], a[1]));
 			}
 			// System.out.println("Total warnings: " + warningCount
 			// + ", Total errors: " + errorCount + " , Len: "
@@ -505,7 +520,7 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	@Override
 	public void run() {
-		initializeErrorWindow();
+//		initializeErrorWindow();
 		stopThread = false;
 		while (!stopThread) {
 
@@ -719,13 +734,13 @@ public class ErrorCheckerService implements Runnable {
 			// entry = entry.substring(6).trim();
 			// System.out.println("Entry--" + entry);
 			if (ignorableImport(entry)) {
-				System.out.println("Ignoring: " + entry);
+				// System.out.println("Ignoring: " + entry);
 				continue;
 			}
 			Library library = null;
 			try {
 				library = editor.getMode().getLibrary(entry);
-				System.out.println("lib->" + library.getClassPath() + "<-");
+				// System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), (Base.isWindows() ? ';' : ':'));
 				// TODO: Investigate the jar path added twice issue here
@@ -762,7 +777,8 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	private boolean ignorableImport(String packageName) {
 		if (packageName.startsWith("processing.")
-				|| packageName.startsWith("java.")) {
+				|| packageName.startsWith("java.")
+				|| packageName.startsWith("javax.")) {
 			return true;
 		}
 		return false;
@@ -812,6 +828,28 @@ public class ErrorCheckerService implements Runnable {
 					+ (System.currentTimeMillis() - lastTimeStamp) + "ms";
 			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
 					+ " " + info);
+		}
+	}
+
+	public void scrollToErrorLine(int errorIndex) {
+		if (editor == null)
+			return;
+		if (errorIndex < probList.size() && errorIndex >= 0) {
+			// if (thisErrorWindow.hasFocus())
+			// return;
+
+			int offset1 = xyToOffset(
+					probList.get(errorIndex).iProblem.getSourceLineNumber(), 0);
+			int offset2 = xyToOffset(
+					probList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
+					0);
+
+			if (editor.getCaretOffset() != offset1) {
+				// System.out.println("offset unequal");
+				editor.toFront();
+				editor.setSelection(offset1, offset2 - 1);
+				// System.out.println("---");
+			}
 		}
 	}
 

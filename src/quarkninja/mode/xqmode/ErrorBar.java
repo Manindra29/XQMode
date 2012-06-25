@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 import processing.app.Base;
 import processing.app.SketchCode;
@@ -33,11 +34,12 @@ public class ErrorBar extends JPanel {
 	public final Color warningColor = new Color(0xFFC30E);
 
 	XQEditor editor;
-	public ErrorWindow errorWindow;
+	// public ErrorWindow errorWindow;
+	public ErrorCheckerService errorCheckerService;
 	Color errorStatus = Color.GREEN;
 
 	/**
-	 * Stores error markers displayed along the error bar.
+	 * Stores error markers displayed PER TAB along the error bar.
 	 */
 	ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
 
@@ -76,12 +78,15 @@ public class ErrorBar extends JPanel {
 	}
 
 	/**
-	 * Update error markers in te error bar.
+	 * Update error markers in the error bar.
 	 * 
 	 * @param problems
 	 *            - List of problems.
 	 */
 	public void updateErrorPoints(ArrayList<Problem> problems) {
+
+		// NOTE TO SELF: ErrorMarkers are calculated for the present tab only
+		// Error Marker index in the arraylist is LOCALIZED for current tab.
 
 		int bigCount = 0;
 		int totalLines = 0;
@@ -117,8 +122,9 @@ public class ErrorBar extends JPanel {
 				float y = problem.lineNumber / ((float) totalLines);
 				// Ratio multiplied by height of the error bar
 				y *= this.getHeight() - 15;
-				errorPoints.add(new ErrorMarker((int) y, problem.iProblem
-						.isError() ? ErrorMarker.Error : ErrorMarker.Warning));
+				errorPoints.add(new ErrorMarker(problem, (int) y,
+						problem.iProblem.isError() ? ErrorMarker.Error
+								: ErrorMarker.Warning));
 				// System.out.println("Y: " + y);
 			}
 		}
@@ -135,72 +141,116 @@ public class ErrorBar extends JPanel {
 	private void addListeners() {
 
 		this.addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("rawtypes")
 			@Override
-			synchronized public void mouseClicked(MouseEvent e) {
-				for (ErrorMarker eMarker : errorPoints) {
-					if (e.getY() >= eMarker.y
-							&& e.getY() <= eMarker.y + errorMarkerHeight) {
-						// System.out.println("Index: " +
-						// errorPoints.indexOf(y));
-						int currentTab = editor.getSketch().getCodeIndex(
-								editor.getSketch().getCurrentCode());
-						int currentTabErrorCount = 0;
+			public void mouseClicked(final MouseEvent e) {
+				SwingWorker worker = new SwingWorker() {
 
-						for (int i = 0; i < errorWindow.problemList.size(); i++) {
-							Problem p = errorWindow.problemList.get(i);
-							if (p.tabIndex == currentTab) {
-								if (currentTabErrorCount == errorPoints
-										.indexOf(eMarker)) {
-									// System.out.println("Roger that.");
-									errorWindow.scrollToErrorLine(i);
-									return;
-								} else {
-									currentTabErrorCount++;
-									// System.out.println("Still looking..");
-								}
-							}
-
-						}
+					protected Object doInBackground() throws Exception {
+						return null;
 					}
+
+					protected void done() {
+						for (ErrorMarker eMarker : errorPoints) {
+							if (e.getY() >= eMarker.y
+									&& e.getY() <= eMarker.y
+											+ errorMarkerHeight) {
+								int currentTabErrorIndex = errorPoints
+										.indexOf(eMarker);
+								// System.out.println("Index: " +
+								// currentTabErrorIndex);
+								int currentTab = editor.getSketch()
+										.getCodeIndex(
+												editor.getSketch()
+														.getCurrentCode());
+
+								int totalErrorIndex = currentTabErrorIndex;
+								for (int i = 0; i < errorCheckerService.probList
+										.size(); i++) {
+									Problem p = errorCheckerService.probList
+											.get(i);
+									if (p.tabIndex < currentTab)
+										totalErrorIndex++;
+									if (p.tabIndex == currentTab)
+										break;
+								}
+								errorCheckerService
+										.scrollToErrorLine(totalErrorIndex);
+							}
+						}
+
+					}
+				};
+				try {
+					worker.execute();
+				} catch (Exception exp) {
+					System.out.println("Errorbar mouseclicked is slacking."
+							+ exp.getMessage());
+					// e.printStackTrace();
 				}
+
 			}
 		});
 
 		this.addMouseMotionListener(new MouseMotionListener() {
 
+			@SuppressWarnings("rawtypes")
 			@Override
-			public void mouseMoved(MouseEvent e) {
+			public void mouseMoved(final MouseEvent e) {
 				// System.out.println(e);
-				for (ErrorMarker eMarker : errorPoints) {
-					if (e.getY() >= eMarker.y
-							&& e.getY() <= eMarker.y + errorMarkerHeight) {
-						// System.out.println("Index: " +
-						// errorPoints.indexOf(y));
-						int currentTab = editor.getSketch().getCodeIndex(
-								editor.getSketch().getCurrentCode());
-						int currentTabErrorCount = 0;
+				SwingWorker worker = new SwingWorker() {
 
-						for (int i = 0; i < errorWindow.problemList.size(); i++) {
-							Problem p = errorWindow.problemList.get(i);
-							if (p.tabIndex == currentTab) {
-								if (currentTabErrorCount == errorPoints
-										.indexOf(eMarker)) {
-									// System.out.println("Roger that.");
-									String msg = (p.iProblem.isError() ? "Error: "
-											: "Warning: ")
-											+ p.iProblem.getMessage();
-									setToolTipText(msg);
+					protected Object doInBackground() throws Exception {
+						return null;
+					}
 
-									return;
-								} else {
-									currentTabErrorCount++;
-									// System.out.println("Still looking..");
+					protected void done() {
+
+						for (ErrorMarker eMarker : errorPoints) {
+							if (e.getY() >= eMarker.y
+									&& e.getY() <= eMarker.y
+											+ errorMarkerHeight) {
+								// System.out.println("Index: " +
+								// errorPoints.indexOf(y));
+								int currentTab = editor.getSketch()
+										.getCodeIndex(
+												editor.getSketch()
+														.getCurrentCode());
+								int currentTabErrorCount = 0;
+
+								for (int i = 0; i < errorPoints.size(); i++) {
+									Problem p = errorPoints.get(i).problem;
+									if (p.tabIndex == currentTab) {
+										if (currentTabErrorCount == errorPoints
+												.indexOf(eMarker)) {
+											// System.out.println("Roger that.");
+											String msg = (p.iProblem.isError() ? "Error: "
+													: "Warning: ")
+													+ p.iProblem.getMessage();
+											setToolTipText(msg);
+
+											return;
+										} else {
+											currentTabErrorCount++;
+											// System.out.println("Still looking..");
+										}
+									}
+
 								}
 							}
-
 						}
+
 					}
+				};
+				try {
+					worker.execute();
+				} catch (Exception exp) {
+					System.out
+							.println("Errorbar mousemoved Worker is slacking."
+									+ exp.getMessage());
+					// e.printStackTrace();
 				}
+
 			}
 
 			@Override
@@ -221,8 +271,10 @@ public class ErrorBar extends JPanel {
 		public int type = -1;
 		public static final int Error = 1;
 		public static final int Warning = 2;
+		public Problem problem;
 
-		public ErrorMarker(int y, int type) {
+		public ErrorMarker(Problem problem, int y, int type) {
+			this.problem = problem;
 			this.y = y;
 			this.type = type;
 		}

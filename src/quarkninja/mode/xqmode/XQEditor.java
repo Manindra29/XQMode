@@ -6,6 +6,7 @@ import java.awt.event.WindowListener;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 import processing.app.Base;
 import processing.app.EditorState;
@@ -23,30 +24,60 @@ public class XQEditor extends JavaEditor {
 	XQMode xqmode;
 	protected Thread syntaxCheckerThread = null;
 	protected ErrorWindow errorWindow;
-	protected ErrorCheckerService synCheck;
+	protected ErrorCheckerService errorChecker;
 	protected ErrorBar errorBar;
 
-	protected XQEditor(Base base, String path, EditorState state, Mode mode) {
+	@SuppressWarnings("rawtypes")
+	protected XQEditor(Base base, String path, EditorState state,
+			final Mode mode) {
 		super(base, path, state, mode);
+		final XQEditor thisEditor = this;
 		xqmode = (XQMode) mode;
-		System.out.println("Editor initialized.");
-		errorBar = new ErrorBar(this, textarea.getMinimumSize().height);
+		errorBar = new ErrorBar(thisEditor,
+				textarea.getMinimumSize().height);
 		initializeSyntaxChecker();
-
+		
 		// - Start
+		
+		errorBar.errorCheckerService = errorChecker;
 		JPanel textAndError = new JPanel();
 		Box box = (Box) textarea.getParent();
 		box.remove(2); // Remove textArea from it's container, i.e Box
 		textAndError.setLayout(new BorderLayout());
 		textAndError.add(errorBar, BorderLayout.EAST);
-		textarea.setBounds(0, 0, errorBar.getX() - 1, textarea.getHeight());
+		textarea.setBounds(0, 0, errorBar.getX() - 1,
+				textarea.getHeight());
 		textAndError.add(textarea);
 		box.add(textAndError);
 		// - End
 		
+		SwingWorker worker = new SwingWorker() {
+
+			protected Object doInBackground() throws Exception {
+				return null;
+			}
+
+			protected void done() {
+				
+				System.out.println("Editor initialized.");
+				
+				
+
+				
+			}
+		};
+		try {
+			worker.execute();
+		} catch (Exception e) {
+			System.out.println("Editor's Worker is slacking." + e.getMessage());
+			// e.printStackTrace();
+		}
+
+		
+
 		// textarea.setBounds(errorBar.getX() + errorBar.getWidth(),
 		// errorBar.getY(), textarea.getWidth(), textarea.getHeight());
-		
+
 		// for (int i = 0; i < consolePanel.getComponentCount(); i++) {
 		// System.out.println("Console: " + consolePanel.getComponent(i));
 		// }
@@ -56,7 +87,7 @@ public class XQEditor extends JavaEditor {
 		// { "Extra  )", "15" },{ "Missing semicolon", "34" } },
 		// new String[] { "A", "B" });
 		// consolePanel.add(table);
-		
+
 	}
 
 	/**
@@ -64,10 +95,10 @@ public class XQEditor extends JavaEditor {
 	 */
 	private void initializeSyntaxChecker() {
 		if (syntaxCheckerThread == null) {
-			synCheck = new ErrorCheckerService(errorWindow, errorBar);
-			synCheck.editor = this;
-			
-			syntaxCheckerThread = new Thread(synCheck);
+			errorChecker = new ErrorCheckerService(errorWindow, errorBar);
+			errorChecker.editor = this;
+//			synCheck.initializeErrorWindow();
+			syntaxCheckerThread = new Thread(errorChecker);
 			try {
 				syntaxCheckerThread.start();
 			} catch (Exception e) {
@@ -100,7 +131,7 @@ public class XQEditor extends JavaEditor {
 
 				@Override
 				public void windowClosed(WindowEvent arg0) {
-					synCheck.stopThread(); // Bye bye thread.
+					errorChecker.stopThread(); // Bye bye thread.
 				}
 
 				@Override
