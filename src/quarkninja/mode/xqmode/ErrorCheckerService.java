@@ -1,5 +1,6 @@
 package quarkninja.mode.xqmode;
 
+import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,7 +68,7 @@ public class ErrorCheckerService implements Runnable {
 	public boolean compileCheck;
 	private StringBuffer rawCode;
 	private int scPreProcOffset = 0;
-	public ArrayList<Problem> probList;
+	public ArrayList<Problem> problemsList;
 	/**
 	 * How many lines are present till the initial class declaration? In basic
 	 * mode, this would include imports, class declaration and setup
@@ -128,9 +129,9 @@ public class ErrorCheckerService implements Runnable {
 		initializeErrorWindow();
 	}
 
-	public ErrorCheckerService(ErrorWindow erw, ErrorBar erb) {
+	public ErrorCheckerService(Editor editor, ErrorBar erb) {
 		parser = ASTParser.newParser(AST.JLS4);
-		this.errorWindow = erw;
+		this.editor = editor;
 		this.errorBar = erb;
 	}
 
@@ -144,43 +145,52 @@ public class ErrorCheckerService implements Runnable {
 	public void initializeErrorWindow() {
 		if (editor == null)
 			return;
+		if (errorWindow != null)
+			return;
 		final ErrorCheckerService thisService = this;
-		if (errorWindow == null) {
-			// EventQueue.invokeLater(new Runnable() {
-			// public void run() {
-			// try {
-			errorWindow = new ErrorWindow(editor, thisService);
-			errorWindow.setVisible(true);
-			System.out.println("EW Init");
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// }
-			// });
-			try {
+		final Editor thisEditor = editor;
+		// if (errorWindow == null) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					errorWindow = new ErrorWindow(thisEditor, thisService);
+					errorWindow.setVisible(true);
+					// System.out.println("EW Init");
+					if (editor == null) {
+						errorWindow
+								.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					} else {
+						errorWindow
+								.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+					}
+					System.out.println("XQMode v0.1 alpha");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 
-				// if (editor != null) {
-				// errorWindow.setTitle("Problems - "
-				// + editor.getSketch().getName() + " "
-				// + slashAnimation[slashAnimationIndex]);
-				// }
-				// One thread sleeps while other continues running - the
-				// troubles of multithreading. Sigh, no more NPEs.
-				System.out.println("Sleep 1");
-				// Thread.sleep(500);
-				System.out.println("Sleep 2");
-				// errorBar.errorWindow = errorWindow;
-			} catch (Exception e1) {
-				System.out.println("Stuck Here.");
-				e1.printStackTrace();
-			}
-			if (editor == null) {
-				errorWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			} else {
-				errorWindow
-						.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			}
+		// }
+		// });
+		try {
+
+			// if (editor != null) {
+			// errorWindow.setTitle("Problems - "
+			// + editor.getSketch().getName() + " "
+			// + slashAnimation[slashAnimationIndex]);
+			// }
+			// One thread sleeps while other continues running - the
+			// troubles of multithreading. Sigh, no more NPEs.
+			// System.out.println("Sleep 1");
+			// Thread.sleep(500);
+			//
+			// System.out.println("Sleep 2");
+			// errorBar.errorWindow = errorWindow;
+		} catch (Exception e1) {
+			System.out.println("Stuck Here.");
+			e1.printStackTrace();
 		}
+
 	}
 
 	public void showClassPath() {
@@ -228,32 +238,18 @@ public class ErrorCheckerService implements Runnable {
 
 			// Store errors returned by the ast parser
 			problems = cu.getProblems();
-			if (problems.length > 0)
-				System.out.println("Syntax error count: " + problems.length);
-			probList = new ArrayList<Problem>();
-//			errorWindow.problemList.clear();
+			// if (problems.length > 0)
+			// System.out.println("Syntax error count: " + problems.length
+			// + "---" + (System.currentTimeMillis() - lastTimeStamp)
+			// + "ms || ");
+
+			// // Populate the probList
+			problemsList = new ArrayList<Problem>();
 			for (int i = 0; i < problems.length; i++) {
 				int a[] = calculateTabIndexAndLineNumber(problems[i]);
-				probList.add(new Problem(problems[i], a[0], a[1]));
-//				errorWindow.problemList
-//						.add(new Problem(problems[i], a[0], a[1]));
+				problemsList.add(new Problem(problems[i], a[0], a[1]));
 			}
-			// Populate the error list of error window
-			if (errorWindow != null) {
-				// errorWindow.problemList = cu.getProblems();
-				// errorWindow.problemList.clear();
-				for (int i = 0; i < problems.length; i++) {
-					// int a[] = calculateTabIndexAndLineNumber(problems[i]);
-					// errorWindow.problemList.add(new Problem(problems[i],
-					// a[0],
-					// a[1]));
-					// System.out.println(editor.getSketch()
-					// .getCode(a)
-					// .getPrettyName()
-					// + "-> " + problems[i].getSourceLineNumber());
 
-				}
-			}
 			// if (editor == null) {
 			// if (problems.length == 0)
 			// System.out.println("No syntax errors.");
@@ -273,17 +269,17 @@ public class ErrorCheckerService implements Runnable {
 				// .println("No syntax errors. Let the compilation begin!");
 				sourceCode = preProcessP5style();
 				compileCheck();
-				if (problems.length > 0)
-					System.out.print("Compile error count: " + problems.length
-							+ "---"
-							+ (System.currentTimeMillis() - lastTimeStamp)
-							+ "ms || ");
+				// if (problems.length > 0)
+				// System.out.print("Compile error count: " + problems.length
+				// + "---"
+				// + (System.currentTimeMillis() - lastTimeStamp)
+				// + "ms || ");
 				compileCheck = true;
 			}
 			// showClassPath();
 			if (editor != null) {
-//				setErrorTable();
-				errorBar.updateErrorPoints(probList);
+				updateErrorTable();
+				errorBar.updateErrorPoints(problemsList);
 				return true;
 			}
 		} catch (Exception e) {
@@ -426,6 +422,9 @@ public class ErrorCheckerService implements Runnable {
 						|| problem.getID() == IProblem.MissingSerialVersion)
 					continue;
 				problems[k++] = problem;
+				int a[] = calculateTabIndexAndLineNumber(problem);
+				problemsList.add(new Problem(problem, a[0], a[1]));
+
 				// StringBuffer buffer = new StringBuffer();
 				// buffer.append(problem.getMessage());
 				// buffer.append(" | line: ");
@@ -439,10 +438,8 @@ public class ErrorCheckerService implements Runnable {
 				// warningCount++;
 				// }
 				// System.out.println(msg);
-				int a[] = calculateTabIndexAndLineNumber(problem);
-				probList.add(new Problem(problem, a[0], a[1]));
-//				errorWindow.problemList.add(new Problem(problem, a[0], a[1]));
 			}
+
 			// System.out.println("Total warnings: " + warningCount
 			// + ", Total errors: " + errorCount + " , Len: "
 			// + prob.length);
@@ -452,7 +449,6 @@ public class ErrorCheckerService implements Runnable {
 			System.err.println("Compilecheck Problem. " + e);
 		}
 		// System.out.println("Compilecheck, Done.");
-		// stopThread();
 	}
 
 	/**
@@ -520,13 +516,13 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	@Override
 	public void run() {
-//		initializeErrorWindow();
+		// initializeErrorWindow();
 		stopThread = false;
 		while (!stopThread) {
 
 			try {
 				checkCode();
-				// Check every 2 seconds
+				// Check every x seconds
 				Thread.sleep(sleepTime);
 			} catch (Exception e) {
 				System.out.println("Oops! [SyntaxCheckerThreaded]: " + e);
@@ -706,16 +702,6 @@ public class ErrorCheckerService implements Runnable {
 		// Handle unicode characters
 		sourceAlt = substituteUnicode(sourceAlt);
 
-		// Add imports back at the top
-		// int importOffset = programImports.size() + defaultImports.length;
-		// mainClassOffset += importOffset;
-		// for (int i = programImports.size() - 1; i >= 0; i--) {
-		// sourceAlt = programImports.get(i) + "\n" + sourceAlt;
-		// }
-		// for (int i = defaultImports.length - 1; i >= 0; i--) {
-		// sourceAlt = defaultImports[i] + "\n" + sourceAlt;
-		// }
-
 		// System.out.println("-->\n" + sourceAlt + "\n<--");
 		// System.out.println("PDE code processed - "
 		// + editor.getSketch().getName());
@@ -785,63 +771,61 @@ public class ErrorCheckerService implements Runnable {
 	}
 
 	/**
-	 * Sets the error table in the Error Window
+	 * Updates the error table in the Error Window. And Crashes PDE on OS X.
+	 * Sad. Frustrating! Issue Solved! :D
 	 */
-	private void setErrorTable() {
+	public void updateErrorTable() {
+
 		try {
-			String[][] errorData = new String[problems.length][3];
+			String[][] errorData = new String[problemsList.size()][3];
 			for (int i = 0; i < problems.length; i++) {
-				// System.out
-				// .print(errorWindow.problemList.get(i).tabIndex + ", ");
-				errorData[i][0] = problems[i].getMessage(); // Make this message
-															// more natural.
+				// TODO: Make this message more natural.
+				errorData[i][0] = problemsList.get(i).iProblem.getMessage();
 				errorData[i][1] = editor.getSketch()
-						.getCode(errorWindow.problemList.get(i).tabIndex)
-						.getPrettyName();
-				errorData[i][2] = errorWindow.problemList.get(i).lineNumber
-						+ "";
-
-				// (problems[i].getSourceLineNumber() - mainClassOffset)
-				// + "";
+						.getCode(problemsList.get(i).tabIndex).getPrettyName();
+				errorData[i][2] = problemsList.get(i).lineNumber + "";
 			}
-			// System.out.println();
-			DefaultTableModel tm = new DefaultTableModel(errorData,
-					ErrorWindow.columnNames);
-			errorWindow.updateTable(tm);
 
-		} catch (ArrayIndexOutOfBoundsException e) {
-			System.err.println(e + " at setErrorTable()");
-			e.printStackTrace();
+			initializeErrorWindow();
+
+			if (errorWindow != null) {
+				DefaultTableModel tm = new DefaultTableModel(errorData,
+						ErrorWindow.columnNames);
+				errorWindow.updateTable(tm);
+
+				// A nifty rotating slash animation on the title bar to show
+				// that error checker thread is running
+
+				slashAnimationIndex++;
+				if (slashAnimationIndex == slashAnimation.length)
+					slashAnimationIndex = 0;
+				if (editor != null) {
+					String info = slashAnimation[slashAnimationIndex] + " T:"
+							+ (System.currentTimeMillis() - lastTimeStamp)
+							+ "ms";
+					errorWindow.setTitle("Problems - "
+							+ editor.getSketch().getName() + " " + info);
+				}
+			}
+
 		} catch (Exception e) {
-			System.out.println("Exception at setErrorTable() " + e);
+			System.out.println("Exception at updateErrorTable() " + e);
 			e.printStackTrace();
 			stopThread();
 		}
 
-		// A nifty rotating slash animation on the title bar to show that syntax
-		// checker thread is running
-		slashAnimationIndex++;
-		if (slashAnimationIndex == slashAnimation.length)
-			slashAnimationIndex = 0;
-		if (editor != null) {
-			String info = slashAnimation[slashAnimationIndex] + " T:"
-					+ (System.currentTimeMillis() - lastTimeStamp) + "ms";
-			errorWindow.setTitle("Problems - " + editor.getSketch().getName()
-					+ " " + info);
-		}
 	}
 
 	public void scrollToErrorLine(int errorIndex) {
 		if (editor == null)
 			return;
-		if (errorIndex < probList.size() && errorIndex >= 0) {
-			// if (thisErrorWindow.hasFocus())
-			// return;
+		if (errorIndex < problemsList.size() && errorIndex >= 0) {
 
 			int offset1 = xyToOffset(
-					probList.get(errorIndex).iProblem.getSourceLineNumber(), 0);
+					problemsList.get(errorIndex).iProblem.getSourceLineNumber(),
+					0);
 			int offset2 = xyToOffset(
-					probList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
+					problemsList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
 					0);
 
 			if (editor.getCaretOffset() != offset1) {

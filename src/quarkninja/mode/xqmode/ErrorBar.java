@@ -165,9 +165,9 @@ public class ErrorBar extends JPanel {
 														.getCurrentCode());
 
 								int totalErrorIndex = currentTabErrorIndex;
-								for (int i = 0; i < errorCheckerService.probList
+								for (int i = 0; i < errorCheckerService.problemsList
 										.size(); i++) {
-									Problem p = errorCheckerService.probList
+									Problem p = errorCheckerService.problemsList
 											.get(i);
 									if (p.tabIndex < currentTab)
 										totalErrorIndex++;

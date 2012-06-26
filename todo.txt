@@ -16,7 +16,7 @@ O - Eclipse like error bar on the right of the editor text area. More UI design 
 O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? 
 	Lag? Overhead on my Dell XPS is around 70-130 ms. 
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
-O - Class loading technique used in Mode Contribution - Investigate.
+X - Class loading technique used in Mode Contribution - Investigate.
 O - How to tackle bugs generated due to error line numbers that are outside the pde
 	code? Like adding a } to the end of the code, causes the parser to detect the
 	} added by the pre-processor as the error line. Current solution doesn't work as

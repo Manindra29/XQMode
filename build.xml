@@ -71,12 +71,16 @@
 		<property name="bundle" value="${dist}/${lib.name}" />
 		<mkdir dir="${bundle}" />
 		<mkdir dir="${bundle}/mode" />
-
+		
 		<jar jarfile="${bundle}/mode/${lib.name}.jar" basedir="build" />
 		<!--zip destfile="${dist}/mode/${lib.name}.jar" excludes="**/*.MF">
 		    <zipgroupfileset dir="lib" includes="*.jar" />
 		</zip-->
 
+		<copy todir="${bundle}/src">
+			<fileset dir="src/" />
+		</copy>
+		
 		<copy todir="${bundle}">
 			<fileset dir="resources/" />
 		</copy>

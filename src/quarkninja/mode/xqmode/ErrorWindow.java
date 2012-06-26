@@ -10,7 +10,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -47,17 +46,9 @@ public class ErrorWindow extends JFrame {
 	public Editor thisEditor;
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
-	public ErrorCheckerService syntaxCheckerService;
+	public ErrorCheckerService errorCheckerService;
 
 	public static final String[] columnNames = { "Problem", "Tab", "Line" };
-
-	/**
-	 * Stores all problems reported by Eclipse parser. Populated by Syntax
-	 * Checker Service. This stores IProblems inside the Problem wrapper class.
-	 * 
-	 * @see Problem
-	 */
-	public ArrayList<Problem> problemList;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -75,9 +66,8 @@ public class ErrorWindow extends JFrame {
 
 	public ErrorWindow(Editor editor, ErrorCheckerService syncheck) {
 		thisErrorWindow = this;
-		syntaxCheckerService = syncheck;
+		errorCheckerService = syncheck;
 		thisEditor = editor;
-		problemList = new ArrayList<Problem>();
 		setTitle("Problems");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -102,7 +92,7 @@ public class ErrorWindow extends JFrame {
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// TODO: Remove this later. For stopping syntax
 					// checker.
-					syntaxCheckerService.stopThread();
+					errorCheckerService.stopThread();
 					System.out.println("Syntax checker thread paused.");
 				}
 			}
@@ -176,7 +166,7 @@ public class ErrorWindow extends JFrame {
 	 * @return True - If error table was updated successfully.
 	 */
 	@SuppressWarnings("rawtypes")
-	public boolean updateTable(final TableModel tableModel) {
+	synchronized public boolean updateTable(final TableModel tableModel) {
 
 		/*
 		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
@@ -201,6 +191,9 @@ public class ErrorWindow extends JFrame {
 				errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 				errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
 				errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+				errorTable.validate();
+				errorTable.updateUI();
+				errorTable.repaint();
 				// errorTable.getModel()
 
 			}
@@ -208,7 +201,8 @@ public class ErrorWindow extends JFrame {
 		try {
 			worker.execute();
 		} catch (Exception e) {
-			System.out.println("Worker's slacking." + e.getMessage());
+			System.out.println("Errorwindow updateTable Worker's slacking."
+					+ e.getMessage());
 			// e.printStackTrace();
 		}
 		return true;
@@ -237,9 +231,10 @@ public class ErrorWindow extends JFrame {
 			 */
 			synchronized public void mouseReleased(MouseEvent e) {
 
-				syntaxCheckerService.scrollToErrorLine(errorTable.getSelectedRow());
-				System.out.print("Row clicked: "
-						+ (errorTable.getSelectedRow() + 1));
+				errorCheckerService.scrollToErrorLine(errorTable
+						.getSelectedRow());
+				// System.out.print("Row clicked: "
+				// + (errorTable.getSelectedRow() + 1));
 			}
 		});
 
