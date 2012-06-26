@@ -55,20 +55,45 @@ import antlr.TokenStreamException;
 public class ErrorCheckerService implements Runnable {
 
 	static public String PATH = "E:/TestStuff/HelloPeasy.java";
+	/**
+	 * Error check happens every sleepTime milliseconds
+	 */
 	public static final int sleepTime = 1000;
 
+	/**
+	 * The amazing eclipse ast parser
+	 */
 	private ASTParser parser;
 	public Editor editor;
+	/**
+	 * Used to indirectly stop the Error Checker Thread
+	 */
 	public boolean stopThread = false;
 	public ErrorWindow errorWindow;
 	public ErrorBar errorBar;
+	/**
+	 * IProblem[] returned by parser stored in here
+	 */
 	private IProblem[] problems;
 	public String className, sourceCode;
+	/**
+	 * URLs of extra imports jar files stored here.
+	 */
 	public URL[] classpath;
 	public boolean compileCheck;
+
+	/**
+	 * Code preprocessed by the custom preprocessor
+	 */
 	private StringBuffer rawCode;
+
 	private int scPreProcOffset = 0;
+
+	/**
+	 * Stores all Problems in the sketch
+	 */
 	public ArrayList<Problem> problemsList;
+
 	/**
 	 * How many lines are present till the initial class declaration? In basic
 	 * mode, this would include imports, class declaration and setup
@@ -76,7 +101,8 @@ public class ErrorCheckerService implements Runnable {
 	 * declaration only. It's fate is decided inside preprocessCode() }:)
 	 */
 	public int mainClassOffset;
-	public boolean basicMode = false;
+
+	public boolean staticMode = false;
 
 	// public static final String[] defaultImports = {
 	// "import processing.core.*;", "import processing.xml.*;",
@@ -87,13 +113,26 @@ public class ErrorCheckerService implements Runnable {
 	// "import java.io.*;", "import java.net.*;", "import java.text.*;",
 	// "import java.util.*;", "import java.util.zip.*;",
 	// "import java.util.regex.*;", };
+	
+	/**
+	 * List of jar files to be present in compilation checker's classpath
+	 */
 	public ArrayList<URL> classpathJars;
+
+	/**
+	 * Timestamp - for measuring total overhead
+	 */
+	long lastTimeStamp = System.currentTimeMillis();
+	
+	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--",
+			"\\" };
+	private int slashAnimationIndex = 0;
 
 	public static void main(String[] args) {
 
 		try {
 			ErrorCheckerService syncheck = new ErrorCheckerService();
-			syncheck.showClassPath();
+			ErrorCheckerService.showClassPath();
 			// syncheck.checkCode();
 			// syncheck.preprocessCode();
 			// File f = new File(
@@ -135,10 +174,6 @@ public class ErrorCheckerService implements Runnable {
 		this.errorBar = erb;
 	}
 
-	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--",
-			"\\" };
-	private int slashAnimationIndex = 0;
-
 	/**
 	 * Initialiazes the Error Window from Syntax Checker Service
 	 */
@@ -147,61 +182,34 @@ public class ErrorCheckerService implements Runnable {
 			return;
 		if (errorWindow != null)
 			return;
+
 		final ErrorCheckerService thisService = this;
 		final Editor thisEditor = editor;
-		// if (errorWindow == null) {
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.setVisible(true);
 					// System.out.println("EW Init");
-					if (editor == null) {
-						errorWindow
-								.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-					} else {
-						errorWindow
-								.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-					}
+					errorWindow
+							.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 					System.out.println("XQMode v0.1 alpha");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
-
-		// }
-		// });
-		try {
-
-			// if (editor != null) {
-			// errorWindow.setTitle("Problems - "
-			// + editor.getSketch().getName() + " "
-			// + slashAnimation[slashAnimationIndex]);
-			// }
-			// One thread sleeps while other continues running - the
-			// troubles of multithreading. Sigh, no more NPEs.
-			// System.out.println("Sleep 1");
-			// Thread.sleep(500);
-			//
-			// System.out.println("Sleep 2");
-			// errorBar.errorWindow = errorWindow;
-		} catch (Exception e1) {
-			System.out.println("Stuck Here.");
-			e1.printStackTrace();
-		}
-
 	}
 
-	public void showClassPath() {
-		String cp = System.getProperty("java.class.path");
+	public static void showClassPath() {
 		System.out.println("------Classpath------");
-		String cps[] = PApplet.split(cp, ';');
+		String cps[] = PApplet.split(System.getProperty("java.class.path"),
+				Base.isWindows() ? ';' : ':');
 		for (int i = 0; i < cps.length; i++) {
 			System.out.println(cps[i]);
 		}
 		System.out.println("---------------------");
-		// System.out.println(cp);
 	}
 
 	/**
@@ -288,8 +296,6 @@ public class ErrorCheckerService implements Runnable {
 		}
 		return false;
 	}
-
-	long lastTimeStamp = System.currentTimeMillis();
 
 	/**
 	 * Preprocess PDE code to pure Java, P5 style. This is used only after
@@ -677,8 +683,6 @@ public class ErrorCheckerService implements Runnable {
 
 		} while (true);
 
-		// prepareImports(programImports);
-
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()
 				.getName();
 
@@ -689,13 +693,13 @@ public class ErrorCheckerService implements Runnable {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
 					+ "public void setup() {\n" + sourceAlt
 					+ "\nnoLoop();\n}\n" + "\n}\n";
-			basicMode = true;
+			staticMode = true;
 			mainClassOffset = 2;
 
 		} else {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
 					+ sourceAlt + "\n}";
-			basicMode = false;
+			staticMode = false;
 			mainClassOffset = 1;
 		}
 

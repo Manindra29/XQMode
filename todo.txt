@@ -7,7 +7,7 @@ General
 -------
 
 O - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
-O - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10). I. Hate. Mac.
+	Sketches using OpenGL don't run from contributed modes.
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex) To be done after compilation check is 
 	complete.
@@ -16,23 +16,23 @@ O - Eclipse like error bar on the right of the editor text area. More UI design 
 O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? 
 	Lag? Overhead on my Dell XPS is around 70-130 ms. 
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
-X - Class loading technique used in Mode Contribution - Investigate.
 O - How to tackle bugs generated due to error line numbers that are outside the pde
 	code? Like adding a } to the end of the code, causes the parser to detect the
 	} added by the pre-processor as the error line. Current solution doesn't work as
 	expected. Difficult one. Done. Line number in the table needs to be updated!
+X - Class loading technique used in Mode Contribution - Investigate.
+X - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10). Solved.
 X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java 
 	version clash. Done.
 
-Syntax Checker Service
+Error Checker Service
 ----------------------
 
-O - xyToOffset() - static or member function? It's actually used by ErrorWindow, move it there? 
-X - Syntax checking works, no concurrency bugs found yet.
-
-Compilation Error Check (CEC)
------------------------------
-
+O - Create a list of ignorable warnings - Discuss with Dan
+	SerializableVersionID, and more.
+O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
+O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?	
+X - Syntax and compilation checking works, no concurrency bugs found yet.
 X - Process import statements to find extra libraries to be added. Done.
 X - Add all the import statements before class declaration - P5 preprocessor does it like a boss.
 X - Add Interface for CEC.
@@ -46,30 +46,27 @@ X - Compilation check should be done only if no syntax errors found. Like a 2 pa
 	Infact, even eclipse shows warnings only when code has no syntax errors!
 X - mainClassOffset to be recalculated for CEC.
 X - Errors/Warnings from CEC to be added to the ErrorWindow Problem List.
-O - Create a list of ignorable warnings - Discuss with Dan
-	SerializableVersionID, and more.
-O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
 X - Ignore processing of java.* imports.
-O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?	
 X - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
 
 Error Window
 ------------
 
-O - SwingWorker or synchronized for mouse event handler? Synchronized working fine for now.
+O - Make Error Window sticky. DockTool2Base ftw. - Buggy on Windows with SketchOutline tool.
+X - SwingWorker or synchronized for mouse event handler? Swing Workered everything.
 X - Handle basic/static mode offsets. After all it's used by absolute beginners.
 X - Scroll to location multi tab. Done
-X - Will preprocessing screw with the offsets? Yes. :( Switched back to selecting problem line.
-X - Scroll to location works fine in single tab sketches.
-X - Make Error Window sticky. DockTool2Base ftw.
+X - Will preprocessing screw with the offsets? Yes. :( Switched back to selecting entire problem line.
+X - Scroll to location works fine in single/multi tab sketches.
 X - Scrollable tabular view of errors, line nos.
 
 Error Bar
 ---------
 
+O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.
 X - Display error as tooltip on hover.
 X - Clicking on an error marker, scrolls to the error location. Done.
 X - Error bar to display errors for each tab.
 X - Error bar to the right of the editor. Small red rectangles as error markers.
-O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.  
+  
 
