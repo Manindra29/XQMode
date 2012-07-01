@@ -111,9 +111,13 @@ public class ErrorWindow extends JFrame {
 		};
 		errorTable.setModel(new DefaultTableModel(new Object[][] {},
 				columnNames));
-		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-		errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
+		// errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+		// errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
 
+		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+		errorTable.getTableHeader().setReorderingAllowed(false);
 		scrollPane.setViewportView(errorTable);
 
 		try {
@@ -187,13 +191,19 @@ public class ErrorWindow extends JFrame {
 
 			protected void done() {
 
-				errorTable.setModel(tableModel);
-				errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-				errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-				errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-				errorTable.validate();
-				errorTable.updateUI();
-				errorTable.repaint();
+				try {
+					errorTable.setModel(tableModel);
+					errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+					errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+					errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+					errorTable.getTableHeader().setReorderingAllowed(false);
+					errorTable.validate();
+					errorTable.updateUI();
+					errorTable.repaint();
+				} catch (Exception e) {
+					System.out.println("Exception at updatTable " + e);
+//					e.printStackTrace();
+				}
 				// errorTable.getModel()
 
 			}
@@ -231,10 +241,14 @@ public class ErrorWindow extends JFrame {
 			 */
 			synchronized public void mouseReleased(MouseEvent e) {
 
-				errorCheckerService.scrollToErrorLine(errorTable
-						.getSelectedRow());
-				// System.out.print("Row clicked: "
-				// + (errorTable.getSelectedRow() + 1));
+				try {
+					errorCheckerService.scrollToErrorLine(errorTable
+							.getSelectedRow());
+//					System.out.print("Row clicked: "
+//							+ (errorTable.getSelectedRow()));
+				} catch (Exception e1) {
+					System.out.println("Exception EW mouseReleased " + e);
+				}
 			}
 		});
 
@@ -310,7 +324,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				thisErrorWindow.dispose();
+
 			}
 
 			@Override
