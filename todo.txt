@@ -25,16 +25,18 @@ X - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10)
 X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java 
 	version clash. Done.
 
-Error Checker Service
+Error Checker Service(ECS)
 ----------------------
 
-X - Reload CEC files only when imports change.
-O - Locate the memory sipping bug. ECS doesn't stop when Editor closed? 
+
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.
 O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
 O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?
-O - Check if stuff from the Code folder of a sketch are added to classpath	
+O - Check if stuff from the Code folder of a sketch are added to classpath
+X - Ctrl + Click on the Error Window pauses ECS thread.
+X - Reload CEC files only when imports change.
+X - Locate the memory sipping bug. ECS doesn't stop when Editor closed? Done. dispose() bug.
 X - Syntax and compilation checking works, no concurrency bugs found yet.
 X - Process import statements to find extra libraries to be added. Done.
 X - Add all the import statements before class declaration - P5 preprocessor does it like a boss.
@@ -73,16 +75,4 @@ X - Clicking on an error marker, scrolls to the error location. Done.
 X - Error bar to display errors for each tab.
 X - Error bar to the right of the editor. Small red rectangles as error markers.
 
-
-Installer
----------
-
-A standalone installer for XQMode during beta testing.
-
-O - Platform independent executable JAR
-O - Processing 2.0a6 and above.
-O - For all OS, copy XQMode to modes folder, copy eclipse jars and XQMode.jar to lib folder.
-O - Windows - Replace processing.exe with modified one. Keep original.
-O - OS X - Replace Info.list with updated one. Keep original.
-O - Linux - Remove ecj.jar from lib folder and store it.
 
