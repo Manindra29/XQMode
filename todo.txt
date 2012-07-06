@@ -20,6 +20,8 @@ O - How to tackle bugs generated due to error line numbers that are outside the 
 	code? Like adding a } to the end of the code, causes the parser to detect the
 	} added by the pre-processor as the error line. Current solution doesn't work as
 	expected. Difficult one. Done. Line number in the table needs to be updated!
+O - OS X Installation script needs to be updated. Doesn't work with spaces.
+
 X - Class loading technique used in Mode Contribution - Investigate.
 X - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10). Solved.
 X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java 
@@ -28,7 +30,9 @@ X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant jav
 Error Checker Service(ECS)
 ----------------------
 
-
+O - PDE crashes on OS X when running blank sketch in the first window that opens.
+	Pause ECS on run.  
+O - Investigate error underlining/highlighting, as Martin has done in Debug mode.
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.
 O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
