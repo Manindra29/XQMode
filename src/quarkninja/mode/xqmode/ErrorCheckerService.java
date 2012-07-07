@@ -277,7 +277,7 @@ public class ErrorCheckerService implements Runnable {
 			// // Populate the probList
 			problemsList = new ArrayList<Problem>();
 			for (int i = 0; i < problems.length; i++) {
-				
+
 				int a[] = calculateTabIndexAndLineNumber(problems[i]);
 				problemsList.add(new Problem(problems[i], a[0], a[1]));
 			}
@@ -574,10 +574,10 @@ public class ErrorCheckerService implements Runnable {
 				// e.printStackTrace();
 			}
 
-			if(pauseThread)
+			if (pauseThread)
 				continue;
-			
-			// Check every x seconds			
+
+			// Check every x seconds
 			checkCode();
 		}
 	}
@@ -903,8 +903,15 @@ public class ErrorCheckerService implements Runnable {
 
 			if (editor.getCaretOffset() != offset1) {
 				// System.out.println("offset unequal");
-				editor.toFront();
-				editor.setSelection(offset1, offset2 - 1);
+				try {
+					editor.toFront();
+					editor.setSelection(offset1, offset2 - 1);
+				} catch (Exception e) {
+					System.err
+							.println(e
+									+ " : Error while selecting text in scrollToErrorLine()");
+					// e.printStackTrace();
+				}
 				// System.out.println("---");
 			}
 		}

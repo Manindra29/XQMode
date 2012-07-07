@@ -2,10 +2,15 @@ package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.Box;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import processing.app.Base;
@@ -50,24 +55,24 @@ public class XQEditor extends JavaEditor {
 				textarea.setBounds(0, 0, errorBar.getX() - 1,
 						textarea.getHeight());
 				textAndError.add(textarea);
-				box.add(textAndError);				
+				box.add(textAndError);
 				// - End
 
-//				for (int i = 0; i < consolePanel.getComponentCount(); i++) {
-//					System.out.println("Console: "
-//							+ consolePanel.getComponent(i));
-//				}
-//				consolePanel.remove(0);
-//				consolePanel.remove(1);
-//				JTable table = new JTable(new String[][] {
-//						{ "Problems", "Line no" },
-//						{ "Missing semicolon", "12" }, { "Extra  )", "15" },
-//						{ "Missing semicolon", "34" } }, new String[] { "A",
-//						"B" });
-//				consolePanel.add(table);
-//				consolePanel.validate();
-//				console.updateUI();
-				
+				// for (int i = 0; i < consolePanel.getComponentCount(); i++) {
+				// System.out.println("Console: "
+				// + consolePanel.getComponent(i));
+				// }
+				// consolePanel.remove(0);
+				// consolePanel.remove(1);
+				// JTable table = new JTable(new String[][] {
+				// { "Problems", "Line no" },
+				// { "Missing semicolon", "12" }, { "Extra  )", "15" },
+				// { "Missing semicolon", "34" } }, new String[] { "A",
+				// "B" });
+				// consolePanel.add(table);
+				// consolePanel.validate();
+				// console.updateUI();
+
 			}
 		});
 
@@ -86,6 +91,53 @@ public class XQEditor extends JavaEditor {
 
 	}
 
+	public JMenu buildModeMenu() {
+
+		// Enable Error Checker - CB
+		// Show/Hide Problem Window - CB
+
+		// TODO:
+		// Enable Syntax Check - CB
+		// Enable Compile Check - CB
+		JMenu menu = new JMenu("XQMode");
+		JCheckBoxMenuItem item;
+
+		item = new JCheckBoxMenuItem("Error Checker Enabled");
+		item.setSelected(true);
+		item.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				errorCheckerService.pauseThread = !((JCheckBoxMenuItem) e
+						.getSource()).isSelected();
+				if (errorCheckerService.pauseThread)
+					System.out.println(getSketch().getName()
+							+ " - Error Checker paused.");
+				else
+					System.out.println(getSketch().getName()
+							+ " - Error Checker resumed.");
+			}
+		});
+		menu.add(item);
+
+		item = new JCheckBoxMenuItem("Show Problem Window");
+		item.setSelected(true);
+		item.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (errorCheckerService.errorWindow == null)
+					return;
+				errorCheckerService.errorWindow
+						.setVisible(((JCheckBoxMenuItem) e.getSource())
+								.isSelected());
+			}
+		});
+		menu.add(item);
+
+		return menu;
+	}
+
 	/**
 	 * Initializes and starts Syntax Checker Service
 	 */
@@ -101,9 +153,33 @@ public class XQEditor extends JavaEditor {
 								+ e);
 				// e.printStackTrace();
 			}
-//			System.out.println("Syntax Checker Service initialized.");
+			// System.out.println("Syntax Checker Service initialized.");
 		}
 
+	}
+
+	public void handleRun() {
+		errorCheckerService.pauseThread = true;
+		System.out.println("Paused ECS.");
+		super.handleRun();
+	}
+
+	// public void handlePresent() {
+	// errorCheckerService.pauseThread = true;
+	// System.out.println("Paused ECS.");
+	// super.handlePresent();
+	// }
+
+	// public void handleStop() {
+	// errorCheckerService.pauseThread = false;
+	// System.out.println("Resuming ECS.");
+	// super.handleStop();
+	// }
+
+	public void deactivateRun() {
+		errorCheckerService.pauseThread = false;
+		System.out.println("Resuming ECS.");
+		super.deactivateRun();
 	}
 
 }

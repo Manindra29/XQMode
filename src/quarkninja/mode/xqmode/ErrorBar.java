@@ -28,7 +28,7 @@ import processing.app.SketchCode;
  * 
  */
 public class ErrorBar extends JPanel {
-	public int height;
+	public int preffHeight;
 	public final int errorMarkerHeight = 4;
 	public final Color errorColor = new Color(0xED2630);
 	public final Color warningColor = new Color(0xFFC30E);
@@ -63,7 +63,7 @@ public class ErrorBar extends JPanel {
 	}
 
 	public Dimension getPreferredSize() {
-		return new Dimension(12, height);
+		return new Dimension(12, preffHeight);
 	}
 
 	public Dimension getMinimumSize() {
@@ -72,7 +72,7 @@ public class ErrorBar extends JPanel {
 
 	public ErrorBar(XQEditor editor, int height) {
 		this.editor = editor;
-		this.height = height;
+		this.preffHeight = height;
 		// syntaxCheckerService = synCheck;
 		addListeners();
 	}

@@ -1,6 +1,12 @@
 package quarkninja.mode.xqmode;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
