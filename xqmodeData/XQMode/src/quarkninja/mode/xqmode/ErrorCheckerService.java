@@ -216,6 +216,8 @@ public class ErrorCheckerService implements Runnable {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.setVisible(true);
 					System.out.println("XQMode v0.1 alpha");
+					editor.toFront();
+					errorWindow.errorTable.setFocusable(false);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -904,6 +906,7 @@ public class ErrorCheckerService implements Runnable {
 				try {
 					editor.toFront();
 					editor.setSelection(offset1, offset2 - 1);
+					editor.repaint();
 				} catch (Exception e) {
 					System.err
 							.println(e

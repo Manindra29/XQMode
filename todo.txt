@@ -32,14 +32,15 @@ X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant jav
 Error Checker Service(ECS)
 ----------------------
 
-X - PDE crashes on OS X when running blank sketch in the first window that opens.
-	Pause ECS on run. Solved! UIManager was the culprit!  
+O - Deal with negative line numbers(compiler errors in import statements)
 O - Investigate error underlining/highlighting, as Martin has done in Debug mode.
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.
 O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
 O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?
 O - Check if stuff from the Code folder of a sketch are added to classpath
+X - PDE crashes on OS X when running blank sketch in the first window that opens.
+	Pause ECS on run. Solved! UIManager was the culprit!
 X - Ctrl + Click on the Error Window pauses ECS thread.
 X - Reload CEC files only when imports change.
 X - Locate the memory sipping bug. ECS doesn't stop when Editor closed? Done. dispose() bug.
