@@ -32,8 +32,8 @@ X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant jav
 Error Checker Service(ECS)
 ----------------------
 
-O - PDE crashes on OS X when running blank sketch in the first window that opens.
-	Pause ECS on run.  
+X - PDE crashes on OS X when running blank sketch in the first window that opens.
+	Pause ECS on run. Solved! UIManager was the culprit!  
 O - Investigate error underlining/highlighting, as Martin has done in Debug mode.
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.
