@@ -71,7 +71,7 @@
 		<property name="bundle" value="${dist}/${lib.name}" />
 		<mkdir dir="${bundle}" />
 		<mkdir dir="${bundle}/mode" />
-		
+
 		<jar jarfile="${bundle}/mode/${lib.name}.jar" basedir="build" />
 		<!--zip destfile="${dist}/mode/${lib.name}.jar" excludes="**/*.MF">
 		    <zipgroupfileset dir="lib" includes="*.jar" />
@@ -80,7 +80,7 @@
 		<copy todir="${bundle}/src">
 			<fileset dir="src/" />
 		</copy>
-		
+
 		<copy todir="${bundle}">
 			<fileset dir="resources/" />
 		</copy>
@@ -90,6 +90,11 @@
 			<fileset dir="lib/" />
 		</copy>
 		-->
+		
+		<delete dir="xqmodeData/XQMode" />
+		<copy todir="xqmodeData/">
+			<fileset dir="${dist}" />
+		</copy>
 
 		<replaceregexp file="${bundle}/mode.properties" flags="g" match="@@version@@" replace="${build.number}" />
 		<replaceregexp file="${bundle}/mode.properties" flags="g" match="@@pretty-version@@" replace="${release}" />

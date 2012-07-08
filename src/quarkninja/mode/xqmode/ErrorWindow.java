@@ -210,7 +210,7 @@ public class ErrorWindow extends JFrame {
 				try {
 					errorTable.setModel(tableModel);
 					errorTable.getColumnModel().getColumn(0)
-							.setPreferredWidth(300);
+							.setPreferredWidth(600);
 					errorTable.getColumnModel().getColumn(1)
 							.setPreferredWidth(100);
 					errorTable.getColumnModel().getColumn(2)

@@ -1,6 +1,7 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -228,7 +229,7 @@ public class ErrorBar extends JPanel {
 													: "Warning: ")
 													+ p.iProblem.getMessage();
 											setToolTipText(msg);
-
+											setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 											return;
 										} else {
 											currentTabErrorCount++;
@@ -237,6 +238,11 @@ public class ErrorBar extends JPanel {
 									}
 
 								}
+							}
+							// Reset cursor and tooltip
+							else{
+								setToolTipText(null);
+								setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 							}
 						}
 

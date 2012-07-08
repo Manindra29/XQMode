@@ -5,10 +5,8 @@ O - to be pwned, X - pwned
 
 General
 -------
-O - Mode menu - Pause, Resume Thread. Enable Syntax check, enable compile check.
+X - Mode menu - Pause, Resume Thread. Enable Syntax check, enable compile check.
 	Show/Hide Problem window.
-O - Hyperlink cursor when hovering over error marker.
-O - Problem window itself as well as columns made resizable.
 O - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
 	Sketches using OpenGL don't run from contributed modes.
 O - Explore adding components to Editor window. Done to some extent. 
@@ -66,6 +64,7 @@ Error Window
 ------------
 
 O - Make Error Window sticky. DockTool2Base ftw. - Buggy on Windows with SketchOutline tool.
+O - Problem window itself as well as columns made resizable.
 X - Disable dragging/reordering of columns. Causes errors.
 X - SwingWorker or synchronized for mouse event handler? Swing Workered everything.
 X - Handle basic/static mode offsets. After all it's used by absolute beginners.
@@ -78,6 +77,7 @@ Error Bar
 ---------
 
 O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.
+X - Hyperlink(Hand) cursor when hovering over error marker.
 X - Display error as tooltip on hover.
 X - Clicking on an error marker, scrolls to the error location. Done.
 X - Error bar to display errors for each tab.

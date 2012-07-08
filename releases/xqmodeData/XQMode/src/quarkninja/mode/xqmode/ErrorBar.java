@@ -1,6 +1,7 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,7 +29,7 @@ import processing.app.SketchCode;
  * 
  */
 public class ErrorBar extends JPanel {
-	public int height;
+	public int preffHeight;
 	public final int errorMarkerHeight = 4;
 	public final Color errorColor = new Color(0xED2630);
 	public final Color warningColor = new Color(0xFFC30E);
@@ -63,7 +64,7 @@ public class ErrorBar extends JPanel {
 	}
 
 	public Dimension getPreferredSize() {
-		return new Dimension(12, height);
+		return new Dimension(12, preffHeight);
 	}
 
 	public Dimension getMinimumSize() {
@@ -72,7 +73,7 @@ public class ErrorBar extends JPanel {
 
 	public ErrorBar(XQEditor editor, int height) {
 		this.editor = editor;
-		this.height = height;
+		this.preffHeight = height;
 		// syntaxCheckerService = synCheck;
 		addListeners();
 	}
@@ -228,7 +229,7 @@ public class ErrorBar extends JPanel {
 													: "Warning: ")
 													+ p.iProblem.getMessage();
 											setToolTipText(msg);
-
+											setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 											return;
 										} else {
 											currentTabErrorCount++;
@@ -237,6 +238,11 @@ public class ErrorBar extends JPanel {
 									}
 
 								}
+							}
+							// Reset cursor and tooltip
+							else{
+								setToolTipText(null);
+								setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 							}
 						}
 

@@ -6,6 +6,7 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -56,7 +57,7 @@ public class ErrorWindow extends JFrame {
 				try {
 					ErrorWindow frame = new ErrorWindow(null, null);
 					frame.setVisible(true);
-					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -82,13 +83,14 @@ public class ErrorWindow extends JFrame {
 	 */
 	private void prepareFrame() { // Not createAndShowGUI().
 		Base.setIcon(this);
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		// Default size: setBounds(100, 100, 458, 160);
 		setBounds(100, 100, 458, 160);
 		contentPane = new JPanel();
 		contentPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				handlePause(e);
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// TODO: Remove this later. For stopping syntax
 					// checker.
@@ -97,12 +99,26 @@ public class ErrorWindow extends JFrame {
 				}
 			}
 		});
+
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 
 		scrollPane = new JScrollPane();
 		contentPane.add(scrollPane);
+
+		scrollPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				handlePause(e);
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					// TODO: Remove this later. For stopping syntax
+					// checker.
+					errorCheckerService.stopThread();
+					System.out.println("Syntax checker thread paused.");
+				}
+			}
+		});
 
 		errorTable = new JTable() {
 			public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -111,9 +127,13 @@ public class ErrorWindow extends JFrame {
 		};
 		errorTable.setModel(new DefaultTableModel(new Object[][] {},
 				columnNames));
-		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-		errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
+		// errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+		// errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
 
+		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
+		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+		errorTable.getTableHeader().setReorderingAllowed(false);
 		scrollPane.setViewportView(errorTable);
 
 		try {
@@ -187,13 +207,22 @@ public class ErrorWindow extends JFrame {
 
 			protected void done() {
 
-				errorTable.setModel(tableModel);
-				errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-				errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-				errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-				errorTable.validate();
-				errorTable.updateUI();
-				errorTable.repaint();
+				try {
+					errorTable.setModel(tableModel);
+					errorTable.getColumnModel().getColumn(0)
+							.setPreferredWidth(600);
+					errorTable.getColumnModel().getColumn(1)
+							.setPreferredWidth(100);
+					errorTable.getColumnModel().getColumn(2)
+							.setPreferredWidth(50);
+					errorTable.getTableHeader().setReorderingAllowed(false);
+					errorTable.validate();
+					errorTable.updateUI();
+					errorTable.repaint();
+				} catch (Exception e) {
+					System.out.println("Exception at updatTable " + e);
+					// e.printStackTrace();
+				}
 				// errorTable.getModel()
 
 			}
@@ -231,10 +260,15 @@ public class ErrorWindow extends JFrame {
 			 */
 			synchronized public void mouseReleased(MouseEvent e) {
 
-				errorCheckerService.scrollToErrorLine(errorTable
-						.getSelectedRow());
-				// System.out.print("Row clicked: "
-				// + (errorTable.getSelectedRow() + 1));
+				handlePause(e);
+				try {
+					errorCheckerService.scrollToErrorLine(errorTable
+							.getSelectedRow());
+					// System.out.print("Row clicked: "
+					// + (errorTable.getSelectedRow()));
+				} catch (Exception e1) {
+					System.out.println("Exception EW mouseReleased " + e);
+				}
 			}
 		});
 
@@ -269,12 +303,10 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				thisErrorWindow.dispose();
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				thisErrorWindow.dispose();
 			}
 
 			@Override
@@ -315,6 +347,8 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
+				errorCheckerService.pauseThread = true; 
+				errorCheckerService.stopThread(); // Bye bye thread.
 				thisErrorWindow.dispose();
 			}
 
@@ -381,6 +415,19 @@ public class ErrorWindow extends JFrame {
 			}
 		});
 
+	}
+
+	public void handlePause(MouseEvent e) {
+
+		if (e.isControlDown()) {
+			errorCheckerService.pauseThread = !errorCheckerService.pauseThread;
+			if (errorCheckerService.pauseThread)
+				System.out.println(thisEditor.getSketch().getName()
+						+ " - Error Checker paused.");
+			else
+				System.out.println(thisEditor.getSketch().getName()
+						+ " - Error Checker resumed.");
+		}
 	}
 
 	/**

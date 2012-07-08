@@ -69,6 +69,13 @@ public class ErrorCheckerService implements Runnable {
 	 * Used to indirectly stop the Error Checker Thread
 	 */
 	public boolean stopThread = false;
+
+	/**
+	 * Used to indirectly pause the Error Checking. Calls to checkCode() become
+	 * useless.
+	 */
+	public boolean pauseThread = false;
+
 	public ErrorWindow errorWindow;
 	public ErrorBar errorBar;
 	/**
@@ -103,6 +110,7 @@ public class ErrorCheckerService implements Runnable {
 	public int mainClassOffset;
 
 	public boolean staticMode = false;
+	private CompilationUnit cu;
 
 	// public static final String[] defaultImports = {
 	// "import processing.core.*;", "import processing.xml.*;",
@@ -113,7 +121,7 @@ public class ErrorCheckerService implements Runnable {
 	// "import java.io.*;", "import java.net.*;", "import java.text.*;",
 	// "import java.util.*;", "import java.util.zip.*;",
 	// "import java.util.regex.*;", };
-	
+
 	/**
 	 * List of jar files to be present in compilation checker's classpath
 	 */
@@ -123,7 +131,7 @@ public class ErrorCheckerService implements Runnable {
 	 * Timestamp - for measuring total overhead
 	 */
 	long lastTimeStamp = System.currentTimeMillis();
-	
+
 	private String[] slashAnimation = { "|", "/", "--", "\\", "|", "/", "--",
 			"\\" };
 	private int slashAnimationIndex = 0;
@@ -158,20 +166,37 @@ public class ErrorCheckerService implements Runnable {
 	}
 
 	public ErrorCheckerService() {
-		parser = ASTParser.newParser(AST.JLS4);
+		// parser = ASTParser.newParser(AST.JLS4);
+		initParser();
 		initializeErrorWindow();
+
 	}
 
 	public ErrorCheckerService(String path) {
 		PATH = path;
-		parser = ASTParser.newParser(AST.JLS4);
+		// parser = ASTParser.newParser(AST.JLS4);
+		initParser();
 		initializeErrorWindow();
 	}
 
 	public ErrorCheckerService(Editor editor, ErrorBar erb) {
-		parser = ASTParser.newParser(AST.JLS4);
+		// parser = ASTParser.newParser(AST.JLS4);
+		initParser();
 		this.editor = editor;
 		this.errorBar = erb;
+	}
+
+	private void initParser() {
+		parser = ASTParser.newParser(AST.JLS4);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+		@SuppressWarnings("unchecked")
+		Map<String, String> options = JavaCore.getOptions();
+
+		// Ben has decided to move on to 1.6. Yay!
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		parser.setCompilerOptions(options);
 	}
 
 	/**
@@ -192,8 +217,6 @@ public class ErrorCheckerService implements Runnable {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.setVisible(true);
 					// System.out.println("EW Init");
-					errorWindow
-							.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 					System.out.println("XQMode v0.1 alpha");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -242,7 +265,7 @@ public class ErrorCheckerService implements Runnable {
 			JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
 			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
 			parser.setCompilerOptions(options);
-			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+			cu = (CompilationUnit) parser.createAST(null);
 
 			// Store errors returned by the ast parser
 			problems = cu.getProblems();
@@ -254,6 +277,7 @@ public class ErrorCheckerService implements Runnable {
 			// // Populate the probList
 			problemsList = new ArrayList<Problem>();
 			for (int i = 0; i < problems.length; i++) {
+
 				int a[] = calculateTabIndexAndLineNumber(problems[i]);
 				problemsList.add(new Problem(problems[i], a[0], a[1]));
 			}
@@ -287,6 +311,15 @@ public class ErrorCheckerService implements Runnable {
 			// showClassPath();
 			if (editor != null) {
 				updateErrorTable();
+				// if(errorWindow == null)
+				//
+				// updateErrorTable();
+				// if (editor.hasFocus()) {
+				// updateErrorTable();
+				// System.out.println("updating.");
+				// } else
+				// System.out.println("Not updating.");
+
 				errorBar.updateErrorPoints(problemsList);
 				return true;
 			}
@@ -377,6 +410,11 @@ public class ErrorCheckerService implements Runnable {
 		return writer.getBuffer().toString();
 	}
 
+	public boolean importsAdded = false;
+	public boolean loadCompClass = true;
+	Class<?> checkerClass;
+	CompilationCheckerInterface compCheck;
+
 	private void compileCheck() {
 		try {
 
@@ -388,31 +426,34 @@ public class ErrorCheckerService implements Runnable {
 			// System.out.println(1);
 			// File f = new File(
 			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
-			File f = new File(editor.getBase().getSketchbookFolder()
-					.getAbsolutePath()
-					+ File.separator
-					+ "modes"
-					+ File.separator
-					+ "XQMode"
-					+ File.separator + "CompilationCheckerClasses");
-			classpath = new URL[classpathJars.size() + 1];
-			for (int i = 0; i < classpathJars.size(); i++) {
-				classpath[i] = classpathJars.get(i);
-				// System.out.println(classpathJars.get(i));
+			if (loadCompClass) {
+				// System.out.println("Loading compcheck files...");
+				File f = new File(editor.getBase().getSketchbookFolder()
+						.getAbsolutePath()
+						+ File.separator
+						+ "modes"
+						+ File.separator
+						+ "XQMode"
+						+ File.separator + "CompilationCheckerClasses");
+				classpath = new URL[classpathJars.size() + 1];
+				for (int i = 0; i < classpathJars.size(); i++) {
+					classpath[i] = classpathJars.get(i);
+					// System.out.println(classpathJars.get(i));
+				}
+				// System.out.println("---------" + classpath.length);
+				classpath[classpath.length - 1] = f.toURI().toURL();
+
+				// System.out.println("-- " + classpath.length);
+				// System.out.println(2);
+				URLClassLoader classLoader = new URLClassLoader(classpath);
+				// System.out.println(3);
+				checkerClass = Class.forName("CompilationChecker", true,
+						classLoader);
+				// System.out.println(4);
+				compCheck = (CompilationCheckerInterface) checkerClass
+						.newInstance();
+				loadCompClass = false;
 			}
-			// System.out.println("---------" + classpath.length);
-			classpath[classpath.length - 1] = f.toURI().toURL();
-
-			// System.out.println("-- " + classpath.length);
-			// System.out.println(2);
-			URLClassLoader classLoader = new URLClassLoader(classpath);
-			// System.out.println(3);
-			Class<?> checkerClass = Class.forName("CompilationChecker", true,
-					classLoader);
-			// System.out.println(4);
-			CompilationCheckerInterface compCheck = (CompilationCheckerInterface) checkerClass
-					.newInstance();
-
 			IProblem[] prob = compCheck.getErrors(className, sourceCode);
 			if (problems == null || problems.length == 0) {
 				problems = new IProblem[prob.length];
@@ -525,16 +566,19 @@ public class ErrorCheckerService implements Runnable {
 		// initializeErrorWindow();
 		stopThread = false;
 		while (!stopThread) {
-
 			try {
-				checkCode();
-				// Check every x seconds
+				// Take a nap.
 				Thread.sleep(sleepTime);
 			} catch (Exception e) {
 				System.out.println("Oops! [SyntaxCheckerThreaded]: " + e);
 				// e.printStackTrace();
 			}
 
+			if (pauseThread)
+				continue;
+
+			// Check every x seconds
+			checkCode();
 		}
 	}
 
@@ -683,6 +727,8 @@ public class ErrorCheckerService implements Runnable {
 
 		} while (true);
 
+		checkForChangedImports(programImports);
+
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()
 				.getName();
 
@@ -713,10 +759,33 @@ public class ErrorCheckerService implements Runnable {
 		return sourceAlt;
 	}
 
+	ArrayList<String> previousImports = new ArrayList<String>();
+
+	private void checkForChangedImports(ArrayList<String> programImports) {
+		// System.out.println("Imports: " + programImports.size() +
+		// " Prev Imp: "
+		// + previousImports.size());
+		if (programImports.size() != previousImports.size()) {
+			loadCompClass = true;
+			previousImports = programImports;
+		} else {
+			for (int i = 0; i < programImports.size(); i++) {
+				if (!programImports.get(i).equals(previousImports.get(i))) {
+					loadCompClass = true;
+					previousImports = programImports;
+					break;
+				}
+			}
+		}
+		// System.out.println("load..? " + loadCompClass);
+	}
+
 	private void prepareImports(List<String> programImports) {
+		if (!loadCompClass)
+			return;
 		classpathJars = new ArrayList<URL>();
 		String entry = "";
-		// System.out.println("Imports: " + programImports.size());
+
 		for (String item : programImports) {
 			int dot = item.lastIndexOf('.');
 			entry = (dot == -1) ? item : item.substring(0, dot);
@@ -834,8 +903,15 @@ public class ErrorCheckerService implements Runnable {
 
 			if (editor.getCaretOffset() != offset1) {
 				// System.out.println("offset unequal");
-				editor.toFront();
-				editor.setSelection(offset1, offset2 - 1);
+				try {
+					editor.toFront();
+					editor.setSelection(offset1, offset2 - 1);
+				} catch (Exception e) {
+					System.err
+							.println(e
+									+ " : Error while selecting text in scrollToErrorLine()");
+					// e.printStackTrace();
+				}
 				// System.out.println("---");
 			}
 		}

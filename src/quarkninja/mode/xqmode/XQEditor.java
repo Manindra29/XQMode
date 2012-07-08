@@ -99,6 +99,7 @@ public class XQEditor extends JavaEditor {
 		// TODO:
 		// Enable Syntax Check - CB
 		// Enable Compile Check - CB
+		
 		JMenu menu = new JMenu("XQMode");
 		JCheckBoxMenuItem item;
 
