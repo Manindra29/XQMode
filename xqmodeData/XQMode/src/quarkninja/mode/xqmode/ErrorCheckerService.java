@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -209,7 +210,7 @@ public class ErrorCheckerService implements Runnable {
 			return;
 
 		final ErrorCheckerService thisService = this;
-		final Editor thisEditor = editor;		
+		final Editor thisEditor = editor;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -218,6 +219,7 @@ public class ErrorCheckerService implements Runnable {
 					System.out.println("XQMode v0.1 alpha");
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
+					editor.repaint();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -447,11 +449,13 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println(2);
 				URLClassLoader classLoader = new URLClassLoader(classpath);
 				// System.out.println(3);
+
 				checkerClass = Class.forName("CompilationChecker", true,
 						classLoader);
-				// System.out.println(4);
+
 				compCheck = (CompilationCheckerInterface) checkerClass
 						.newInstance();
+
 				loadCompClass = false;
 			}
 			IProblem[] prob = compCheck.getErrors(className, sourceCode);
@@ -490,11 +494,20 @@ public class ErrorCheckerService implements Runnable {
 			// System.out.println("Total warnings: " + warningCount
 			// + ", Total errors: " + errorCount + " , Len: "
 			// + prob.length);
-
-		} catch (Exception e) {
-			// e.printStackTrace();
-			System.err.println("Compilecheck Problem. " + e);
+		} catch (InstantiationException e) {
+			System.err
+					.println(e
+							+ " compileCheck() problem. Somebody tried to mess with XQMode files.");
+		} catch (IllegalAccessException e) {
+			System.err.println(e + " compileCheck() problem.");
+		} catch (ClassNotFoundException e) {
+			System.err.println("Compiltation Checker files couldn't be found! "
+					+ e + " compileCheck() problem.");
+		} catch (MalformedURLException e) {
+			System.err.println("Compiltation Checker files couldn't be found! "
+					+ e + " compileCheck() problem.");
 		}
+
 		// System.out.println("Compilecheck, Done.");
 	}
 
@@ -588,6 +601,14 @@ public class ErrorCheckerService implements Runnable {
 	public void stopThread() {
 		stopThread = true;
 		System.out.println("Syntax Checker Service stopped.");
+	}
+
+	public void pauseThread() {
+
+	}
+
+	public void resumeThread() {
+
 	}
 
 	/**

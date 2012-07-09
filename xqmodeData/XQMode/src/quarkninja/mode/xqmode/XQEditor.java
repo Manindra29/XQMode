@@ -35,46 +35,24 @@ public class XQEditor extends JavaEditor {
 			final Mode mode) {
 		super(base, path, state, mode);
 		final XQEditor thisEditor = this;
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
 
-				xqmode = (XQMode) mode;
-				errorBar = new ErrorBar(thisEditor,
-						textarea.getMinimumSize().height);
+		xqmode = (XQMode) mode;
+		errorBar = new ErrorBar(thisEditor, textarea.getMinimumSize().height);
+		// Starts it too! Error bar should be ready beforehand
+		initializeErrorChecker();
+		errorBar.errorCheckerService = errorCheckerService;
 
-				// Starts it too! Error bar should be ready beforehand
-				initializeErrorChecker();
-				errorBar.errorCheckerService = errorCheckerService;
-
-				// - Start
-				JPanel textAndError = new JPanel();
-				Box box = (Box) textarea.getParent();
-				box.remove(2); // Remove textArea from it's container, i.e Box
-				textAndError.setLayout(new BorderLayout());
-				textAndError.add(errorBar, BorderLayout.EAST);
-				textarea.setBounds(0, 0, errorBar.getX() - 1,
-						textarea.getHeight());
-				textAndError.add(textarea);
-				box.add(textAndError);
-				// - End
-
-				// for (int i = 0; i < consolePanel.getComponentCount(); i++) {
-				// System.out.println("Console: "
-				// + consolePanel.getComponent(i));
-				// }
-				// consolePanel.remove(0);
-				// consolePanel.remove(1);
-				// JTable table = new JTable(new String[][] {
-				// { "Problems", "Line no" },
-				// { "Missing semicolon", "12" }, { "Extra  )", "15" },
-				// { "Missing semicolon", "34" } }, new String[] { "A",
-				// "B" });
-				// consolePanel.add(table);
-				// consolePanel.validate();
-				// console.updateUI();
-
-			}
-		});
+		// - Start
+		JPanel textAndError = new JPanel();
+		Box box = (Box) textarea.getParent();
+		box.remove(2); // Remove textArea from it's container, i.e Box
+		textAndError.setLayout(new BorderLayout());
+		textAndError.add(errorBar, BorderLayout.EAST);
+		textarea.setBounds(0, 0, errorBar.getX() - 1, textarea.getHeight());
+		textAndError.add(textarea);
+		box.add(textAndError);
+		textAndError.repaint();
+		// - End
 
 		// textarea.setBounds(errorBar.getX() + errorBar.getWidth(),
 		// errorBar.getY(), textarea.getWidth(), textarea.getHeight());
@@ -99,7 +77,7 @@ public class XQEditor extends JavaEditor {
 		// TODO:
 		// Enable Syntax Check - CB
 		// Enable Compile Check - CB
-		
+
 		JMenu menu = new JMenu("XQMode");
 		JCheckBoxMenuItem item;
 
@@ -161,7 +139,7 @@ public class XQEditor extends JavaEditor {
 
 	public void handleRun() {
 		errorCheckerService.pauseThread = true;
-//		errorCheckerService.errorWindow.dispose();
+		// errorCheckerService.errorWindow.dispose();
 		System.out.println("Paused ECS.");
 		super.handleRun();
 	}
@@ -180,7 +158,7 @@ public class XQEditor extends JavaEditor {
 
 	public void deactivateRun() {
 		errorCheckerService.pauseThread = false;
-//		errorCheckerService.errorWindow.setVisible(true);
+		// errorCheckerService.errorWindow.setVisible(true);
 		System.out.println("Resuming ECS.");
 		super.deactivateRun();
 	}

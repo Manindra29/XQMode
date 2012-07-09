@@ -114,7 +114,6 @@ public class ErrorWindow extends JFrame {
 				}
 			}
 		});
-//		scrollPane.setFocusable(false);
 
 		errorTable = new JTable() {
 			public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -125,13 +124,11 @@ public class ErrorWindow extends JFrame {
 				columnNames));
 		// errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 		// errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-//		errorTable.setFocusable(false);
 		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
 		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
 		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
 		errorTable.getTableHeader().setReorderingAllowed(false);
 		scrollPane.setViewportView(errorTable);
-//		errorTable.setFocusable(false);
 
 		try {
 			Docker = new DockTool2Base();
@@ -419,6 +416,7 @@ public class ErrorWindow extends JFrame {
 
 		if (e.isControlDown()) {
 			errorCheckerService.pauseThread = !errorCheckerService.pauseThread;
+			
 			if (errorCheckerService.pauseThread)
 				System.out.println(thisEditor.getSketch().getName()
 						+ " - Error Checker paused.");
