@@ -12,8 +12,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
@@ -48,6 +51,7 @@ public class ErrorWindow extends JFrame {
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
 	public ErrorCheckerService errorCheckerService;
+	public JCheckBoxMenuItem problemWindowMenuCB;
 
 	public static final String[] columnNames = { "Problem", "Tab", "Line" };
 
@@ -72,7 +76,7 @@ public class ErrorWindow extends JFrame {
 		setTitle("Problems");
 		prepareFrame();
 	}
-	
+
 	/**
 	 * Sets up ErrorWindow
 	 */
@@ -213,7 +217,7 @@ public class ErrorWindow extends JFrame {
 					errorTable.validate();
 					errorTable.updateUI();
 					errorTable.repaint();
-//					errorTable.setFocusable(false);
+					// errorTable.setFocusable(false);
 				} catch (Exception e) {
 					System.out.println("Exception at updatTable " + e);
 					// e.printStackTrace();
@@ -298,10 +302,12 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
+				problemWindowMenuCB.setSelected(false);
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
+				
 			}
 
 			@Override
@@ -342,7 +348,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				errorCheckerService.pauseThread = true; 
+				errorCheckerService.pauseThread = true;
 				errorCheckerService.stopThread(); // Bye bye thread.
 				thisErrorWindow.dispose();
 			}
@@ -416,7 +422,7 @@ public class ErrorWindow extends JFrame {
 
 		if (e.isControlDown()) {
 			errorCheckerService.pauseThread = !errorCheckerService.pauseThread;
-			
+
 			if (errorCheckerService.pauseThread)
 				System.out.println(thisEditor.getSketch().getName()
 						+ " - Error Checker paused.");

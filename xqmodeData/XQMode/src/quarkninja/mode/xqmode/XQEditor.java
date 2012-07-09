@@ -1,6 +1,7 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
+import java.awt.CheckboxMenuItem;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +31,8 @@ public class XQEditor extends JavaEditor {
 	protected Thread errorCheckerThread = null;
 	protected ErrorCheckerService errorCheckerService;
 	protected ErrorBar errorBar;
-
+	public  JCheckBoxMenuItem problemWindowMenuCB;
+	
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
 		super(base, path, state, mode);
@@ -51,7 +53,6 @@ public class XQEditor extends JavaEditor {
 		textarea.setBounds(0, 0, errorBar.getX() - 1, textarea.getHeight());
 		textAndError.add(textarea);
 		box.add(textAndError);
-		textAndError.repaint();
 		// - End
 
 		// textarea.setBounds(errorBar.getX() + errorBar.getWidth(),
@@ -74,10 +75,6 @@ public class XQEditor extends JavaEditor {
 		// Enable Error Checker - CB
 		// Show/Hide Problem Window - CB
 
-		// TODO:
-		// Enable Syntax Check - CB
-		// Enable Compile Check - CB
-
 		JMenu menu = new JMenu("XQMode");
 		JCheckBoxMenuItem item;
 
@@ -99,9 +96,9 @@ public class XQEditor extends JavaEditor {
 		});
 		menu.add(item);
 
-		item = new JCheckBoxMenuItem("Show Problem Window");
-		item.setSelected(true);
-		item.addActionListener(new ActionListener() {
+		problemWindowMenuCB = new JCheckBoxMenuItem("Show Problem Window");
+		problemWindowMenuCB.setSelected(true);
+		problemWindowMenuCB.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -112,7 +109,7 @@ public class XQEditor extends JavaEditor {
 								.isSelected());
 			}
 		});
-		menu.add(item);
+		menu.add(problemWindowMenuCB);
 
 		return menu;
 	}
@@ -123,6 +120,7 @@ public class XQEditor extends JavaEditor {
 	private void initializeErrorChecker() {
 		if (errorCheckerThread == null) {
 			errorCheckerService = new ErrorCheckerService(this, errorBar);
+			errorCheckerService.problemWindowMenuCB = this.problemWindowMenuCB;
 			errorCheckerThread = new Thread(errorCheckerService);
 			try {
 				errorCheckerThread.start();
@@ -135,32 +133,6 @@ public class XQEditor extends JavaEditor {
 			// System.out.println("Syntax Checker Service initialized.");
 		}
 
-	}
-
-	public void handleRun() {
-		errorCheckerService.pauseThread = true;
-		// errorCheckerService.errorWindow.dispose();
-		System.out.println("Paused ECS.");
-		super.handleRun();
-	}
-
-	// public void handlePresent() {
-	// errorCheckerService.pauseThread = true;
-	// System.out.println("Paused ECS.");
-	// super.handlePresent();
-	// }
-
-	// public void handleStop() {
-	// errorCheckerService.pauseThread = false;
-	// System.out.println("Resuming ECS.");
-	// super.handleStop();
-	// }
-
-	public void deactivateRun() {
-		errorCheckerService.pauseThread = false;
-		// errorCheckerService.errorWindow.setVisible(true);
-		System.out.println("Resuming ECS.");
-		super.deactivateRun();
 	}
 
 }

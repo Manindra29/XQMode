@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
@@ -137,6 +138,8 @@ public class ErrorCheckerService implements Runnable {
 			"\\" };
 	private int slashAnimationIndex = 0;
 
+	public JCheckBoxMenuItem problemWindowMenuCB;
+
 	public static void main(String[] args) {
 
 		try {
@@ -215,11 +218,11 @@ public class ErrorCheckerService implements Runnable {
 			public void run() {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
+					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
 					errorWindow.setVisible(true);
 					System.out.println("XQMode v0.1 alpha");
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
-					editor.repaint();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -576,14 +579,17 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	@Override
 	public void run() {
-		// initializeErrorWindow();
+
+		initializeErrorWindow();
+
 		stopThread = false;
+
 		while (!stopThread) {
 			try {
 				// Take a nap.
 				Thread.sleep(sleepTime);
 			} catch (Exception e) {
-				System.out.println("Oops! [SyntaxCheckerThreaded]: " + e);
+				System.out.println("Oops! [ErrorCheckerThreaded]: " + e);
 				// e.printStackTrace();
 			}
 
@@ -865,8 +871,7 @@ public class ErrorCheckerService implements Runnable {
 	}
 
 	/**
-	 * Updates the error table in the Error Window. And Crashes PDE on OS X.
-	 * Sad. Frustrating! Issue Solved! :D
+	 * Updates the error table in the Error Window.
 	 */
 	synchronized public void updateErrorTable() {
 
