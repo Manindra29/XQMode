@@ -580,7 +580,7 @@ public class ErrorCheckerService implements Runnable {
 	@Override
 	public void run() {
 
-		initializeErrorWindow();
+		checkCode();
 
 		stopThread = false;
 
@@ -807,12 +807,19 @@ public class ErrorCheckerService implements Runnable {
 		// System.out.println("load..? " + loadCompClass);
 	}
 
+	/**
+	 * Processes import statements to obtain classpaths of contributed
+	 * libraries. This would be needed for compilation check. Also, adds
+	 * stuff(jar files, class files, candy) from the code folder.
+	 * 
+	 * @param programImports
+	 */
 	private void prepareImports(List<String> programImports) {
 		if (!loadCompClass)
 			return;
 		classpathJars = new ArrayList<URL>();
 		String entry = "";
-
+		boolean codeFolderChecked = false;
 		for (String item : programImports) {
 			int dot = item.lastIndexOf('.');
 			entry = (dot == -1) ? item : item.substring(0, dot);
@@ -828,7 +835,7 @@ public class ErrorCheckerService implements Runnable {
 				library = editor.getMode().getLibrary(entry);
 				// System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
-						.substring(1).trim(), (Base.isWindows() ? ';' : ':'));
+						.substring(1).trim(), File.pathSeparatorChar);
 				// TODO: Investigate the jar path added twice issue here
 				for (int i = 0; i < libraryPath.length / 2; i++) {
 					// System.out.println(entry+" ::"+new
@@ -841,13 +848,43 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println("  found ");
 				// System.out.println(library.getClassPath().substring(1));
 			} catch (Exception e) {
-				if (library == null) {
-					System.err.println("XQMODE: Yikes! Can't find \"" + entry
-							+ "\" library!");
-					return;
+				if (library == null && !codeFolderChecked) {
+					
+					// Look around in the code folde
+					if (editor.getSketch().hasCodeFolder()) {
+						File codeFolder = editor.getSketch().getCodeFolder();
+
+						// get a list of .jar files in the "code" folder
+						// (class files in subfolders should also be picked up)
+						String codeFolderClassPath = Base
+								.contentsToClassPath(codeFolder);
+						codeFolderChecked = true;
+						if (codeFolderClassPath.equalsIgnoreCase("")) {
+							System.err.println("XQMODE: Yikes! Can't find \""
+									+ entry + "\" library!");
+							System.out
+									.println("Please make sure that the library is present in <sketchbook "
+											+ "folder>/libraries folder or in the code folder of your sketch");
+						}
+						String codeFolderPath[] = PApplet.split(
+								codeFolderClassPath.substring(1).trim(),
+								File.pathSeparatorChar);
+						try {
+							for (int i = 0; i < codeFolderPath.length; i++) {
+								classpathJars.add(new File(codeFolderPath[i])
+										.toURI().toURL());
+							}
+						} catch (Exception e2) {
+							System.out
+									.println("Yikes! codefolder, prepareImports(): "
+											+ e2);
+						}
+					}
+
+				} else {					
+					System.out.println("Yikes! There was some problem in prepareImports(): " + e);
+					System.out.println("I was processing: " + entry);
 				}
-				System.out.println("Yikes!" + e);
-				System.out.println("Was processing: " + entry);
 				// e.printStackTrace();
 			}
 
