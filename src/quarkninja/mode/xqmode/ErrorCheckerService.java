@@ -305,6 +305,9 @@ public class ErrorCheckerService implements Runnable {
 				// System.out
 				// .println("No syntax errors. Let the compilation begin!");
 				sourceCode = preProcessP5style();
+				// System.out.println("--------------------------");
+				// System.out.println(sourceCode);
+				// System.out.println("--------------------------");
 				compileCheck();
 				// if (problems.length > 0)
 				// System.out.print("Compile error count: " + problems.length
@@ -528,7 +531,11 @@ public class ErrorCheckerService implements Runnable {
 		int bigCount = 0;
 
 		int x = problem.getSourceLineNumber() - mainClassOffset;
-
+		if (x < 0) {
+			System.out.println("Negative line number "
+					+ problem.getSourceLineNumber() + " , offset "
+					+ mainClassOffset);
+		}
 		try {
 			for (SketchCode sc : editor.getSketch().getCode()) {
 				if (sc.isExtension("pde")) {
@@ -810,7 +817,8 @@ public class ErrorCheckerService implements Runnable {
 	/**
 	 * Processes import statements to obtain classpaths of contributed
 	 * libraries. This would be needed for compilation check. Also, adds
-	 * stuff(jar files, class files, candy) from the code folder.
+	 * stuff(jar files, class files, candy) from the code folder. And I've
+	 * messed it up horribly.
 	 * 
 	 * @param programImports
 	 */
@@ -825,21 +833,21 @@ public class ErrorCheckerService implements Runnable {
 			entry = (dot == -1) ? item : item.substring(0, dot);
 
 			// entry = entry.substring(6).trim();
-			// System.out.println("Entry--" + entry);
+			System.out.println("Entry--" + entry);
 			if (ignorableImport(entry)) {
-				// System.out.println("Ignoring: " + entry);
+				System.out.println("Ignoring: " + entry);
 				continue;
 			}
 			Library library = null;
 			try {
 				library = editor.getMode().getLibrary(entry);
-				// System.out.println("lib->" + library.getClassPath() + "<-");
+				System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), File.pathSeparatorChar);
 				// TODO: Investigate the jar path added twice issue here
 				for (int i = 0; i < libraryPath.length / 2; i++) {
-					// System.out.println(entry+" ::"+new
-					// File(libraryPath[i]).toURI().toURL());
+					System.out.println(entry + " ::"
+							+ new File(libraryPath[i]).toURI().toURL());
 					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
 				}
 				// System.out.println("-- ");
@@ -848,8 +856,10 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println("  found ");
 				// System.out.println(library.getClassPath().substring(1));
 			} catch (Exception e) {
+				System.out
+						.println("Couldn't find " + entry + (library == null));
 				if (library == null && !codeFolderChecked) {
-					
+					System.out.println(1);
 					// Look around in the code folde
 					if (editor.getSketch().hasCodeFolder()) {
 						File codeFolder = editor.getSketch().getCodeFolder();
@@ -874,18 +884,28 @@ public class ErrorCheckerService implements Runnable {
 								classpathJars.add(new File(codeFolderPath[i])
 										.toURI().toURL());
 							}
+
 						} catch (Exception e2) {
 							System.out
 									.println("Yikes! codefolder, prepareImports(): "
 											+ e2);
 						}
+					} else {
+						System.err.println("XQMODE: Yikes! Can't find \""
+								+ entry + "\" library!");
+						System.out
+								.println("Please make sure that the library is present in <sketchbook "
+										+ "folder>/libraries folder or in the code folder of your sketch");
 					}
 
-				} else {					
-					System.out.println("Yikes! There was some problem in prepareImports(): " + e);
-					System.out.println("I was processing: " + entry);
+				} else {
+					System.err
+							.println("Yikes! There was some problem in prepareImports(): "
+									+ e);
+					System.err.println("I was processing: " + entry);
+
+					// e.printStackTrace();
 				}
-				// e.printStackTrace();
 			}
 
 		}
@@ -899,9 +919,9 @@ public class ErrorCheckerService implements Runnable {
 	 * @return boolean
 	 */
 	private boolean ignorableImport(String packageName) {
-		if (packageName.startsWith("processing.")
-				|| packageName.startsWith("java.")
-				|| packageName.startsWith("javax.")) {
+		// packageName.startsWith("processing.")
+		// ||
+		if (packageName.startsWith("java.") || packageName.startsWith("javax.")) {
 			return true;
 		}
 		return false;

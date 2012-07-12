@@ -5,15 +5,12 @@ O - to be pwned, X - pwned
 
 General
 -------
-X - Mode menu - Pause, Resume Thread. Enable Syntax check, enable compile check.
-	Show/Hide Problem window.
+
 O - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
 	Sketches using OpenGL don't run from contributed modes.
 O - Explore adding components to Editor window. Done to some extent. 
 O - Make messages more user friendly. (Think regex) To be done after compilation check is 
 	complete.
-X - Eclipse like error bar on the right of the editor text area. More UI design inputs 
-	from Dan, and Casey too. 
 O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? 
 	Lag? Overhead on my Dell XPS is around 70-130 ms. 
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
@@ -21,26 +18,30 @@ O - How to tackle bugs generated due to error line numbers that are outside the 
 	code? Like adding a } to the end of the code, causes the parser to detect the
 	} added by the pre-processor as the error line. Current solution doesn't work as
 	expected. Difficult one. Done. Line number in the table needs to be updated!
-O - OS X Installation script needs to be updated. Doesn't work with spaces.
+O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
+X - Mode menu - Pause, Resume Thread. Show/Hide Problem window.
 X - Class loading technique used in Mode Contribution - Investigate.
 X - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10). Solved.
 X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant java 
 	version clash. Done.
+X - Eclipse like error bar on the right of the editor text area. More UI design inputs 
+	from Dan, and Casey too. 
 	
 
 Error Checker Service(ECS)
 ----------------------
 
+O - processing.video and ddf.minim not being detected as Library objects. Weird.
 O - Add support for .java tabs.
 O - Deal with negative line numbers(compiler errors in import statements)
-X - Text area disappears sometimes when loading sketch on OS X. EventQueue wrongly used. Solved.
 O - Investigate error underlining/highlighting, as Martin has done in Debug mode.
+O - What if compile check interface can be removed? Remember *that* blog?
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.
 O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
 O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?
 X - Check if stuff from the Code folder of a sketch are added to classpath
-O - What if compile check interface can be removed? Remember *that* blog?
+X - Text area disappears sometimes when loading sketch on OS X. EventQueue wrongly used. Solved.
 X - PDE crashes on OS X when running blank sketch in the first window that opens.
 	Pause ECS on run. Solved! UIManager was the culprit!
 X - Ctrl + Click on the Error Window pauses ECS thread.
