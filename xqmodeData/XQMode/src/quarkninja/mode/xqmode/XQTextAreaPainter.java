@@ -13,17 +13,18 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	protected JEditTextArea ta;
 	public ErrorCheckerService errorCheckerService;
 
-//	public XQTextAreaPainter(JEditTextArea textArea, TextAreaDefaults defaults,
-//			ErrorCheckerService ecs) {
-//		super(textArea, defaults);
-//		errorCheckerService = ecs;
-//		ta = textArea;
-//		if (errorCheckerService == null){
-//			System.out.println("ECS null");			
-//		}
-//		else
-//			System.out.println("ECS.... OK");
-//	}
+	// public XQTextAreaPainter(JEditTextArea textArea, TextAreaDefaults
+	// defaults,
+	// ErrorCheckerService ecs) {
+	// super(textArea, defaults);
+	// errorCheckerService = ecs;
+	// ta = textArea;
+	// if (errorCheckerService == null){
+	// System.out.println("ECS null");
+	// }
+	// else
+	// System.out.println("ECS.... OK");
+	// }
 
 	public XQTextAreaPainter(JEditTextArea textArea, TextAreaDefaults defaults) {
 		super(textArea, defaults);
@@ -43,39 +44,39 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	@Override
 	protected void paintLine(Graphics gfx, TokenMarker tokenMarker, int line,
 			int x) {
-		
-			paintLineBgColor(gfx, line, x);
-		super.paintLine(gfx, tokenMarker, line, x);
+
+		paintLineBgColor(gfx, line, x + 2);
+		super.paintLine(gfx, tokenMarker, line, x + 2);
+	}
+
+	public void getCurrentTabErrorLines() {
+		// ErrorMarker em = errorCheckerService.errorBar.errorPoints.get(0);
 	}
 
 	private void paintLineBgColor(Graphics gfx, int line, int x) {
-		if(errorCheckerService!= null){
-			System.out.println("ECS Ok." + errorCheckerService.problemsList.size());
-		}
-		else{
-			System.out.println("ECS null. :(");
-		}
-		// System.out.println("1");
-		int y = ta.lineToY(line);
-		// System.out.println("2");
-		y += fm.getLeading() + fm.getMaxDescent();
-		// System.out.println("3");
-		int height = fm.getHeight();
-
-		// get the color
-		// System.out.println("4");
-		Color col = Color.lightGray;
-		// System.out.print("bg line " + line + ": ");
-		// no need to paint anything
-		if (col == null) {
-			// System.out.println("none");
+		if (errorCheckerService == null)
 			return;
+		if (errorCheckerService.errorBar.errorPoints == null)
+			return;
+		boolean notFound = true;
+		for (ErrorMarker emarker : errorCheckerService.errorBar.errorPoints) {
+			if (emarker.problem.lineNumber == line + 1) {
+				notFound = false;
+				break;
+			}
 		}
-		// paint line background
-		// System.out.println("5");
+
+		if (notFound)
+			return;
+
+		int y = ta.lineToY(line);
+		y += fm.getLeading() + fm.getMaxDescent();
+		int height = fm.getHeight();
+		Color col = new Color(255, 196, 204);
 		gfx.setColor(col);
-		// System.out.println("6");
 		gfx.fillRect(0, y, getWidth(), height);
+		// gfx.setColor(Color.RED);
+		// gfx.fillRect(2, y, 3, height);
 	}
 
 }

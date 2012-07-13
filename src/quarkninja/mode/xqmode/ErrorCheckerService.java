@@ -140,6 +140,12 @@ public class ErrorCheckerService implements Runnable {
 
 	public JCheckBoxMenuItem problemWindowMenuCB;
 
+	/**
+	 * This is used to detect if the current tab index has changed and thus
+	 * repaint the textarea.
+	 */
+	public int lastTab = 0;
+
 	public static void main(String[] args) {
 
 		try {
@@ -329,6 +335,13 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println("Not updating.");
 
 				errorBar.updateErrorPoints(problemsList);
+				int currentTab = editor.getSketch().getCodeIndex(
+						editor.getSketch().getCurrentCode());
+				if (currentTab != lastTab) {
+					lastTab = currentTab;
+					editor.getTextArea().repaint();
+					// System.out.println("Repaint");
+				}
 				return true;
 			}
 		} catch (Exception e) {
@@ -586,7 +599,8 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	@Override
 	public void run() {
-
+		lastTab = editor.getSketch().getCodeIndex(
+				editor.getSketch().getCurrentCode());
 		checkCode();
 
 		stopThread = false;
@@ -847,7 +861,7 @@ public class ErrorCheckerService implements Runnable {
 				// TODO: Investigate the jar path added twice issue here
 				for (int i = 0; i < libraryPath.length / 2; i++) {
 					// System.out.println(entry + " ::"
-					//		+ new File(libraryPath[i]).toURI().toURL());
+					// + new File(libraryPath[i]).toURI().toURL());
 					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
 				}
 				// System.out.println("-- ");

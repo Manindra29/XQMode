@@ -42,7 +42,7 @@ public class ErrorBar extends JPanel {
 	/**
 	 * Stores error markers displayed PER TAB along the error bar.
 	 */
-	ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
+	public ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -266,24 +266,6 @@ public class ErrorBar extends JPanel {
 
 	}
 
-	/**
-	 * Error markers displayed on the Error Bar.
-	 * 
-	 * @author Manindra Moharana
-	 * 
-	 */
-	private class ErrorMarker {
-		public int y;
-		public int type = -1;
-		public static final int Error = 1;
-		public static final int Warning = 2;
-		public Problem problem;
-
-		public ErrorMarker(Problem problem, int y, int type) {
-			this.problem = problem;
-			this.y = y;
-			this.type = type;
-		}
-	}
+	
 
 }
