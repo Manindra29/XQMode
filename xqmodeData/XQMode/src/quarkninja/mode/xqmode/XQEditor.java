@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import processing.app.Base;
 import processing.app.EditorState;
 import processing.app.Mode;
+import processing.app.syntax.JEditTextArea;
+import processing.app.syntax.PdeTextAreaDefaults;
 import processing.mode.java.JavaEditor;
 
 /**
@@ -31,8 +33,8 @@ public class XQEditor extends JavaEditor {
 	protected Thread errorCheckerThread = null;
 	protected ErrorCheckerService errorCheckerService;
 	protected ErrorBar errorBar;
-	public  JCheckBoxMenuItem problemWindowMenuCB;
-	
+	public JCheckBoxMenuItem problemWindowMenuCB;
+
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
 		super(base, path, state, mode);
@@ -43,6 +45,7 @@ public class XQEditor extends JavaEditor {
 		// Starts it too! Error bar should be ready beforehand
 		initializeErrorChecker();
 		errorBar.errorCheckerService = errorCheckerService;
+		ta.setECS(errorCheckerService);
 
 		// - Start
 		JPanel textAndError = new JPanel();
@@ -68,6 +71,15 @@ public class XQEditor extends JavaEditor {
 		// new String[] { "A", "B" });
 		// consolePanel.add(table);
 
+	}
+
+	XQTextArea ta;
+
+	protected JEditTextArea createTextArea() {
+		System.out.println("overriding creation of text area");
+		ta = new XQTextArea(new PdeTextAreaDefaults(mode));
+
+		return ta;
 	}
 
 	public JMenu buildModeMenu() {

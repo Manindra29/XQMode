@@ -833,21 +833,21 @@ public class ErrorCheckerService implements Runnable {
 			entry = (dot == -1) ? item : item.substring(0, dot);
 
 			// entry = entry.substring(6).trim();
-			System.out.println("Entry--" + entry);
+			// System.out.println("Entry--" + entry);
 			if (ignorableImport(entry)) {
-				System.out.println("Ignoring: " + entry);
+				// System.out.println("Ignoring: " + entry);
 				continue;
 			}
 			Library library = null;
 			try {
 				library = editor.getMode().getLibrary(entry);
-				System.out.println("lib->" + library.getClassPath() + "<-");
+				// System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), File.pathSeparatorChar);
 				// TODO: Investigate the jar path added twice issue here
 				for (int i = 0; i < libraryPath.length / 2; i++) {
-					System.out.println(entry + " ::"
-							+ new File(libraryPath[i]).toURI().toURL());
+					// System.out.println(entry + " ::"
+					//		+ new File(libraryPath[i]).toURI().toURL());
 					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
 				}
 				// System.out.println("-- ");
@@ -856,10 +856,8 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println("  found ");
 				// System.out.println(library.getClassPath().substring(1));
 			} catch (Exception e) {
-				System.out
-						.println("Couldn't find " + entry + (library == null));
 				if (library == null && !codeFolderChecked) {
-					System.out.println(1);
+					// System.out.println(1);
 					// Look around in the code folde
 					if (editor.getSketch().hasCodeFolder()) {
 						File codeFolder = editor.getSketch().getCodeFolder();
