@@ -34,7 +34,10 @@ Error Checker Service(ECS)
 O - processing.video and ddf.minim not being detected as Library objects. Weird.
 O - Add support for .java tabs.
 O - Deal with negative line numbers(compiler errors in import statements)
-O - Investigate error underlining/highlighting, as Martin has done in Debug mode.
+
+X - If caret line has error/warning, show in editor status.
+X - Investigate error underlining/highlighting, as Martin has done in Debug mode.
+
 O - What if compile check interface can be removed? Remember *that* blog?
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.

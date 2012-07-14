@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -114,6 +113,11 @@ public class ErrorCheckerService implements Runnable {
 	public boolean staticMode = false;
 	private CompilationUnit cu;
 
+	public boolean importsAdded = false;
+	public boolean loadCompClass = true;
+	Class<?> checkerClass;
+	CompilationCheckerInterface compCheck;
+
 	// public static final String[] defaultImports = {
 	// "import processing.core.*;", "import processing.xml.*;",
 	// "import java.applet.*;", "import java.awt.Dimension;",
@@ -144,6 +148,8 @@ public class ErrorCheckerService implements Runnable {
 	 * This is used to detect if the current tab index has changed and thus
 	 * repaint the textarea.
 	 */
+
+	public int currentTab = 0;
 	public int lastTab = 0;
 
 	public static void main(String[] args) {
@@ -322,33 +328,35 @@ public class ErrorCheckerService implements Runnable {
 				// + "ms || ");
 				compileCheck = true;
 			}
-			// showClassPath();
+
 			if (editor != null) {
 				updateErrorTable();
-				// if(errorWindow == null)
-				//
-				// updateErrorTable();
-				// if (editor.hasFocus()) {
-				// updateErrorTable();
-				// System.out.println("updating.");
-				// } else
-				// System.out.println("Not updating.");
-
 				errorBar.updateErrorPoints(problemsList);
-				int currentTab = editor.getSketch().getCodeIndex(
-						editor.getSketch().getCurrentCode());
-				if (currentTab != lastTab) {
-					lastTab = currentTab;
-					editor.getTextArea().repaint();
-					// System.out.println("Repaint");
-				}
+				updateTextAreaPainter();
+				updateEditorStatus();
 				return true;
 			}
+
 		} catch (Exception e) {
 			System.out.println("Oops! [SyntaxCheckerThreaded.checkCode]: " + e);
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public void updateEditorStatus() {
+		// editor.statusNotice("Position: " +
+		// editor.getTextArea().getCaretLine());
+		for (ErrorMarker emarker : errorBar.errorPoints) {
+			if (emarker.problem.lineNumber == editor.getTextArea()
+					.getCaretLine() + 1) {
+				if(emarker.type == ErrorMarker.Warning)
+					editor.statusNotice(emarker.problem.iProblem.getMessage());
+				else
+					editor.statusError(emarker.problem.iProblem.getMessage());
+				return;
+			}
+		}
 	}
 
 	/**
@@ -430,11 +438,6 @@ public class ErrorCheckerService implements Runnable {
 		}
 		return writer.getBuffer().toString();
 	}
-
-	public boolean importsAdded = false;
-	public boolean loadCompClass = true;
-	Class<?> checkerClass;
-	CompilationCheckerInterface compCheck;
 
 	private void compileCheck() {
 		try {
@@ -601,8 +604,9 @@ public class ErrorCheckerService implements Runnable {
 	public void run() {
 		lastTab = editor.getSketch().getCodeIndex(
 				editor.getSketch().getCurrentCode());
+		initializeErrorWindow();
 		checkCode();
-
+		editor.getTextArea().repaint();
 		stopThread = false;
 
 		while (!stopThread) {
@@ -954,7 +958,7 @@ public class ErrorCheckerService implements Runnable {
 				errorData[i][2] = problemsList.get(i).lineNumber + "";
 			}
 
-			initializeErrorWindow();
+			// initializeErrorWindow();
 
 			if (errorWindow != null) {
 				DefaultTableModel tm = new DefaultTableModel(errorData,
@@ -982,6 +986,23 @@ public class ErrorCheckerService implements Runnable {
 			stopThread();
 		}
 
+	}
+
+	/**
+	 * Repaints the textarea if required
+	 */
+	public void updateTextAreaPainter() {
+		currentTab = editor.getSketch().getCodeIndex(
+				editor.getSketch().getCurrentCode());
+		if (currentTab != lastTab) {
+			lastTab = currentTab;
+			editor.getTextArea().repaint();
+			// System.out.println("Repaint");
+		}
+
+		if (!errorBar.errorPointsOld.equals(errorBar.errorPoints)) {
+			editor.getTextArea().repaint();
+		}
 	}
 
 	public void scrollToErrorLine(int errorIndex) {

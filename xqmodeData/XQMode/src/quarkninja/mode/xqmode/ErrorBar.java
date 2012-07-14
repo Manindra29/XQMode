@@ -31,8 +31,8 @@ import processing.app.SketchCode;
 public class ErrorBar extends JPanel {
 	public int preffHeight;
 	public final int errorMarkerHeight = 4;
-	public final Color errorColor = new Color(0xED2630);
-	public final Color warningColor = new Color(0xFFC30E);
+	public static final Color errorColor = new Color(0xED2630);
+	public static final Color warningColor = new Color(0xFFC30E);
 
 	XQEditor editor;
 	// public ErrorWindow errorWindow;
@@ -43,6 +43,8 @@ public class ErrorBar extends JPanel {
 	 * Stores error markers displayed PER TAB along the error bar.
 	 */
 	public ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
+
+	public ArrayList<ErrorMarker> errorPointsOld = new ArrayList<ErrorMarker>();
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -84,6 +86,7 @@ public class ErrorBar extends JPanel {
 	 * @param problems
 	 *            - List of problems.
 	 */
+	@SuppressWarnings("unchecked")
 	public void updateErrorPoints(ArrayList<Problem> problems) {
 
 		// NOTE TO SELF: ErrorMarkers are calculated for the present tab only
@@ -111,7 +114,7 @@ public class ErrorBar extends JPanel {
 			currentTab++;
 		}
 		// System.out.println("Total lines: " + totalLines);
-
+		errorPointsOld = (ArrayList<ErrorMarker>) errorPoints.clone();
 		// TODO: Swing Worker approach?
 		errorPoints = new ArrayList<ErrorMarker>();
 		errorPoints.clear();
@@ -229,7 +232,8 @@ public class ErrorBar extends JPanel {
 													: "Warning: ")
 													+ p.iProblem.getMessage();
 											setToolTipText(msg);
-											setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+											setCursor(Cursor
+													.getPredefinedCursor(Cursor.HAND_CURSOR));
 											return;
 										} else {
 											currentTabErrorCount++;
@@ -240,9 +244,10 @@ public class ErrorBar extends JPanel {
 								}
 							}
 							// Reset cursor and tooltip
-							else{
+							else {
 								setToolTipText(null);
-								setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 							}
 						}
 
@@ -265,7 +270,5 @@ public class ErrorBar extends JPanel {
 		});
 
 	}
-
-	
 
 }
