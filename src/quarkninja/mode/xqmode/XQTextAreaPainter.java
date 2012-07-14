@@ -45,15 +45,11 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	protected void paintLine(Graphics gfx, TokenMarker tokenMarker, int line,
 			int x) {
 
-		paintLineBgColor(gfx, line, x + 2);
+		paintErrorLine(gfx, line, x + 2);
 		super.paintLine(gfx, tokenMarker, line, x + 2);
 	}
 
-	public void getCurrentTabErrorLines() {
-		// ErrorMarker em = errorCheckerService.errorBar.errorPoints.get(0);
-	}
-
-	private void paintLineBgColor(Graphics gfx, int line, int x) {
+	private void paintErrorLine(Graphics gfx, int line, int x) {
 		if (errorCheckerService == null)
 			return;
 		if (errorCheckerService.errorBar.errorPoints == null)
@@ -68,13 +64,30 @@ public class XQTextAreaPainter extends TextAreaPainter {
 
 		if (notFound)
 			return;
+		try {
+			int y = ta.lineToY(line);
+			y += fm.getLeading() + fm.getMaxDescent();
+			int height = fm.getHeight();
+			Color col = new Color(255, 196, 204);
+			// gfx.setColor(col);
+			int start = ta.getLineStartOffset(line);
 
-		int y = ta.lineToY(line);
-		y += fm.getLeading() + fm.getMaxDescent();
-		int height = fm.getHeight();
-		Color col = new Color(255, 196, 204);
-		gfx.setColor(col);
-		gfx.fillRect(0, y, getWidth(), height);
+			String linetext = ta.getDocument().getText(start,
+					ta.getLineStopOffset(line) - start - 1);
+			// String linetext = ta.getLineText(line);
+
+			int aw = fm.stringWidth(linetext); // apparent width
+			int rw = fm.stringWidth(linetext.trim()); // real width
+			int x1 = 0 + (aw - rw) + fm.stringWidth(";");
+			// gfx.fillRect(x1, y, rw, height);
+			gfx.setColor(Color.RED);
+			gfx.fillRect(1, y + 2, 3, height - 2);
+			gfx.drawLine(x1, y + fm.getHeight() - 1, x1 + rw,
+					y + fm.getHeight() - 1);
+		} catch (Exception e) {
+			// System.out.println("paintLine " + e);
+			// e.printStackTrace();
+		}
 		// gfx.setColor(Color.RED);
 		// gfx.fillRect(2, y, 3, height);
 	}
