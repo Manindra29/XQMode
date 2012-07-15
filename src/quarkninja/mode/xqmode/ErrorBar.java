@@ -245,7 +245,7 @@ public class ErrorBar extends JPanel {
 							}
 							// Reset cursor and tooltip
 							else {
-								setToolTipText(null);
+								setToolTipText("");
 								setCursor(Cursor
 										.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 							}

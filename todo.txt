@@ -90,4 +90,10 @@ X - Clicking on an error marker, scrolls to the error location. Done.
 X - Error bar to display errors for each tab.
 X - Error bar to the right of the editor. Small red rectangles as error markers.
 
+Known Bugs
+----------
 
+O - Messages from processing preprocessor.
+	At the end of an import statement, delete the ; and type ';
+	color color = #ffffff;
+O - ErrorBar.updatePoints - NPE. Add a try catch maybe.

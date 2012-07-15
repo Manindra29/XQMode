@@ -2,6 +2,8 @@ package quarkninja.mode.xqmode;
 
 import java.awt.Graphics;
 
+import javax.swing.text.BadLocationException;
+
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.TextAreaDefaults;
 import processing.app.syntax.TextAreaPainter;
@@ -45,10 +47,12 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	protected void paintLine(Graphics gfx, TokenMarker tokenMarker, int line,
 			int x) {
 
-		super.paintLine(gfx, tokenMarker, line, x + 2);
-		paintErrorLine(gfx, line, x + 2);
+		super.paintLine(gfx, tokenMarker, line, x);
+		paintErrorLine(gfx, line, x);
 
 	}
+
+	ErrorMarker currentMarker = null;
 
 	private void paintErrorLine(Graphics gfx, int line, int x) {
 		if (errorCheckerService == null)
@@ -59,6 +63,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 		boolean isWarning = false;
 		for (ErrorMarker emarker : errorCheckerService.errorBar.errorPoints) {
 			if (emarker.problem.lineNumber == line + 1) {
+				currentMarker = emarker;
 				notFound = false;
 				if (emarker.type == ErrorMarker.Warning)
 					isWarning = true;
@@ -68,16 +73,43 @@ public class XQTextAreaPainter extends TextAreaPainter {
 
 		if (notFound)
 			return;
-		try {
-			// System.out.println("Hoff " + ta.getHorizontalOffset() + ", " +
-			// horizontalAdjustment);
-			int y = ta.lineToY(line);
-			y += fm.getLeading() + fm.getMaxDescent();
-			int height = fm.getHeight();
-			int start = ta.getLineStartOffset(line);
 
-			String linetext = ta.getDocument().getText(start,
-					ta.getLineStopOffset(line) - start - 1);
+		// System.out.println("Hoff " + ta.getHorizontalOffset() + ", " +
+		// horizontalAdjustment);
+		int y = ta.lineToY(line);
+		y += fm.getLeading() + fm.getMaxDescent();
+		int height = fm.getHeight();
+		int start = ta.getLineStartOffset(line);
+
+		try {
+			String linetext = null;
+
+			try {
+//				if (line >= ta.getLineCount()) {
+//					for (int i = ta.getLineCount() - 1; i >= 1; i++) {
+//						linetext = ta.getLineText(i);
+//						if (linetext.trim().length() > 0) {
+//							System.out.println("LT " + linetext);
+//							line = i;
+//							break;
+//						}
+//					}
+//					// line--;
+//					// linetext = ta.getLineText(line);
+//					start = ta.getLineStartOffset(line);
+//					y = ta.lineToY(line);
+//					y += fm.getLeading() + fm.getMaxDescent();
+//				} else {
+					linetext = ta.getDocument().getText(start,
+							ta.getLineStopOffset(line) - start - 1);
+//				}
+			} catch (BadLocationException bl) {
+
+				// Error in the import statements or end of code.
+				System.out.print("BL caught. " + ta.getLineCount() + " ,"
+						+ line + " ,");
+				System.out.println((ta.getLineStopOffset(line) - start - 1));
+			}
 			// String linetext = ta.getLineText(line);
 
 			int aw = fm.stringWidth(linetext) + ta.getHorizontalOffset(); // apparent
@@ -97,7 +129,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 				xx += 2;
 			}
 		} catch (Exception e) {
-			// System.out.println("paintLine " + e);
+			System.out.println("paintLine " + e);
 			// e.printStackTrace();
 		}
 		// gfx.setColor(Color.RED);

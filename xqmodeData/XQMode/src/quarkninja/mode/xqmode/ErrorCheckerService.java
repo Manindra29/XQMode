@@ -347,16 +347,19 @@ public class ErrorCheckerService implements Runnable {
 	public void updateEditorStatus() {
 		// editor.statusNotice("Position: " +
 		// editor.getTextArea().getCaretLine());
+		boolean notFound = true;
 		for (ErrorMarker emarker : errorBar.errorPoints) {
 			if (emarker.problem.lineNumber == editor.getTextArea()
 					.getCaretLine() + 1) {
-				if(emarker.type == ErrorMarker.Warning)
+				if (emarker.type == ErrorMarker.Warning)
 					editor.statusNotice(emarker.problem.iProblem.getMessage());
 				else
 					editor.statusError(emarker.problem.iProblem.getMessage());
 				return;
 			}
 		}
+		if (notFound)
+			editor.statusEmpty();
 	}
 
 	/**
@@ -552,6 +555,7 @@ public class ErrorCheckerService implements Runnable {
 					+ problem.getSourceLineNumber() + " , offset "
 					+ mainClassOffset);
 		}
+
 		try {
 			for (SketchCode sc : editor.getSketch().getCode()) {
 				if (sc.isExtension("pde")) {
@@ -573,6 +577,7 @@ public class ErrorCheckerService implements Runnable {
 						// than the no.
 						// of lines in the tab,
 						if (codeIndex >= editor.getSketch().getCodeCount() - 1) {
+							System.out.println("Exceeds lc " + x + "," + len);
 							x = len;
 							break;
 						} else {
@@ -1015,13 +1020,14 @@ public class ErrorCheckerService implements Runnable {
 					0);
 			int offset2 = xyToOffset(
 					problemsList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
-					0);
+					0) - 1;
 
 			if (editor.getCaretOffset() != offset1) {
 				// System.out.println("offset unequal");
 				try {
 					editor.toFront();
-					editor.setSelection(offset1, offset2 - 1);
+					editor.setSelection(offset2, offset2);
+					// editor.setSelection(offset1, offset2 - 1);
 					editor.repaint();
 				} catch (Exception e) {
 					System.err
@@ -1086,6 +1092,7 @@ public class ErrorCheckerService implements Runnable {
 						if (codeIndex >= editor.getSketch().getCodeCount() - 1) {
 							editor.getSketch().setCurrentCode(
 									editor.getSketch().getCodeCount() - 1);
+							System.out.println("Sketch ka the end.");
 							x = len;
 							break;
 						} else {
