@@ -14,10 +14,10 @@ O - Make messages more user friendly. (Think regex) To be done after compilation
 O - Make the sleepTime(time required per error check cycle) dynamic? What about very old computers? 
 	Lag? Overhead on my Dell XPS is around 70-130 ms. 
 O - Do bad things to the troublesome ecj.jar. Hail JDT Core!
-O - How to tackle bugs generated due to error line numbers that are outside the pde
+X - How to tackle bugs generated due to error line numbers that are outside the pde
 	code? Like adding a } to the end of the code, causes the parser to detect the
 	} added by the pre-processor as the error line. Current solution doesn't work as
-	expected. Difficult one. Done. Line number in the table needs to be updated!
+	expected. Difficult one. Done.
 O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
 X - Mode menu - Pause, Resume Thread. Show/Hide Problem window.
 X - Class loading technique used in Mode Contribution - Investigate.

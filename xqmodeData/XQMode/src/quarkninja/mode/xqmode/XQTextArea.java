@@ -12,7 +12,6 @@ public class XQTextArea extends JEditTextArea {
 
 	public XQTextArea(TextAreaDefaults defaults) {
 		super(defaults);
-
 		ComponentListener[] componentListeners = painter
 				.getComponentListeners();
 		MouseListener[] mouseListeners = painter.getMouseListeners();

@@ -577,8 +577,11 @@ public class ErrorCheckerService implements Runnable {
 						// than the no.
 						// of lines in the tab,
 						if (codeIndex >= editor.getSketch().getCodeCount() - 1) {
-							System.out.println("Exceeds lc " + x + "," + len);
-							x = len;
+							System.out.println("Exceeds lc " + x + "," + len +problem.toString());
+							// x = len
+							x = editor.getSketch().getCode(codeIndex)
+									.getLineCount();
+							// TODO: Obtain last non-white space character in the code.
 							break;
 						} else {
 							x -= len;

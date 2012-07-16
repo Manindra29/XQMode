@@ -106,9 +106,9 @@ public class XQTextAreaPainter extends TextAreaPainter {
 			} catch (BadLocationException bl) {
 
 				// Error in the import statements or end of code.
-				System.out.print("BL caught. " + ta.getLineCount() + " ,"
-						+ line + " ,");
-				System.out.println((ta.getLineStopOffset(line) - start - 1));
+//				System.out.print("BL caught. " + ta.getLineCount() + " ,"
+//						+ line + " ,");
+//				System.out.println((ta.getLineStopOffset(line) - start - 1));
 			}
 			// String linetext = ta.getLineText(line);
 
