@@ -252,7 +252,7 @@ public class ErrorBar extends JPanel {
 											// System.out.println("Roger that.");
 											String msg = (p.iProblem.isError() ? "Error: "
 													: "Warning: ")
-													+ p.iProblem.getMessage();
+													+ p.message;
 											setToolTipText(msg);
 											setCursor(Cursor
 													.getPredefinedCursor(Cursor.HAND_CURSOR));

@@ -36,11 +36,13 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public class Problem {
 	public IProblem iProblem;
 	public int tabIndex, lineNumber;
+	public String message;
 
 	public Problem(IProblem iProblem, int tabIndex, int lineNumber) {
 		this.iProblem = iProblem;
 		this.tabIndex = tabIndex;
 		this.lineNumber = lineNumber;
+		this.message = ProblemsFilter.process(iProblem);
 	}
 
 	public String display() {

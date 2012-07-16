@@ -67,6 +67,13 @@ X - Errors/Warnings from CEC to be added to the ErrorWindow Problem List.
 X - Ignore processing of java.* imports.
 X - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
 
+
+Messages Filter
+---------------
+X - All instances of the word 'token' removed.
+O - Initially replaced all camel case words. But that corrects things like PApplet, MyCustomClass, etc.
+	So will have to make a list of common words used by JDT.
+
 Error Window
 ------------
 

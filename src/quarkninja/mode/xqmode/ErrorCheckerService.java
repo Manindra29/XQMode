@@ -374,9 +374,9 @@ public class ErrorCheckerService implements Runnable {
 			if (emarker.problem.lineNumber == editor.getTextArea()
 					.getCaretLine() + 1) {
 				if (emarker.type == ErrorMarker.Warning)
-					editor.statusNotice(emarker.problem.iProblem.getMessage());
+					editor.statusNotice(emarker.problem.message);
 				else
-					editor.statusError(emarker.problem.iProblem.getMessage());
+					editor.statusError(emarker.problem.message);
 				return;
 			}
 		}
@@ -984,7 +984,7 @@ public class ErrorCheckerService implements Runnable {
 			String[][] errorData = new String[problemsList.size()][3];
 			for (int i = 0; i < problems.length; i++) {
 				// TODO: Make this message more natural.
-				errorData[i][0] = problemsList.get(i).iProblem.getMessage();
+				errorData[i][0] = problemsList.get(i).message;
 				errorData[i][1] = editor.getSketch()
 						.getCode(problemsList.get(i).tabIndex).getPrettyName();
 				errorData[i][2] = problemsList.get(i).lineNumber + "";
