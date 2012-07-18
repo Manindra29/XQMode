@@ -274,6 +274,8 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("---------------------");
 	}
 
+	XQPreprocessor xqpreproc = new XQPreprocessor();;
+	
 	/**
 	 * Perform error check
 	 * 
@@ -336,13 +338,14 @@ public class ErrorCheckerService implements Runnable {
 			// }
 
 			if (problems.length == 0) {
+				xqpreproc.doYourThing(sourceCode);
 				// System.out
 				// .println("No syntax errors. Let the compilation begin!");
-				sourceCode = preProcessP5style();
+				// sourceCode = preProcessP5style();
 				// System.out.println("--------------------------");
 				// System.out.println(sourceCode);
 				// System.out.println("--------------------------");
-				compileCheck();
+				// compileCheck();
 				// if (problems.length > 0)
 				// System.out.print("Compile error count: " + problems.length
 				// + "---"

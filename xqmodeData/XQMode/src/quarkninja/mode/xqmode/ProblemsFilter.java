@@ -57,14 +57,15 @@ public class ProblemsFilter {
 
 		// Camel case words into separate words
 
-		StringTokenizer st = new StringTokenizer(message);
-		String newMessage = "";
-		while (st.hasMoreTokens()) {
-			String word = st.nextToken();
-			newMessage += splitCamelCaseWord(word) + " ";
-		}
-		
-		return newMessage;
+		// StringTokenizer st = new StringTokenizer(message);
+		// String newMessage = "";
+		// while (st.hasMoreTokens()) {
+		// String word = st.nextToken();
+		// newMessage += splitCamelCaseWord(word) + " ";
+		// }
+		// message = new String(newMessage);
+
+		return message;
 	}
 
 	public static String splitCamelCaseWord(String word) {
@@ -79,14 +80,14 @@ public class ProblemsFilter {
 			}
 		}
 		newWord += word;
-//		System.out.println(newWord);
+		// System.out.println(newWord);
 		return newWord.trim();
 	}
 
 	public static void main(String[] args) {
-		 System.out
-		 .println(process("Syntax error on token 'blah', delete this token IfStatement"));
-//		splitWord("Ifassdsdf");
+		System.out
+				.println(process("Syntax error on token 'blah', delete this token IfStatement"));
+		// splitWord("Ifassdsdf");
 
 	}
 
