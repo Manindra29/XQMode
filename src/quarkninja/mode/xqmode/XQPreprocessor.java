@@ -8,9 +8,12 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -48,14 +51,14 @@ public class XQPreprocessor {
 		rewrite = ASTRewrite.create(cu.getAST());
 		cu.accept(new XQASTVisitor());
 		System.out.println("------------XQPreProc-----------------");
-		 TextEdit edits = cu.rewrite(doc, null);
-			 try {
-				edits.apply(doc);
-			} catch (MalformedTreeException e) {
-				e.printStackTrace();
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
+		TextEdit edits = cu.rewrite(doc, null);
+		try {
+			edits.apply(doc);
+		} catch (MalformedTreeException e) {
+			e.printStackTrace();
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 		System.out.println(doc.get());
 		System.out.println("------------XQPreProc End-----------------");
 		return doc.get();
@@ -63,7 +66,6 @@ public class XQPreprocessor {
 
 	private class XQASTVisitor extends ASTVisitor {
 		public boolean visit(MethodDeclaration node) {
-			System.out.println(node.getName() + " -> ");
 			if (node.modifiers().size() == 1)
 				System.out.println(node.modifiers().get(0).getClass()
 						.getCanonicalName());
@@ -80,7 +82,6 @@ public class XQPreprocessor {
 		}
 
 		public boolean visit(NumberLiteral node) {
-			System.out.println("NL: " + node.getToken());
 			if (!node.getToken().endsWith("f")
 					&& !node.getToken().endsWith("d")) {
 				for (int i = 0; i < node.getToken().length(); i++) {
@@ -92,6 +93,20 @@ public class XQPreprocessor {
 					}
 				}
 			}
+			return true;
+		}
+
+		public boolean visit(FieldDeclaration node) {
+			if (node.getType().toString().equals("color"))
+				node.setType(rewrite.getAST().newPrimitiveType(
+						PrimitiveType.INT));
+			return true;
+		}
+
+		public boolean visit(VariableDeclarationStatement node) {
+			if (node.getType().toString().equals("color"))
+				node.setType(rewrite.getAST().newPrimitiveType(
+						PrimitiveType.INT));
 			return true;
 		}
 	}

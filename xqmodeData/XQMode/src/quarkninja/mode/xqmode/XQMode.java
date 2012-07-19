@@ -27,6 +27,7 @@ import java.io.File;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
+import processing.app.Mode;
 import processing.mode.java.JavaMode;
 
 /**
@@ -38,6 +39,16 @@ public class XQMode extends JavaMode {
 
 	public XQMode(Base base, File folder) {
 		super(base, folder);
+		
+		for (Mode m : base.getModeList()) {
+            if (m.getClass() == JavaMode.class) {
+                JavaMode jMode = (JavaMode) m;
+                librariesFolder = jMode.getLibrariesFolder();
+                rebuildLibraryList();
+                break;
+            }
+        }
+		
 		System.out.println("XQMode initialized.");
 	}
 

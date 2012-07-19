@@ -8,9 +8,12 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -48,14 +51,14 @@ public class XQPreprocessor {
 		rewrite = ASTRewrite.create(cu.getAST());
 		cu.accept(new XQASTVisitor());
 		System.out.println("------------XQPreProc-----------------");
-		 TextEdit edits = cu.rewrite(doc, null);
-			 try {
-				edits.apply(doc);
-			} catch (MalformedTreeException e) {
-				e.printStackTrace();
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
+		TextEdit edits = cu.rewrite(doc, null);
+		try {
+			edits.apply(doc);
+		} catch (MalformedTreeException e) {
+			e.printStackTrace();
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 		System.out.println(doc.get());
 		System.out.println("------------XQPreProc End-----------------");
 		return doc.get();
@@ -92,6 +95,23 @@ public class XQPreprocessor {
 					}
 				}
 			}
+			return true;
+		}
+
+		public boolean visit(FieldDeclaration node) {
+			System.out.println("FD: " + node.toString());
+			if (node.getType().toString().equals("color"))
+				node.setType(rewrite.getAST().newPrimitiveType(
+						PrimitiveType.INT));
+			return true;
+		}
+
+		public boolean visit(VariableDeclarationStatement node) {
+			System.out.println("VD: " + node.toString() + ", "
+					+ node.getType().toString());
+			if (node.getType().toString().equals("color"))
+				node.setType(rewrite.getAST().newPrimitiveType(
+						PrimitiveType.INT));
 			return true;
 		}
 	}
