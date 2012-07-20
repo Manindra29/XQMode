@@ -1,5 +1,6 @@
 package quarkninja.mode.xqmode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+import processing.app.Preferences;
+import processing.core.PApplet;
+
 public class XQPreprocessor {
 
 	/**
@@ -30,9 +34,12 @@ public class XQPreprocessor {
 	}
 
 	private ASTRewrite rewrite = null;
+	public int mainClassOffset = 0;
+	ArrayList<String> imports, extraImports;
 
-	public String doYourThing(String source) {
-
+	public String doYourThing(String source, ArrayList<String> extraImports) {
+		this.extraImports = extraImports;
+		source = prepareImports() + source;
 		Document doc = new Document(source);
 
 		ASTParser parser = ASTParser.newParser(AST.JLS4);
@@ -50,7 +57,7 @@ public class XQPreprocessor {
 		cu.recordModifications();
 		rewrite = ASTRewrite.create(cu.getAST());
 		cu.accept(new XQASTVisitor());
-		System.out.println("------------XQPreProc-----------------");
+		// System.out.println("------------XQPreProc-----------------");
 		TextEdit edits = cu.rewrite(doc, null);
 		try {
 			edits.apply(doc);
@@ -59,17 +66,68 @@ public class XQPreprocessor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		System.out.println(doc.get());
-		System.out.println("------------XQPreProc End-----------------");
+		// System.out.println(doc.get());
+		// System.out.println("------------XQPreProc End-----------------");
+
+		// Calculate main class offset
+		int position = doc.get().indexOf("{") + 1;
+		int lines = 0;
+		for (int i = 0; i < position; i++) {
+			if (doc.get().charAt(i) == '\n')
+				lines++;
+		}
+		lines += 2;
+		// System.out.println("Lines: " + lines);
+		mainClassOffset = lines;
+
 		return doc.get();
+	}
+
+	public String prepareImports() {
+		imports = new ArrayList<String>();
+		for (int i = 0; i < extraImports.size(); i++) {
+			imports.add(new String(extraImports.get(i)));
+		}
+		imports.add(new String("// Default Imports"));
+		for (int i = 0; i < getCoreImports().length; i++) {
+			imports.add(new String("import " + getCoreImports()[i] + ";"));
+		}
+		for (int i = 0; i < getDefaultImports().length; i++) {
+			imports.add(new String("import " + getDefaultImports()[i] + ";"));
+		}
+		String totalImports = "";
+		for (int i = 0; i < imports.size(); i++) {
+			totalImports += imports.get(i) + "\n";
+		}
+		totalImports += "\n";
+		return totalImports;
+	}
+
+	public String[] getCoreImports() {
+		return new String[] { "processing.core.*", "processing.data.*" };
+	}
+
+	public String[] getDefaultImports() {
+		// These may change in-between (if the prefs panel adds this option)
+		String prefsLine = Preferences.get("preproc.imports.list");
+		return PApplet.splitTokens(prefsLine, ", ");
 	}
 
 	private class XQASTVisitor extends ASTVisitor {
 		public boolean visit(MethodDeclaration node) {
-			System.out.println(node.getName() + " -> ");
-			if (node.modifiers().size() == 1)
-				System.out.println(node.modifiers().get(0).getClass()
-						.getCanonicalName());
+			if (node.getReturnType2() != null) {
+				// if return type is color, make it int
+				if (node.getReturnType2().toString().equals("color")) {
+					node.setReturnType2(rewrite.getAST().newPrimitiveType(
+							PrimitiveType.INT));
+				}
+
+				// The return type is not void, no need to make it public
+				if (!node.getReturnType2().toString().equals("void"))
+					return true;
+			}
+
+			// Simple method, make it public
 			if (node.modifiers().size() == 0 && !node.isConstructor()) {
 				// rewrite.set(node, node.getModifiersProperty(),
 				// Modifier.PUBLIC,
@@ -79,11 +137,11 @@ public class XQPreprocessor {
 				List newMod = rewrite.getAST().newModifiers(Modifier.PUBLIC);
 				node.modifiers().add(newMod.get(0));
 			}
+
 			return true;
 		}
 
 		public boolean visit(NumberLiteral node) {
-			System.out.println("NL: " + node.getToken());
 			if (!node.getToken().endsWith("f")
 					&& !node.getToken().endsWith("d")) {
 				for (int i = 0; i < node.getToken().length(); i++) {
@@ -99,7 +157,6 @@ public class XQPreprocessor {
 		}
 
 		public boolean visit(FieldDeclaration node) {
-			System.out.println("FD: " + node.toString());
 			if (node.getType().toString().equals("color"))
 				node.setType(rewrite.getAST().newPrimitiveType(
 						PrimitiveType.INT));
@@ -107,13 +164,12 @@ public class XQPreprocessor {
 		}
 
 		public boolean visit(VariableDeclarationStatement node) {
-			System.out.println("VD: " + node.toString() + ", "
-					+ node.getType().toString());
 			if (node.getType().toString().equals("color"))
 				node.setType(rewrite.getAST().newPrimitiveType(
 						PrimitiveType.INT));
 			return true;
 		}
+
 	}
 
 }

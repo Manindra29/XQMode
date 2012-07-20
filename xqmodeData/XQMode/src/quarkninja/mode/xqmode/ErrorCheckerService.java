@@ -274,8 +274,8 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("---------------------");
 	}
 
-	XQPreprocessor xqpreproc = new XQPreprocessor();;
-	
+	XQPreprocessor xqpreproc;
+
 	/**
 	 * Perform error check
 	 * 
@@ -338,14 +338,18 @@ public class ErrorCheckerService implements Runnable {
 			// }
 
 			if (problems.length == 0) {
-				xqpreproc.doYourThing(sourceCode);
+				sourceCode = xqpreproc.doYourThing(sourceCode, programImports);
+				System.out.println("Size: "+ programImports.size());
+				prepareImports(programImports);
+				mainClassOffset = xqpreproc.mainClassOffset;
+				
 				// System.out
 				// .println("No syntax errors. Let the compilation begin!");
-				// sourceCode = preProcessP5style();
-				// System.out.println("--------------------------");
-				// System.out.println(sourceCode);
-				// System.out.println("--------------------------");
-				// compileCheck();
+//				 sourceCode = preProcessP5style();
+//				 System.out.println("--------------------------");
+//				 System.out.println(sourceCode);
+//				 System.out.println("--------------------------");
+				compileCheck();
 				// if (problems.length > 0)
 				// System.out.print("Compile error count: " + problems.length
 				// + "---"
@@ -479,7 +483,7 @@ public class ErrorCheckerService implements Runnable {
 			// File f = new File(
 			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
 			if (loadCompClass) {
-				// System.out.println("Loading compcheck files...");
+				 System.out.println("Loading compcheck files...");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator
@@ -556,6 +560,9 @@ public class ErrorCheckerService implements Runnable {
 		} catch (MalformedURLException e) {
 			System.err.println("Compiltation Checker files couldn't be found! "
 					+ e + " compileCheck() problem.");
+		}catch (Exception e) {
+			System.err.println("compileCheck() problem." + e);
+			e.printStackTrace();
 		}
 
 		// System.out.println("Compilecheck, Done.");
@@ -640,6 +647,7 @@ public class ErrorCheckerService implements Runnable {
 		lastTab = editor.getSketch().getCodeIndex(
 				editor.getSketch().getCurrentCode());
 		initializeErrorWindow();
+		xqpreproc = new XQPreprocessor();
 		checkCode();
 		editor.getTextArea().repaint();
 		stopThread = false;
@@ -669,13 +677,7 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("Syntax Checker Service stopped.");
 	}
 
-	public void pauseThread() {
-
-	}
-
-	public void resumeThread() {
-
-	}
+	ArrayList<String> programImports;
 
 	/**
 	 * Fetches code from the editor tabs and pre-processes it into parsable pure
@@ -785,7 +787,7 @@ public class ErrorCheckerService implements Runnable {
 		}
 
 		// Find all import statements and remove them, add them to import list
-		ArrayList<String> programImports = new ArrayList<String>();
+		programImports = new ArrayList<String>();
 		//
 		do {
 			// System.out.println("-->\n" + sourceAlt + "\n<--");
@@ -878,6 +880,7 @@ public class ErrorCheckerService implements Runnable {
 	private void prepareImports(List<String> programImports) {
 		if (!loadCompClass)
 			return;
+		//		System.out.println("1..");
 		classpathJars = new ArrayList<URL>();
 		String entry = "";
 		boolean codeFolderChecked = false;
@@ -885,8 +888,8 @@ public class ErrorCheckerService implements Runnable {
 			int dot = item.lastIndexOf('.');
 			entry = (dot == -1) ? item : item.substring(0, dot);
 
-			// entry = entry.substring(6).trim();
-			// System.out.println("Entry--" + entry);
+			 entry = entry.substring(6).trim();
+//			 System.out.println("Entry--" + entry);
 			if (ignorableImport(entry)) {
 				// System.out.println("Ignoring: " + entry);
 				continue;
@@ -894,7 +897,7 @@ public class ErrorCheckerService implements Runnable {
 			Library library = null;
 			try {
 				library = editor.getMode().getLibrary(entry);
-				// System.out.println("lib->" + library.getClassPath() + "<-");
+//				 System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), File.pathSeparatorChar);
 				// TODO: Investigate the jar path added twice issue here
