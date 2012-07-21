@@ -384,86 +384,6 @@ public class ErrorCheckerService implements Runnable {
 			editor.statusEmpty();
 	}
 
-//	/**
-//	 * Preprocess PDE code to pure Java, P5 style. This is used only after
-//	 * eclipse ast parser has okayed the source code. SyntaxError
-//	 */
-//	private String preProcessP5style() {
-//		if (problems.length != 0) {
-//			System.err
-//					.println("Resolve syntax errors before P5 preprocessor does its thing.");
-//			return null;
-//		}
-//		PdePreprocessor preprocessor = new PdePreprocessor(editor.getSketch()
-//				.getName());
-//
-//		String[] codeFolderPackages = null;
-//		if (editor.getSketch().hasCodeFolder()) {
-//			File codeFolder = editor.getSketch().getCodeFolder();
-//			// javaLibraryPath = codeFolder.getAbsolutePath();
-//
-//			// get a list of .jar files in the "code" folder
-//			// (class files in subfolders should also be picked up)
-//			String codeFolderClassPath = Base.contentsToClassPath(codeFolder);
-//			// append the jar files in the code folder to the class path
-//			// classPath += File.pathSeparator + codeFolderClassPath;
-//			// get list of packages found in those jars
-//			codeFolderPackages = Base
-//					.packageListFromClassPath(codeFolderClassPath);
-//
-//		} else {
-//			// javaLibraryPath = "";
-//		}
-//
-//		// String[] sizeInfo;
-//		// try {
-//		// sizeInfo = preprocessor.initSketchSize(editor.getSketch()
-//		// .getCode(0).getProgram(), false);
-//		// if (sizeInfo != null) {
-//		// String sketchRenderer = sizeInfo[3];
-//		// if (sketchRenderer != null) {
-//		// if (sketchRenderer.equals("P2D")
-//		// || sketchRenderer.equals("P3D")
-//		// || sketchRenderer.equals("OPENGL")) {
-//		// rawCode.insert(0, "import processing.opengl.*; ");
-//		// }
-//		// }
-//		// }
-//		//
-//		// } catch (SketchException e) {
-//		// System.err.println(e);
-//		// }
-//		// PdePreprocessor.parseSketchSize(sketch.getMainProgram(), false);
-//		StringWriter writer = new StringWriter();
-//		try {
-//			PreprocessorResult result = preprocessor.write(writer,
-//					rawCode.toString(), codeFolderPackages);
-//			className = result.className;
-//			// prepareImports(result.extraImports);
-//			sourceCode = writer.getBuffer().toString();
-//			int position = sourceCode.indexOf("{");
-//			int lines = 0;
-//			for (int i = 0; i < position; i++) {
-//				if (sourceCode.charAt(i) == '\n')
-//					lines++;
-//			}
-//			lines += 3;
-//			// System.out.println("Lines: " + lines);
-//			mainClassOffset = lines;
-//			// System.out.println(writer.getBuffer().toString());
-//			// + "P5 preproc.\n--"
-//			// + (System.currentTimeMillis() - lastTimeStamp));
-//			// System.out.println("Result: " + result.extraImports);
-//		} catch (RecognitionException e) {
-//			System.err.println(e);
-//		} catch (TokenStreamException e) {
-//			System.err.println(e);
-//		} catch (SketchException e) {
-//			System.err.println(e);
-//		}
-//		return writer.getBuffer().toString();
-//	}
-
 	private void compileCheck() {
 		try {
 
@@ -800,39 +720,6 @@ public class ErrorCheckerService implements Runnable {
 			webMatcher = webPattern.matcher(sourceAlt);
 		}
 
-		// // Find all import statements and remove them, add them to import
-		// list
-		// programImports = new ArrayList<ImportStatement>();
-		// //
-		// do {
-		// // System.out.println("-->\n" + sourceAlt + "\n<--");
-		// String[] pieces = PApplet.match(sourceAlt, importRegexp);
-		//
-		// // Stop the loop if we've removed all the import lines
-		// if (pieces == null)
-		// break;
-		//
-		// String piece = pieces[1] + pieces[2] + pieces[3];
-		// int len = piece.length(); // how much to trim out
-		//
-		// programImports.add(piece); // the package name
-		//
-		// // find index of this import in the program
-		// int idx = sourceAlt.indexOf(piece);
-		// // System.out.print("Import -> " + piece);
-		// // System.out.println(" - "
-		// // + Base.countLines(sourceAlt.substring(0, idx)));
-		//
-		// // Remove the import from the main program
-		// String whiteSpace = "";
-		// for (int j = 0; j < piece.length(); j++) {
-		// whiteSpace += " ";
-		// }
-		// sourceAlt = sourceAlt.substring(0, idx) + whiteSpace
-		// + sourceAlt.substring(idx + len);
-		//
-		// } while (true);
-
 		checkForChangedImports();
 
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()
@@ -1110,36 +997,6 @@ public class ErrorCheckerService implements Runnable {
 		}
 	}
 
-//	public void scrollToErrorLine(int errorIndex) {
-//		if (editor == null)
-//			return;
-//		if (errorIndex < problemsList.size() && errorIndex >= 0) {
-//
-//			int offset1 = xyToOffset(
-//					problemsList.get(errorIndex).iProblem.getSourceLineNumber(),
-//					0);
-//			int offset2 = xyToOffset(
-//					problemsList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
-//					0) - 1;
-//
-//			if (editor.getCaretOffset() != offset1) {
-//				// System.out.println("offset unequal");
-//				try {
-//					editor.toFront();
-//					editor.setSelection(offset2, offset2);
-//					// editor.setSelection(offset1, offset2 - 1);
-//					editor.repaint();
-//				} catch (Exception e) {
-//					System.err
-//							.println(e
-//									+ " : Error while selecting text in scrollToErrorLine()");
-//					// e.printStackTrace();
-//				}
-//				// System.out.println("---");
-//			}
-//		}
-//	}
-
 	public void scrollToErrorLine(int errorIndex) {
 		if (editor == null)
 			return;
@@ -1174,93 +1031,6 @@ public class ErrorCheckerService implements Runnable {
 
 		}
 	}
-
-//	/**
-//	 * Converts a row no, column no. representation of cursor location to offset
-//	 * representation. Editor uses JTextArea internally which deals only with
-//	 * caret offset, not row no. and column no.
-//	 * 
-//	 * @param x
-//	 *            - row no.
-//	 * @param y
-//	 *            - column no.
-//	 * 
-//	 * @return int - Offset
-//	 */
-
-//	public int xyToOffset(int x, int y) {
-//
-//		String[] lines = {};// = PApplet.split(sourceString, '\n');
-//		int offset = 0;
-//		int codeIndex = 0;
-//		int bigCount = 0;
-//		int len = 0; // No. of lines in each tab
-//		x -= mainClassOffset;
-//		try {
-//			for (SketchCode sc : editor.getSketch().getCode()) {
-//				if (sc.isExtension("pde")) {
-//					sc.setPreprocOffset(bigCount);
-//
-//					if (editor.getSketch().getCurrentCode().equals(sc)) {
-//						lines = PApplet.split(
-//								sc.getDocument().getText(0,
-//										sc.getDocument().getLength()), '\n');
-//						// System.out.println("Getting from document "
-//						// + sc.getLineCount() + "," + lines.length);
-//						len = Base.countLines(sc.getDocument().getText(0,
-//								sc.getDocument().getLength())) + 1;
-//					} else {
-//						lines = PApplet.split(sc.getProgram(), '\n');
-//						len = Base.countLines(sc.getProgram()) + 1;
-//					}
-//
-//					// System.out.println("x,len, CI: " + x + "," + len + ","
-//					// + codeIndex);
-//
-//					// Adding + 1 to len because \n gets appended for each
-//					// sketchcode extracted during processPDECode()
-//					if (x >= len) {
-//
-//						// We're in the last tab and the line count is greater
-//						// than the no.
-//						// of lines in the tab,
-//						if (codeIndex >= editor.getSketch().getCodeCount() - 1) {
-//							editor.getSketch().setCurrentCode(
-//									editor.getSketch().getCodeCount() - 1);
-//							System.out.println("Sketch ka the end.");
-//							x = len;
-//							break;
-//						} else {
-//							x -= len;
-//							codeIndex++;
-//						}
-//					} else {
-//
-//						if (codeIndex >= editor.getSketch().getCodeCount())
-//							codeIndex = editor.getSketch().getCodeCount() - 1;
-//						editor.getSketch().setCurrentCode(codeIndex);
-//						break;
-//					}
-//
-//				}
-//				bigCount += sc.getLineCount();
-//			}
-//
-//			// Count chars till the end of previous line(x-1), keeping in mind x
-//			// starts from 1
-//			for (int i = 0; i < x - 1; i++) {
-//				if (i < lines.length)
-//					offset += lines[i].length() + 1;
-//			}
-//			// Line Columns start from 1
-//			offset += y == 0 ? 0 : y - 1;
-//		} catch (Exception e) {
-//			System.out.println("Exception in xyToOffset");
-//			e.printStackTrace();
-//		}
-//		// System.out.println("---");
-//		return offset;
-//	}
 
 	/**
 	 * Replaces non-ascii characters with their unicode escape sequences and
