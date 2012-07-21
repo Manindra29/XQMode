@@ -279,7 +279,7 @@ public class ErrorWindow extends JFrame {
 
 				handlePause(e);
 				try {
-					errorCheckerService.scrollToErrorLine(errorTable
+					errorCheckerService.scrollToErrorLine2(errorTable
 							.getSelectedRow());
 					// System.out.print("Row clicked: "
 					// + (errorTable.getSelectedRow()));

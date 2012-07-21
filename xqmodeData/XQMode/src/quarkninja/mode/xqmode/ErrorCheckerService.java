@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -339,16 +338,16 @@ public class ErrorCheckerService implements Runnable {
 
 			if (problems.length == 0) {
 				sourceCode = xqpreproc.doYourThing(sourceCode, programImports);
-				System.out.println("Size: "+ programImports.size());
+				// System.out.println("Size: "+ programImports.size());
 				prepareImports(programImports);
 				mainClassOffset = xqpreproc.mainClassOffset;
-				
+
 				// System.out
 				// .println("No syntax errors. Let the compilation begin!");
-//				 sourceCode = preProcessP5style();
-//				 System.out.println("--------------------------");
-//				 System.out.println(sourceCode);
-//				 System.out.println("--------------------------");
+				// sourceCode = preProcessP5style();
+				// System.out.println("--------------------------");
+				// System.out.println(sourceCode);
+				// System.out.println("--------------------------");
 				compileCheck();
 				// if (problems.length > 0)
 				// System.out.print("Compile error count: " + problems.length
@@ -446,7 +445,7 @@ public class ErrorCheckerService implements Runnable {
 			PreprocessorResult result = preprocessor.write(writer,
 					rawCode.toString(), codeFolderPackages);
 			className = result.className;
-			prepareImports(result.extraImports);
+			// prepareImports(result.extraImports);
 			sourceCode = writer.getBuffer().toString();
 			int position = sourceCode.indexOf("{");
 			int lines = 0;
@@ -483,7 +482,7 @@ public class ErrorCheckerService implements Runnable {
 			// File f = new File(
 			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
 			if (loadCompClass) {
-				 System.out.println("Loading compcheck files...");
+				System.out.println("XQMode: Reloading contributed libraries.");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator
@@ -560,7 +559,7 @@ public class ErrorCheckerService implements Runnable {
 		} catch (MalformedURLException e) {
 			System.err.println("Compiltation Checker files couldn't be found! "
 					+ e + " compileCheck() problem.");
-		}catch (Exception e) {
+		} catch (Exception e) {
 			System.err.println("compileCheck() problem." + e);
 			e.printStackTrace();
 		}
@@ -586,6 +585,14 @@ public class ErrorCheckerService implements Runnable {
 			System.out.println("Negative line number "
 					+ problem.getSourceLineNumber() + " , offset "
 					+ mainClassOffset);
+			x = problem.getSourceLineNumber() - 2; // Another -1 for 0 index
+			if (x < programImports.size() && x >= 0) {
+				ImportStatement is = programImports.get(x);
+				System.out.println(is.importName + ", " + is.tab + ", "
+						+ is.lineNumber);
+				return new int[] { is.tab, is.lineNumber };
+			}
+
 		}
 
 		try {
@@ -677,7 +684,7 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("Syntax Checker Service stopped.");
 	}
 
-	ArrayList<String> programImports;
+	ArrayList<ImportStatement> programImports;
 
 	/**
 	 * Fetches code from the editor tabs and pre-processes it into parsable pure
@@ -691,7 +698,7 @@ public class ErrorCheckerService implements Runnable {
 	private String preprocessCode() {
 
 		String sourceAlt = "";
-
+		programImports = new ArrayList<ImportStatement>();
 		if (editor == null) {
 			try {
 				sourceAlt = readFile(PATH);
@@ -723,11 +730,20 @@ public class ErrorCheckerService implements Runnable {
 
 						try {
 
-							if (editor.getSketch().getCurrentCode().equals(sc))
-								rawCode.append(sc.getDocument().getText(0,
-										sc.getDocument().getLength()));
-							else {
-								rawCode.append(sc.getProgram());
+							if (editor.getSketch().getCurrentCode().equals(sc)) {
+
+								// rawCode.append(sc.getDocument().getText(0,
+								// sc.getDocument().getLength()));
+								rawCode.append(scrapImportStatements(
+										sc.getDocument().getText(0,
+												sc.getDocument().getLength()),
+										editor.getSketch().getCodeIndex(sc)));
+							} else {
+
+								// rawCode.append(sc.getProgram());
+								rawCode.append(scrapImportStatements(sc
+										.getProgram(), editor.getSketch()
+										.getCodeIndex(sc)));
 
 							}
 							rawCode.append('\n');
@@ -786,37 +802,40 @@ public class ErrorCheckerService implements Runnable {
 			webMatcher = webPattern.matcher(sourceAlt);
 		}
 
-		// Find all import statements and remove them, add them to import list
-		programImports = new ArrayList<String>();
+		// // Find all import statements and remove them, add them to import
+		// list
+		// programImports = new ArrayList<ImportStatement>();
+		// //
+		// do {
+		// // System.out.println("-->\n" + sourceAlt + "\n<--");
+		// String[] pieces = PApplet.match(sourceAlt, importRegexp);
 		//
-		do {
-			// System.out.println("-->\n" + sourceAlt + "\n<--");
-			String[] pieces = PApplet.match(sourceAlt, importRegexp);
+		// // Stop the loop if we've removed all the import lines
+		// if (pieces == null)
+		// break;
+		//
+		// String piece = pieces[1] + pieces[2] + pieces[3];
+		// int len = piece.length(); // how much to trim out
+		//
+		// programImports.add(piece); // the package name
+		//
+		// // find index of this import in the program
+		// int idx = sourceAlt.indexOf(piece);
+		// // System.out.print("Import -> " + piece);
+		// // System.out.println(" - "
+		// // + Base.countLines(sourceAlt.substring(0, idx)));
+		//
+		// // Remove the import from the main program
+		// String whiteSpace = "";
+		// for (int j = 0; j < piece.length(); j++) {
+		// whiteSpace += " ";
+		// }
+		// sourceAlt = sourceAlt.substring(0, idx) + whiteSpace
+		// + sourceAlt.substring(idx + len);
+		//
+		// } while (true);
 
-			// Stop the loop if we've removed all the import lines
-			if (pieces == null)
-				break;
-
-			String piece = pieces[1] + pieces[2] + pieces[3];
-			int len = piece.length(); // how much to trim out
-
-			programImports.add(piece); // the package name
-			// System.out.println("Import -> " + piece);
-
-			// find index of this import in the program
-			int idx = sourceAlt.indexOf(piece);
-
-			// Remove the import from the main program
-			String whiteSpace = "";
-			for (int j = 0; j < piece.length(); j++) {
-				whiteSpace += " ";
-			}
-			sourceAlt = sourceAlt.substring(0, idx) + whiteSpace
-					+ sourceAlt.substring(idx + len);
-
-		} while (true);
-
-		checkForChangedImports(programImports);
+		checkForChangedImports();
 
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()
 				.getName();
@@ -848,18 +867,67 @@ public class ErrorCheckerService implements Runnable {
 		return sourceAlt;
 	}
 
-	ArrayList<String> previousImports = new ArrayList<String>();
+	final String importRegexp = "(?:^|;)\\s*(import\\s+)((?:static\\s+)?\\S+)(\\s*;)";
 
-	private void checkForChangedImports(ArrayList<String> programImports) {
+	/**
+	 * Will remove imports from tabSource, replace with blank line and add the
+	 * import to the list of program imports
+	 * 
+	 * @param tabSource
+	 * @param tabNumber
+	 */
+	private String scrapImportStatements(String ts, int tabNumber) {
+
+		String tabSource = new String(ts);
+		do {
+			// System.out.println("-->\n" + sourceAlt + "\n<--");
+			String[] pieces = PApplet.match(tabSource, importRegexp);
+
+			// Stop the loop if we've removed all the import lines
+			if (pieces == null)
+				break;
+
+			String piece = pieces[1] + pieces[2] + pieces[3];
+			int len = piece.length(); // how much to trim out
+
+			// programImports.add(piece); // the package name
+
+			// find index of this import in the program
+			int idx = tabSource.indexOf(piece);
+			// System.out.print("Import -> " + piece);
+			// System.out.println(" - "
+			// + Base.countLines(tabSource.substring(0, idx)) + " tab "
+			// + tabNumber);
+			programImports.add(new ImportStatement(piece, tabNumber, Base
+					.countLines(tabSource.substring(0, idx))));
+			// Remove the import from the main program
+			String whiteSpace = "";
+			for (int j = 0; j < piece.length(); j++) {
+				whiteSpace += " ";
+			}
+			tabSource = tabSource.substring(0, idx) + whiteSpace
+					+ tabSource.substring(idx + len);
+
+		} while (true);
+		// System.out.println(tabSource);
+		return tabSource;
+	}
+
+	ArrayList<ImportStatement> previousImports = new ArrayList<ImportStatement>();
+
+	private void checkForChangedImports() {
 		// System.out.println("Imports: " + programImports.size() +
 		// " Prev Imp: "
 		// + previousImports.size());
 		if (programImports.size() != previousImports.size()) {
+			// System.out.println(1);
 			loadCompClass = true;
 			previousImports = programImports;
 		} else {
 			for (int i = 0; i < programImports.size(); i++) {
-				if (!programImports.get(i).equals(previousImports.get(i))) {
+				if (!programImports.get(i).importName.equals(previousImports
+						.get(i).importName)) {
+					// System.out.println(2);
 					loadCompClass = true;
 					previousImports = programImports;
 					break;
@@ -875,21 +943,22 @@ public class ErrorCheckerService implements Runnable {
 	 * stuff(jar files, class files, candy) from the code folder. And I've
 	 * messed it up horribly.
 	 * 
-	 * @param programImports
+	 * @param programImports2
 	 */
-	private void prepareImports(List<String> programImports) {
+	private void prepareImports(ArrayList<ImportStatement> programImports2) {
 		if (!loadCompClass)
 			return;
-		//		System.out.println("1..");
+		// System.out.println("1..");
 		classpathJars = new ArrayList<URL>();
 		String entry = "";
 		boolean codeFolderChecked = false;
-		for (String item : programImports) {
+		for (ImportStatement impstat : programImports2) {
+			String item = impstat.importName;
 			int dot = item.lastIndexOf('.');
 			entry = (dot == -1) ? item : item.substring(0, dot);
 
-			 entry = entry.substring(6).trim();
-//			 System.out.println("Entry--" + entry);
+			entry = entry.substring(6).trim();
+			// System.out.println("Entry--" + entry);
 			if (ignorableImport(entry)) {
 				// System.out.println("Ignoring: " + entry);
 				continue;
@@ -897,11 +966,11 @@ public class ErrorCheckerService implements Runnable {
 			Library library = null;
 			try {
 				library = editor.getMode().getLibrary(entry);
-//				 System.out.println("lib->" + library.getClassPath() + "<-");
+				// System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), File.pathSeparatorChar);
 				// TODO: Investigate the jar path added twice issue here
-				for (int i = 0; i < libraryPath.length / 2; i++) {
+				for (int i = 0; i < libraryPath.length; i++) {
 					// System.out.println(entry + " ::"
 					// + new File(libraryPath[i]).toURI().toURL());
 					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
@@ -1070,6 +1139,44 @@ public class ErrorCheckerService implements Runnable {
 				}
 				// System.out.println("---");
 			}
+		}
+	}
+
+	public void scrollToErrorLine2(int errorIndex) {
+		if (editor == null)
+			return;
+		if (errorIndex < problemsList.size() && errorIndex >= 0) {
+			//
+			// int offset1 = xyToOffset(
+			// problemsList.get(errorIndex).iProblem.getSourceLineNumber(),
+			// 0);
+			// int offset2 = xyToOffset(
+			// problemsList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
+			// 0) - 1;
+			Problem p = problemsList.get(errorIndex);
+
+			// System.out.println("offset unequal");
+			try {
+				editor.toFront();
+				editor.getSketch().setCurrentCode(p.tabIndex);
+				editor.getTextArea().scrollTo(p.lineNumber - 1, 0);
+				editor.setSelection(
+						editor.getTextArea().getLineStartNonWhiteSpaceOffset(
+								p.lineNumber - 1)
+								+ editor.getTextArea()
+										.getLineText(p.lineNumber - 1).trim()
+										.length(),
+						editor.getTextArea().getLineStartNonWhiteSpaceOffset(
+								p.lineNumber - 1));
+				editor.repaint();
+			} catch (Exception e) {
+				System.err
+						.println(e
+								+ " : Error while selecting text in scrollToErrorLine()");
+				// e.printStackTrace();
+			}
+			// System.out.println("---");
+
 		}
 	}
 

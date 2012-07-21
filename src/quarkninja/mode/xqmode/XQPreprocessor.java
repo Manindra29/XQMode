@@ -35,10 +35,12 @@ public class XQPreprocessor {
 
 	private ASTRewrite rewrite = null;
 	public int mainClassOffset = 0;
-	ArrayList<String> imports, extraImports;
+	ArrayList<String> imports;
+	ArrayList<ImportStatement> extraImports;
 
-	public String doYourThing(String source, ArrayList<String> extraImports) {
-		this.extraImports = extraImports;
+	public String doYourThing(String source,
+			ArrayList<ImportStatement> programImports) {
+		this.extraImports = programImports;
 		source = prepareImports() + source;
 		Document doc = new Document(source);
 
@@ -66,8 +68,8 @@ public class XQPreprocessor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		// System.out.println(doc.get());
-		// System.out.println("------------XQPreProc End-----------------");
+		 System.out.println(doc.get());
+		 System.out.println("------------XQPreProc End-----------------");
 
 		// Calculate main class offset
 		int position = doc.get().indexOf("{") + 1;
@@ -86,7 +88,7 @@ public class XQPreprocessor {
 	public String prepareImports() {
 		imports = new ArrayList<String>();
 		for (int i = 0; i < extraImports.size(); i++) {
-			imports.add(new String(extraImports.get(i)));
+			imports.add(new String(extraImports.get(i).importName));
 		}
 		imports.add(new String("// Default Imports"));
 		for (int i = 0; i < getCoreImports().length; i++) {
