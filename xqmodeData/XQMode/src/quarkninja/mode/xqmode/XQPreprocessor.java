@@ -68,8 +68,8 @@ public class XQPreprocessor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		 System.out.println(doc.get());
-		 System.out.println("------------XQPreProc End-----------------");
+//		 System.out.println(doc.get());
+//		 System.out.println("------------XQPreProc End-----------------");
 
 		// Calculate main class offset
 		int position = doc.get().indexOf("{") + 1;

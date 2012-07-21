@@ -28,7 +28,7 @@ X - Eclipse like error bar on the right of the editor text area. More UI design 
 Error Checker Service(ECS)
 ----------------------
 
-O - Deal with negative line numbers(compiler errors in import statements)
+X - Deal with negative line numbers(compiler errors in import statements)
 O - What if compile check interface can be removed? Remember *that* blog?
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more.

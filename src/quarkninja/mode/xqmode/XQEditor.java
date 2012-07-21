@@ -98,7 +98,6 @@ public class XQEditor extends JavaEditor {
 	XQTextArea ta;
 
 	protected JEditTextArea createTextArea() {
-		System.out.println("overriding creation of text area");
 		ta = new XQTextArea(new PdeTextAreaDefaults(mode));
 
 		return ta;
