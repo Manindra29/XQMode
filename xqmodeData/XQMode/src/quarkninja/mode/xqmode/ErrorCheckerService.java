@@ -217,17 +217,27 @@ public class ErrorCheckerService implements Runnable {
 		this.errorBar = erb;
 	}
 
+	/**
+	 * 
+	 */
 	private void initParser() {
-		parser = ASTParser.newParser(AST.JLS4);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-
-		@SuppressWarnings("unchecked")
-		Map<String, String> options = JavaCore.getOptions();
-
-		// Ben has decided to move on to 1.6. Yay!
-		JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-		parser.setCompilerOptions(options);
+		try {
+			parser = ASTParser.newParser(AST.JLS4);
+		} catch (Exception e) {
+			System.err
+					.println("XQMode initialization failed. Are you running the right version of Processing? "
+							+ "Think about it.");
+			stopThread = true;
+		}
+		// parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		//
+		// @SuppressWarnings("unchecked")
+		// Map<String, String> options = JavaCore.getOptions();
+		//
+		// // Ben has decided to move on to 1.6. Yay!
+		// JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
+		// options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		// parser.setCompilerOptions(options);
 	}
 
 	/**
@@ -267,7 +277,10 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("---------------------");
 	}
 
-	XQPreprocessor xqpreproc;
+	/**
+	 * Teh Preprocessor
+	 */
+	public XQPreprocessor xqpreproc;
 
 	/**
 	 * Perform error check
@@ -276,64 +289,23 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	public boolean checkCode() {
 		// Reset stuff here, maybe make reset()?
-		String source = "";
 		sourceCode = "";
 		compileCheck = false;
 		lastTimeStamp = System.currentTimeMillis();
 
 		try {
 			if (editor != null)
-				source = preprocessCode();
+				sourceCode = preprocessCode();
 			else {
-				source = readFile(PATH);
-				sourceCode = source;
+				sourceCode = readFile(PATH);
 			}
 
-			parser.setSource(source.toCharArray());
-			parser.setKind(ASTParser.K_COMPILATION_UNIT);
-
-			@SuppressWarnings("unchecked")
-			Map<String, String> options = JavaCore.getOptions();
-
-			// Ben has decided to move on to 1.6. Yay!
-			JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-			parser.setCompilerOptions(options);
-			cu = (CompilationUnit) parser.createAST(null);
-
-			// Store errors returned by the ast parser
-			problems = cu.getProblems();
-			// if (problems.length > 0)
-			// System.out.println("Syntax error count: " + problems.length
-			// + "---" + (System.currentTimeMillis() - lastTimeStamp)
-			// + "ms || ");
-
-			// // Populate the probList
-			problemsList = new ArrayList<Problem>();
-			for (int i = 0; i < problems.length; i++) {
-
-				int a[] = calculateTabIndexAndLineNumber(problems[i]);
-				problemsList.add(new Problem(problems[i], a[0], a[1]));
-			}
-
-			// if (editor == null) {
-			// if (problems.length == 0)
-			// System.out.println("No syntax errors.");
-			// else {
-			// System.out.println("Syntax errors: ");
-			// for (int i = 0; i < problems.length; i++) {
-			// System.out.println(problems[i].getMessage()
-			// + " | Line no. "
-			// + (problems[i].getSourceLineNumber() - 1));
-			// // Class offset is line 1 for now
-			// }
-			// }
-			// }
+			syntaxCheck();
 
 			if (problems.length == 0) {
 				sourceCode = xqpreproc.doYourThing(sourceCode, programImports);
 				// System.out.println("Size: "+ programImports.size());
-				prepareImports(programImports);
+				prepareCompilerClasspath();
 				mainClassOffset = xqpreproc.mainClassOffset;
 
 				// System.out
@@ -384,86 +356,52 @@ public class ErrorCheckerService implements Runnable {
 			editor.statusEmpty();
 	}
 
-//	/**
-//	 * Preprocess PDE code to pure Java, P5 style. This is used only after
-//	 * eclipse ast parser has okayed the source code. SyntaxError
-//	 */
-//	private String preProcessP5style() {
-//		if (problems.length != 0) {
-//			System.err
-//					.println("Resolve syntax errors before P5 preprocessor does its thing.");
-//			return null;
-//		}
-//		PdePreprocessor preprocessor = new PdePreprocessor(editor.getSketch()
-//				.getName());
-//
-//		String[] codeFolderPackages = null;
-//		if (editor.getSketch().hasCodeFolder()) {
-//			File codeFolder = editor.getSketch().getCodeFolder();
-//			// javaLibraryPath = codeFolder.getAbsolutePath();
-//
-//			// get a list of .jar files in the "code" folder
-//			// (class files in subfolders should also be picked up)
-//			String codeFolderClassPath = Base.contentsToClassPath(codeFolder);
-//			// append the jar files in the code folder to the class path
-//			// classPath += File.pathSeparator + codeFolderClassPath;
-//			// get list of packages found in those jars
-//			codeFolderPackages = Base
-//					.packageListFromClassPath(codeFolderClassPath);
-//
-//		} else {
-//			// javaLibraryPath = "";
-//		}
-//
-//		// String[] sizeInfo;
-//		// try {
-//		// sizeInfo = preprocessor.initSketchSize(editor.getSketch()
-//		// .getCode(0).getProgram(), false);
-//		// if (sizeInfo != null) {
-//		// String sketchRenderer = sizeInfo[3];
-//		// if (sketchRenderer != null) {
-//		// if (sketchRenderer.equals("P2D")
-//		// || sketchRenderer.equals("P3D")
-//		// || sketchRenderer.equals("OPENGL")) {
-//		// rawCode.insert(0, "import processing.opengl.*; ");
-//		// }
-//		// }
-//		// }
-//		//
-//		// } catch (SketchException e) {
-//		// System.err.println(e);
-//		// }
-//		// PdePreprocessor.parseSketchSize(sketch.getMainProgram(), false);
-//		StringWriter writer = new StringWriter();
-//		try {
-//			PreprocessorResult result = preprocessor.write(writer,
-//					rawCode.toString(), codeFolderPackages);
-//			className = result.className;
-//			// prepareImports(result.extraImports);
-//			sourceCode = writer.getBuffer().toString();
-//			int position = sourceCode.indexOf("{");
-//			int lines = 0;
-//			for (int i = 0; i < position; i++) {
-//				if (sourceCode.charAt(i) == '\n')
-//					lines++;
-//			}
-//			lines += 3;
-//			// System.out.println("Lines: " + lines);
-//			mainClassOffset = lines;
-//			// System.out.println(writer.getBuffer().toString());
-//			// + "P5 preproc.\n--"
-//			// + (System.currentTimeMillis() - lastTimeStamp));
-//			// System.out.println("Result: " + result.extraImports);
-//		} catch (RecognitionException e) {
-//			System.err.println(e);
-//		} catch (TokenStreamException e) {
-//			System.err.println(e);
-//		} catch (SketchException e) {
-//			System.err.println(e);
-//		}
-//		return writer.getBuffer().toString();
-//	}
+	private void syntaxCheck() {
+		parser.setSource(sourceCode.toCharArray());
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
+		@SuppressWarnings("unchecked")
+		Map<String, String> options = JavaCore.getOptions();
+
+		// Ben has decided to move on to 1.6. Yay!
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		parser.setCompilerOptions(options);
+		cu = (CompilationUnit) parser.createAST(null);
+
+		// Store errors returned by the ast parser
+		problems = cu.getProblems();
+		// if (problems.length > 0)
+		// System.out.println("Syntax error count: " + problems.length
+		// + "---" + (System.currentTimeMillis() - lastTimeStamp)
+		// + "ms || ");
+
+		// // Populate the probList
+		problemsList = new ArrayList<Problem>();
+		for (int i = 0; i < problems.length; i++) {
+
+			int a[] = calculateTabIndexAndLineNumber(problems[i]);
+			problemsList.add(new Problem(problems[i], a[0], a[1]));
+		}
+
+		// if (editor == null) {
+		// if (problems.length == 0)
+		// System.out.println("No syntax errors.");
+		// else {
+		// System.out.println("Syntax errors: ");
+		// for (int i = 0; i < problems.length; i++) {
+		// System.out.println(problems[i].getMessage()
+		// + " | Line no. "
+		// + (problems[i].getSourceLineNumber() - 1));
+		// // Class offset is line 1 for now
+		// }
+		// }
+		// }
+	}
+
+	/**
+	 * The name can't get any simpler, can it?
+	 */
 	private void compileCheck() {
 		try {
 
@@ -582,8 +520,8 @@ public class ErrorCheckerService implements Runnable {
 			x = problem.getSourceLineNumber() - 2; // Another -1 for 0 index
 			if (x < programImports.size() && x >= 0) {
 				ImportStatement is = programImports.get(x);
-				System.out.println(is.importName + ", " + is.tab + ", "
-						+ is.lineNumber);
+				// System.out.println(is.importName + ", " + is.tab + ", "
+				// + is.lineNumber);
 				return new int[] { is.tab, is.lineNumber };
 			} else {
 
@@ -800,39 +738,6 @@ public class ErrorCheckerService implements Runnable {
 			webMatcher = webPattern.matcher(sourceAlt);
 		}
 
-		// // Find all import statements and remove them, add them to import
-		// list
-		// programImports = new ArrayList<ImportStatement>();
-		// //
-		// do {
-		// // System.out.println("-->\n" + sourceAlt + "\n<--");
-		// String[] pieces = PApplet.match(sourceAlt, importRegexp);
-		//
-		// // Stop the loop if we've removed all the import lines
-		// if (pieces == null)
-		// break;
-		//
-		// String piece = pieces[1] + pieces[2] + pieces[3];
-		// int len = piece.length(); // how much to trim out
-		//
-		// programImports.add(piece); // the package name
-		//
-		// // find index of this import in the program
-		// int idx = sourceAlt.indexOf(piece);
-		// // System.out.print("Import -> " + piece);
-		// // System.out.println(" - "
-		// // + Base.countLines(sourceAlt.substring(0, idx)));
-		//
-		// // Remove the import from the main program
-		// String whiteSpace = "";
-		// for (int j = 0; j < piece.length(); j++) {
-		// whiteSpace += " ";
-		// }
-		// sourceAlt = sourceAlt.substring(0, idx) + whiteSpace
-		// + sourceAlt.substring(idx + len);
-		//
-		// } while (true);
-
 		checkForChangedImports();
 
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()
@@ -868,15 +773,15 @@ public class ErrorCheckerService implements Runnable {
 	final String importRegexp = "(?:^|;)\\s*(import\\s+)((?:static\\s+)?\\S+)(\\s*;)";
 
 	/**
-	 * Will remove imports from tabSource, replace with blank line and add the
-	 * import to the list of program imports
+	 * Removes import statements from tabSource, replaces each with blank line
+	 * and adds the import to the list of program imports
 	 * 
 	 * @param tabSource
 	 * @param tabNumber
 	 */
-	private String scrapImportStatements(String ts, int tabNumber) {
+	private String scrapImportStatements(String tabProgram, int tabNumber) {
 
-		String tabSource = new String(ts);
+		String tabSource = new String(tabProgram);
 		do {
 			// System.out.println("-->\n" + sourceAlt + "\n<--");
 			String[] pieces = PApplet.match(tabSource, importRegexp);
@@ -911,8 +816,16 @@ public class ErrorCheckerService implements Runnable {
 		return tabSource;
 	}
 
+	/**
+	 * List of imports when sketch was last checked. Used for checking for
+	 * changed imports
+	 */
 	ArrayList<ImportStatement> previousImports = new ArrayList<ImportStatement>();
 
+	/**
+	 * Checks if import statements in the sketch have changed. If they have,
+	 * compiler classpath needs refreshing
+	 */
 	private void checkForChangedImports() {
 		// System.out.println("Imports: " + programImports.size() +
 		// " Prev Imp: "
@@ -941,16 +854,16 @@ public class ErrorCheckerService implements Runnable {
 	 * stuff(jar files, class files, candy) from the code folder. And I've
 	 * messed it up horribly.
 	 * 
-	 * @param programImports2
+	 * @param programImports
 	 */
-	private void prepareImports(ArrayList<ImportStatement> programImports2) {
+	private void prepareCompilerClasspath() {
 		if (!loadCompClass)
 			return;
 		// System.out.println("1..");
 		classpathJars = new ArrayList<URL>();
 		String entry = "";
 		boolean codeFolderChecked = false;
-		for (ImportStatement impstat : programImports2) {
+		for (ImportStatement impstat : programImports) {
 			String item = impstat.importName;
 			int dot = item.lastIndexOf('.');
 			entry = (dot == -1) ? item : item.substring(0, dot);
@@ -992,10 +905,16 @@ public class ErrorCheckerService implements Runnable {
 						codeFolderChecked = true;
 						if (codeFolderClassPath.equalsIgnoreCase("")) {
 							System.err.println("XQMODE: Yikes! Can't find \""
-									+ entry + "\" library!");
+									+ entry
+									+ "\" library! Line: "
+									+ impstat.lineNumber
+									+ " in tab: "
+									+ editor.getSketch().getCode(impstat.tab)
+											.getPrettyName());
 							System.out
 									.println("Please make sure that the library is present in <sketchbook "
 											+ "folder>/libraries folder or in the code folder of your sketch");
+
 						}
 						String codeFolderPath[] = PApplet.split(
 								codeFolderClassPath.substring(1).trim(),
@@ -1013,7 +932,12 @@ public class ErrorCheckerService implements Runnable {
 						}
 					} else {
 						System.err.println("XQMODE: Yikes! Can't find \""
-								+ entry + "\" library!");
+								+ entry
+								+ "\" library! Line: "
+								+ impstat.lineNumber
+								+ " in tab: "
+								+ editor.getSketch().getCode(impstat.tab)
+										.getPrettyName());
 						System.out
 								.println("Please make sure that the library is present in <sketchbook "
 										+ "folder>/libraries folder or in the code folder of your sketch");
@@ -1110,50 +1034,16 @@ public class ErrorCheckerService implements Runnable {
 		}
 	}
 
-//	public void scrollToErrorLine(int errorIndex) {
-//		if (editor == null)
-//			return;
-//		if (errorIndex < problemsList.size() && errorIndex >= 0) {
-//
-//			int offset1 = xyToOffset(
-//					problemsList.get(errorIndex).iProblem.getSourceLineNumber(),
-//					0);
-//			int offset2 = xyToOffset(
-//					problemsList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
-//					0) - 1;
-//
-//			if (editor.getCaretOffset() != offset1) {
-//				// System.out.println("offset unequal");
-//				try {
-//					editor.toFront();
-//					editor.setSelection(offset2, offset2);
-//					// editor.setSelection(offset1, offset2 - 1);
-//					editor.repaint();
-//				} catch (Exception e) {
-//					System.err
-//							.println(e
-//									+ " : Error while selecting text in scrollToErrorLine()");
-//					// e.printStackTrace();
-//				}
-//				// System.out.println("---");
-//			}
-//		}
-//	}
-
+	/**
+	 * Scrolls to the error source in code. Used by ErrorWindow and ErrorBar
+	 * 
+	 * @param errorIndex
+	 */
 	public void scrollToErrorLine(int errorIndex) {
 		if (editor == null)
 			return;
 		if (errorIndex < problemsList.size() && errorIndex >= 0) {
-			//
-			// int offset1 = xyToOffset(
-			// problemsList.get(errorIndex).iProblem.getSourceLineNumber(),
-			// 0);
-			// int offset2 = xyToOffset(
-			// problemsList.get(errorIndex).iProblem.getSourceLineNumber() + 1,
-			// 0) - 1;
 			Problem p = problemsList.get(errorIndex);
-
-			// System.out.println("offset unequal");
 			try {
 				editor.toFront();
 				editor.getSketch().setCurrentCode(p.tabIndex);
@@ -1174,93 +1064,6 @@ public class ErrorCheckerService implements Runnable {
 
 		}
 	}
-
-//	/**
-//	 * Converts a row no, column no. representation of cursor location to offset
-//	 * representation. Editor uses JTextArea internally which deals only with
-//	 * caret offset, not row no. and column no.
-//	 * 
-//	 * @param x
-//	 *            - row no.
-//	 * @param y
-//	 *            - column no.
-//	 * 
-//	 * @return int - Offset
-//	 */
-
-//	public int xyToOffset(int x, int y) {
-//
-//		String[] lines = {};// = PApplet.split(sourceString, '\n');
-//		int offset = 0;
-//		int codeIndex = 0;
-//		int bigCount = 0;
-//		int len = 0; // No. of lines in each tab
-//		x -= mainClassOffset;
-//		try {
-//			for (SketchCode sc : editor.getSketch().getCode()) {
-//				if (sc.isExtension("pde")) {
-//					sc.setPreprocOffset(bigCount);
-//
-//					if (editor.getSketch().getCurrentCode().equals(sc)) {
-//						lines = PApplet.split(
-//								sc.getDocument().getText(0,
-//										sc.getDocument().getLength()), '\n');
-//						// System.out.println("Getting from document "
-//						// + sc.getLineCount() + "," + lines.length);
-//						len = Base.countLines(sc.getDocument().getText(0,
-//								sc.getDocument().getLength())) + 1;
-//					} else {
-//						lines = PApplet.split(sc.getProgram(), '\n');
-//						len = Base.countLines(sc.getProgram()) + 1;
-//					}
-//
-//					// System.out.println("x,len, CI: " + x + "," + len + ","
-//					// + codeIndex);
-//
-//					// Adding + 1 to len because \n gets appended for each
-//					// sketchcode extracted during processPDECode()
-//					if (x >= len) {
-//
-//						// We're in the last tab and the line count is greater
-//						// than the no.
-//						// of lines in the tab,
-//						if (codeIndex >= editor.getSketch().getCodeCount() - 1) {
-//							editor.getSketch().setCurrentCode(
-//									editor.getSketch().getCodeCount() - 1);
-//							System.out.println("Sketch ka the end.");
-//							x = len;
-//							break;
-//						} else {
-//							x -= len;
-//							codeIndex++;
-//						}
-//					} else {
-//
-//						if (codeIndex >= editor.getSketch().getCodeCount())
-//							codeIndex = editor.getSketch().getCodeCount() - 1;
-//						editor.getSketch().setCurrentCode(codeIndex);
-//						break;
-//					}
-//
-//				}
-//				bigCount += sc.getLineCount();
-//			}
-//
-//			// Count chars till the end of previous line(x-1), keeping in mind x
-//			// starts from 1
-//			for (int i = 0; i < x - 1; i++) {
-//				if (i < lines.length)
-//					offset += lines[i].length() + 1;
-//			}
-//			// Line Columns start from 1
-//			offset += y == 0 ? 0 : y - 1;
-//		} catch (Exception e) {
-//			System.out.println("Exception in xyToOffset");
-//			e.printStackTrace();
-//		}
-//		// System.out.println("---");
-//		return offset;
-//	}
 
 	/**
 	 * Replaces non-ascii characters with their unicode escape sequences and

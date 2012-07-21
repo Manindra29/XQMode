@@ -68,8 +68,8 @@ public class XQPreprocessor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-//		 System.out.println(doc.get());
-//		 System.out.println("------------XQPreProc End-----------------");
+		// System.out.println(doc.get());
+		// System.out.println("------------XQPreProc End-----------------");
 
 		// Calculate main class offset
 		int position = doc.get().indexOf("{") + 1;
@@ -116,6 +116,7 @@ public class XQPreprocessor {
 	}
 
 	private class XQASTVisitor extends ASTVisitor {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean visit(MethodDeclaration node) {
 			if (node.getReturnType2() != null) {
 				// if return type is color, make it int

@@ -22,8 +22,6 @@
 
 package quarkninja.mode.xqmode;
 
-import java.util.Iterator;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

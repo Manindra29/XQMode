@@ -23,17 +23,12 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
-import java.awt.CheckboxMenuItem;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.swing.Box;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import processing.app.Base;
