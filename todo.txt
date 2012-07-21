@@ -6,6 +6,7 @@ O - to be pwned, X - pwned
 General
 -------
 
+X - Add standard mode examples to example viewer.
 X - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
 	Sketches using OpenGL don't run from contributed modes. Fixed.
 O - Explore adding components to Editor window. Done to some extent. 
@@ -31,9 +32,9 @@ Error Checker Service(ECS)
 X - Deal with negative line numbers(compiler errors in import statements)
 O - What if compile check interface can be removed? Remember *that* blog?
 O - Create a list of ignorable warnings - Discuss with Dan
-	SerializableVersionID, and more.
-O - Ignore Unused import warning for default imports only. Currently all unused imports ignored.
-O - Handle library not found scenarios. Only error msg shown. TODO: Scroll to import. Overkill?
+	SerializableVersionID, and more. Raw type warnings?
+X - Ignore Unused import warning for default imports only. Currently all unused imports ignored. Nope.
+X - Handle library not found scenarios. Only error msg will be shown. No scroll to import.
 O - Add support for .java tabs - lower priority.
 
 X - Custom preprocessor almost implemented. Lots of testing required.

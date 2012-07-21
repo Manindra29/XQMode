@@ -26,13 +26,6 @@ import processing.core.PApplet;
 
 public class XQPreprocessor {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	private ASTRewrite rewrite = null;
 	public int mainClassOffset = 0;
 	ArrayList<String> imports;
@@ -115,6 +108,18 @@ public class XQPreprocessor {
 		return PApplet.splitTokens(prefsLine, ", ");
 	}
 
+	/**
+	 * <LI>Any function not specified as being protected
+	 * or private will be made 'public'. This means that <TT>void setup()</TT>
+	 * becomes <TT>public void setup()</TT>.
+	 * 
+	 * <LI>Converts doubles into floats, i.e. 12.3 becomes 12.3f so that people don't have to
+	 * add f after their numbers all the time since it's confusing for
+	 * beginners. Also, most functions of p5 core deal with floats only.
+	 * 
+	 * @author Manindra Moharana
+	 * 
+	 */
 	private class XQASTVisitor extends ASTVisitor {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean visit(MethodDeclaration node) {

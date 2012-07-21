@@ -125,7 +125,7 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	public int mainClassOffset;
 
-	public boolean staticMode = false;
+	public boolean basicMode = false;
 	private CompilationUnit cu;
 
 	public boolean importsAdded = false;
@@ -218,7 +218,7 @@ public class ErrorCheckerService implements Runnable {
 	}
 
 	/**
-	 * 
+	 * Initializes ASRTParser
 	 */
 	private void initParser() {
 		try {
@@ -227,17 +227,8 @@ public class ErrorCheckerService implements Runnable {
 			System.err
 					.println("XQMode initialization failed. Are you running the right version of Processing? "
 							+ "Think about it.");
-			stopThread = true;
+			pauseThread = true;
 		}
-		// parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		//
-		// @SuppressWarnings("unchecked")
-		// Map<String, String> options = JavaCore.getOptions();
-		//
-		// // Ben has decided to move on to 1.6. Yay!
-		// JavaCore.setComplianceOptions(JavaCore.VERSION_1_6, options);
-		// options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-		// parser.setCompilerOptions(options);
 	}
 
 	/**
@@ -300,26 +291,20 @@ public class ErrorCheckerService implements Runnable {
 				sourceCode = readFile(PATH);
 			}
 
+			// Begin Stage 1!
 			syntaxCheck();
 
+			// No syntax errors, proceed for compilation check, Stage 2.
 			if (problems.length == 0) {
 				sourceCode = xqpreproc.doYourThing(sourceCode, programImports);
-				// System.out.println("Size: "+ programImports.size());
 				prepareCompilerClasspath();
 				mainClassOffset = xqpreproc.mainClassOffset;
-
-				// System.out
-				// .println("No syntax errors. Let the compilation begin!");
-				// sourceCode = preProcessP5style();
+				if (basicMode)
+					mainClassOffset++;
 				// System.out.println("--------------------------");
 				// System.out.println(sourceCode);
 				// System.out.println("--------------------------");
 				compileCheck();
-				// if (problems.length > 0)
-				// System.out.print("Compile error count: " + problems.length
-				// + "---"
-				// + (System.currentTimeMillis() - lastTimeStamp)
-				// + "ms || ");
 				compileCheck = true;
 			}
 
@@ -338,6 +323,10 @@ public class ErrorCheckerService implements Runnable {
 		return false;
 	}
 
+	/**
+	 * Updates editor status bar, depending on whether the caret on an error
+	 * line or not
+	 */
 	public void updateEditorStatus() {
 		// editor.statusNotice("Position: " +
 		// editor.getTextArea().getCaretLine());
@@ -356,6 +345,9 @@ public class ErrorCheckerService implements Runnable {
 			editor.statusEmpty();
 	}
 
+	/**
+	 * Performs syntax check.
+	 */
 	private void syntaxCheck() {
 		parser.setSource(sourceCode.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -379,7 +371,6 @@ public class ErrorCheckerService implements Runnable {
 		// // Populate the probList
 		problemsList = new ArrayList<Problem>();
 		for (int i = 0; i < problems.length; i++) {
-
 			int a[] = calculateTabIndexAndLineNumber(problems[i]);
 			problemsList.add(new Problem(problems[i], a[0], a[1]));
 		}
@@ -400,7 +391,7 @@ public class ErrorCheckerService implements Runnable {
 	}
 
 	/**
-	 * The name can't get any simpler, can it?
+	 * The name can't possibly get any simpler, can it?
 	 */
 	private void compileCheck() {
 		try {
@@ -414,7 +405,8 @@ public class ErrorCheckerService implements Runnable {
 			// File f = new File(
 			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
 			if (loadCompClass) {
-				System.out.println("XQMode: Loading contributed libraries.");
+				System.out
+						.println("XQMode: Reloading contributed libraries referenced by import statements.");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator
@@ -750,13 +742,13 @@ public class ErrorCheckerService implements Runnable {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
 					+ "public void setup() {\n" + sourceAlt
 					+ "\nnoLoop();\n}\n" + "\n}\n";
-			staticMode = true;
+			basicMode = true;
 			mainClassOffset = 2;
 
 		} else {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
 					+ sourceAlt + "\n}";
-			staticMode = false;
+			basicMode = false;
 			mainClassOffset = 1;
 		}
 

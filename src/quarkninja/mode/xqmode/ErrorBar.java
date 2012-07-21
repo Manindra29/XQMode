@@ -178,8 +178,8 @@ public class ErrorBar extends JPanel {
 
 					protected void done() {
 						for (ErrorMarker eMarker : errorPoints) {
-							if (e.getY() >= eMarker.y
-									&& e.getY() <= eMarker.y
+							if (e.getY() >= eMarker.y - 2
+									&& e.getY() <= eMarker.y + 2
 											+ errorMarkerHeight) {
 								int currentTabErrorIndex = errorPoints
 										.indexOf(eMarker);
@@ -233,8 +233,8 @@ public class ErrorBar extends JPanel {
 					protected void done() {
 
 						for (ErrorMarker eMarker : errorPoints) {
-							if (e.getY() >= eMarker.y
-									&& e.getY() <= eMarker.y
+							if (e.getY() >= eMarker.y - 2
+									&& e.getY() <= eMarker.y + 2
 											+ errorMarkerHeight) {
 								// System.out.println("Index: " +
 								// errorPoints.indexOf(y));

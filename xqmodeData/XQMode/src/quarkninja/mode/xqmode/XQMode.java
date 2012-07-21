@@ -39,15 +39,18 @@ public class XQMode extends JavaMode {
 
 	public XQMode(Base base, File folder) {
 		super(base, folder);
-		
+
 		for (Mode m : base.getModeList()) {
-            if (m.getClass() == JavaMode.class) {
-                JavaMode jMode = (JavaMode) m;
-                librariesFolder = jMode.getLibrariesFolder();
-                rebuildLibraryList();
-                break;
-            }
-        }
+			if (m.getClass() == JavaMode.class) {
+				JavaMode jMode = (JavaMode) m;
+				librariesFolder = jMode.getLibrariesFolder();
+				rebuildLibraryList();
+				break;
+			}
+		}
+		
+		// Fetch examples from java mode
+		examplesFolder =  Base.getContentFile("modes/java/examples");
 		
 		System.out.println("XQMode initialized.");
 	}

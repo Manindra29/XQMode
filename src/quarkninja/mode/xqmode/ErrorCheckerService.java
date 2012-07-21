@@ -125,7 +125,7 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	public int mainClassOffset;
 
-	public boolean staticMode = false;
+	public boolean basicMode = false;
 	private CompilationUnit cu;
 
 	public boolean importsAdded = false;
@@ -299,6 +299,8 @@ public class ErrorCheckerService implements Runnable {
 				sourceCode = xqpreproc.doYourThing(sourceCode, programImports);
 				prepareCompilerClasspath();
 				mainClassOffset = xqpreproc.mainClassOffset;
+				if (basicMode)
+					mainClassOffset++;
 				// System.out.println("--------------------------");
 				// System.out.println(sourceCode);
 				// System.out.println("--------------------------");
@@ -321,6 +323,10 @@ public class ErrorCheckerService implements Runnable {
 		return false;
 	}
 
+	/**
+	 * Updates editor status bar, depending on whether the caret on an error
+	 * line or not
+	 */
 	public void updateEditorStatus() {
 		// editor.statusNotice("Position: " +
 		// editor.getTextArea().getCaretLine());
@@ -339,6 +345,9 @@ public class ErrorCheckerService implements Runnable {
 			editor.statusEmpty();
 	}
 
+	/**
+	 * Performs syntax check.
+	 */
 	private void syntaxCheck() {
 		parser.setSource(sourceCode.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -362,7 +371,6 @@ public class ErrorCheckerService implements Runnable {
 		// // Populate the probList
 		problemsList = new ArrayList<Problem>();
 		for (int i = 0; i < problems.length; i++) {
-
 			int a[] = calculateTabIndexAndLineNumber(problems[i]);
 			problemsList.add(new Problem(problems[i], a[0], a[1]));
 		}
@@ -383,7 +391,7 @@ public class ErrorCheckerService implements Runnable {
 	}
 
 	/**
-	 * The name can't get any simpler, can it?
+	 * The name can't possibly get any simpler, can it?
 	 */
 	private void compileCheck() {
 		try {
@@ -397,7 +405,8 @@ public class ErrorCheckerService implements Runnable {
 			// File f = new File(
 			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
 			if (loadCompClass) {
-				System.out.println("XQMode: Loading contributed libraries.");
+				System.out
+						.println("XQMode: Reloading contributed libraries referenced by import statements.");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator
@@ -733,13 +742,13 @@ public class ErrorCheckerService implements Runnable {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
 					+ "public void setup() {\n" + sourceAlt
 					+ "\nnoLoop();\n}\n" + "\n}\n";
-			staticMode = true;
+			basicMode = true;
 			mainClassOffset = 2;
 
 		} else {
 			sourceAlt = "public class " + className + " extends PApplet {\n"
 					+ sourceAlt + "\n}";
-			staticMode = false;
+			basicMode = false;
 			mainClassOffset = 1;
 		}
 
