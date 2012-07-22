@@ -283,7 +283,6 @@ public class ErrorBar extends JPanel {
 									+ exp.getMessage());
 					// e.printStackTrace();
 				}
-
 			}
 
 			@Override

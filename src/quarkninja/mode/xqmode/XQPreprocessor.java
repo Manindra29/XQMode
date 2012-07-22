@@ -131,8 +131,8 @@ public class XQPreprocessor {
 				}
 
 				// The return type is not void, no need to make it public
-				if (!node.getReturnType2().toString().equals("void"))
-					return true;
+				// if (!node.getReturnType2().toString().equals("void"))
+				// return true;
 			}
 
 			// Simple method, make it public
