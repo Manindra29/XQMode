@@ -37,7 +37,6 @@ X - Ignore Unused import warning for default imports only. Currently all unused 
 X - Handle library not found scenarios. Only error msg will be shown. No scroll to import.
 O - Add support for .java tabs - lower priority.
 
-O - Underline bug if line has extra spaces in the end. Underlining shifts to the right. 
 X - Custom preprocessor almost implemented. Lots of testing required.
 X - processing.video still not being added to the classpath. Investigate. Done.
 X - processing libraries not being detected as Library objects. Done. 
@@ -100,8 +99,9 @@ X - Error bar to the right of the editor. Small red rectangles as error markers.
 
 Known Bugs
 ----------
-
-O - Messages from processing preprocessor.
+X - Underline bug if line has extra spaces in the end. Underlining shifts to the right. Fixed.
+X - Messages from processing preprocessor.
 	At the end of an import statement, delete the ; and type ';
 	color color = #ffffff;
-O - ErrorBar.updatePoints - NPE. Add a try catch maybe.
+	XQPreprocessor doesn't give error messages, but doesn't detect this error either.
+X - ErrorBar.updatePoints - NPE. Add a try catch maybe. Fixed. NPE coz of setToolTip(null)

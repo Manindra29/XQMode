@@ -898,11 +898,12 @@ public class ErrorCheckerService implements Runnable {
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), File.pathSeparatorChar);
 				// TODO: Investigate the jar path added twice issue here
-				for (int i = 0; i < libraryPath.length; i++) {
-					// System.out.println(entry + " ::"
-					// + new File(libraryPath[i]).toURI().toURL());
-					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
-				}
+//				for (int i = 0; i < libraryPath.length; i++) {
+//					// System.out.println(entry + " ::"
+//					// + new File(libraryPath[i]).toURI().toURL());
+//					classpathJars.add(new File(libraryPath[i]).toURI().toURL());
+//				}
+				classpathJars.add(library.getFolder().toURI().toURL());
 				// System.out.println("-- ");
 				// classpath[count] = (new File(library.getClassPath()
 				// .substring(1))).toURI().toURL();

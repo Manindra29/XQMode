@@ -74,17 +74,21 @@ public class ErrorWindow extends JFrame {
 	public static final String[] columnNames = { "Problem", "Tab", "Line" };
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ErrorWindow frame = new ErrorWindow(null, null);
-					frame.setVisible(true);
-					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					ErrorWindow frame = new ErrorWindow(null, null);
+//					frame.setVisible(true);
+//					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+		int a = 5;
+        Integer b = a; // Box!
+        System.out.println("A : " + a);
+        System.out.println("B : " + b);
 	}
 
 	public ErrorWindow(Editor editor, ErrorCheckerService syncheck) {

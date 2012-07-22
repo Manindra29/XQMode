@@ -139,8 +139,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 //				System.out.println((ta.getLineStopOffset(line) - start - 1));
 			}
 			// String linetext = ta.getLineText(line);
-
-			int aw = fm.stringWidth(linetext) + ta.getHorizontalOffset(); // apparent
+			int aw = fm.stringWidth(trimRight(linetext)) + ta.getHorizontalOffset(); // apparent
 																			// width
 			int rw = fm.stringWidth(linetext.trim()); // real width
 			int x1 = 0 + (aw - rw), y1 = y + fm.getHeight() - 2, x2 = x1 + rw;
@@ -162,6 +161,17 @@ public class XQTextAreaPainter extends TextAreaPainter {
 		}
 		// gfx.setColor(Color.RED);
 		// gfx.fillRect(2, y, 3, height);
+	}
+	
+	public String trimRight(String string){
+		String newString = "";
+		for (int i = 0; i < string.length(); i++) {
+			if(string.charAt(i)!= ' '){
+				newString = string.substring(0,i) + string.trim();
+				break;
+			}
+		}
+		return newString;
 	}
 
 }
