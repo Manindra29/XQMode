@@ -728,7 +728,7 @@ public class ErrorCheckerService implements Runnable {
 		// Replace comments with whitespaces
 		// sourceAlt = scrubComments(sourceAlt);
 
-		// Find all int(*), replace with (int)(*)
+		// Find all int(*), replace with PApplet.parseInt(*)
 
 		// \bint\s*\(\s*\b , i.e all exclusive "int("
 

@@ -32,11 +32,12 @@ Error Checker Service(ECS)
 X - Deal with negative line numbers(compiler errors in import statements)
 O - What if compile check interface can be removed? Remember *that* blog?
 O - Create a list of ignorable warnings - Discuss with Dan
-	SerializableVersionID, and more. Raw type warnings?
+	SerializableVersionID, and more. Raw type warnings? Raw type warnings ignored.
 X - Ignore Unused import warning for default imports only. Currently all unused imports ignored. Won't do.
 X - Handle library not found scenarios. Only error msg will be shown. No scroll to import.
 O - Add support for .java tabs - lower priority.
 
+O - Underline bug if line has extra spaces in the end. Underlining shifts to the right. 
 X - Custom preprocessor almost implemented. Lots of testing required.
 X - processing.video still not being added to the classpath. Investigate. Done.
 X - processing libraries not being detected as Library objects. Done. 
