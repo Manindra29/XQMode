@@ -275,9 +275,9 @@ public class ErrorCheckerService implements Runnable {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
 					errorWindow.setVisible(true);
-					System.out.println("XQMode v0.2 alpha");
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
+					editor.setSelection(0, 0);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -431,8 +431,9 @@ public class ErrorCheckerService implements Runnable {
 
 			// If imports have changed, reload classes with new classpath.
 			if (loadCompClass) {
-				System.out
-						.println("XQMode: Reloading contributed libraries referenced by import statements.");
+				if (classpathJars.size() > 0)
+					System.out
+							.println("XQMode: Reloading contributed libraries referenced by import statements.");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator
@@ -606,6 +607,8 @@ public class ErrorCheckerService implements Runnable {
 		return new int[] { codeIndex, x };
 	}
 
+	int runCount = 0;
+
 	/**
 	 * Starts the Syntax Checker Service thread
 	 */
@@ -633,6 +636,12 @@ public class ErrorCheckerService implements Runnable {
 
 			// Check every x seconds
 			checkCode();
+			if (runCount < 5) {
+				runCount++;
+			}
+
+			if (runCount == 3)
+				System.out.println("XQMode v0.2 alpha");
 		}
 	}
 

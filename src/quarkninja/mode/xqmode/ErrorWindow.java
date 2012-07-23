@@ -23,7 +23,6 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
@@ -85,10 +84,6 @@ public class ErrorWindow extends JFrame {
 //				}
 //			}
 //		});
-		int a = 5;
-        Integer b = a; // Box!
-        System.out.println("A : " + a);
-        System.out.println("B : " + b);
 	}
 
 	public ErrorWindow(Editor editor, ErrorCheckerService syncheck) {
@@ -344,10 +339,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowActivated(WindowEvent e) {
-				if (e.getOppositeWindow() != thisEditor) {
-					thisEditor.requestFocus();
-					thisErrorWindow.requestFocus();
-				}
+
 			}
 
 			@Override
@@ -387,10 +379,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowActivated(WindowEvent e) {
-				if (e.getOppositeWindow() != thisErrorWindow) {
-					thisErrorWindow.requestFocus();
-					thisEditor.requestFocus();
-				}
+
 			}
 
 			@Override
