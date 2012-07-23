@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
@@ -52,7 +53,7 @@ public class XQPreprocessor {
 		cu.recordModifications();
 		rewrite = ASTRewrite.create(cu.getAST());
 		cu.accept(new XQASTVisitor());
-		// System.out.println("------------XQPreProc-----------------");
+		
 		TextEdit edits = cu.rewrite(doc, null);
 		try {
 			edits.apply(doc);
@@ -61,8 +62,9 @@ public class XQPreprocessor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		// System.out.println(doc.get());
-		// System.out.println("------------XQPreProc End-----------------");
+//		 System.out.println("------------XQPreProc-----------------");
+//		 System.out.println(doc.get());
+//		 System.out.println("------------XQPreProc End-----------------");
 
 		// Calculate main class offset
 		int position = doc.get().indexOf("{") + 1;
@@ -125,10 +127,11 @@ public class XQPreprocessor {
 		public boolean visit(MethodDeclaration node) {
 			if (node.getReturnType2() != null) {
 				// if return type is color, make it int
-				if (node.getReturnType2().toString().equals("color")) {
-					node.setReturnType2(rewrite.getAST().newPrimitiveType(
-							PrimitiveType.INT));
-				}
+//				if (node.getReturnType2().toString().equals("color")) {
+//					System.err.println("color type detected!");
+//					node.setReturnType2(rewrite.getAST().newPrimitiveType(
+//							PrimitiveType.INT));
+//				}
 
 				// The return type is not void, no need to make it public
 				// if (!node.getReturnType2().toString().equals("void"))
@@ -164,18 +167,30 @@ public class XQPreprocessor {
 			return true;
 		}
 
-		public boolean visit(FieldDeclaration node) {
-			if (node.getType().toString().equals("color"))
-				node.setType(rewrite.getAST().newPrimitiveType(
-						PrimitiveType.INT));
-			return true;
-		}
-
-		public boolean visit(VariableDeclarationStatement node) {
-			if (node.getType().toString().equals("color"))
-				node.setType(rewrite.getAST().newPrimitiveType(
-						PrimitiveType.INT));
-			return true;
+//		public boolean visit(FieldDeclaration node) {
+//			if (node.getType().toString().equals("color")){
+//				System.err.println("color type detected!");
+//				node.setType(rewrite.getAST().newPrimitiveType(
+//						PrimitiveType.INT));
+//			}
+//			return true;
+//		}
+//
+//		public boolean visit(VariableDeclarationStatement node) {
+//			if (node.getType().toString().equals("color")){
+//				System.err.println("color type detected!");
+//				node.setType(rewrite.getAST().newPrimitiveType(
+//						PrimitiveType.INT));
+//			}
+//			return true;
+//		}
+		
+		public boolean visit(SimpleType node){
+			if (node.toString().equals("color")){
+				System.err.println("color type detected! :O \nThis shouldn't be happening!");
+			}
+			return true; 
+			
 		}
 
 	}

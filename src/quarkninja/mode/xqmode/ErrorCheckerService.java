@@ -772,6 +772,13 @@ public class ErrorCheckerService implements Runnable {
 			webMatcher = webPattern.matcher(sourceAlt);
 		}
 
+		// TODO: Experimental.
+		// Replace all color data types with int
+		Pattern colorPattern = Pattern
+				.compile("color(?![a-zA-Z0-9_])(?=\\[*)(?!(\\s*\\())");
+		Matcher colorMatcher = colorPattern.matcher(sourceAlt);
+		sourceAlt = colorMatcher.replaceAll("int");
+
 		checkForChangedImports();
 
 		className = (editor == null) ? "DefaultClass" : editor.getSketch()

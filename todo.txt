@@ -37,6 +37,7 @@ X - Ignore Unused import warning for default imports only. Currently all unused 
 X - Handle library not found scenarios. Only error msg will be shown. No scroll to import.
 O - Add support for .java tabs - lower priority.
 
+X - color datatype changed to int by regexp search. The horror! Phew. 
 X - Custom preprocessor almost implemented. Lots of testing required.
 X - processing.video still not being added to the classpath. Investigate. Done.
 X - processing libraries not being detected as Library objects. Done. 
