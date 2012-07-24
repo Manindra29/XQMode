@@ -37,6 +37,9 @@
 		<fileset dir="lib">
 			<include name="*.jar" />
 		</fileset>
+		<fileset dir="C:/Users/QuarkNinja/processing-read-only/processing/core/">
+			<include name="*.jar" />
+		</fileset>
 	</path>
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - -
@@ -90,7 +93,7 @@
 			<fileset dir="lib/" />
 		</copy>
 		-->
-		
+
 		<delete dir="xqmodeData/XQMode" />
 		<copy todir="xqmodeData/">
 			<fileset dir="${dist}" />

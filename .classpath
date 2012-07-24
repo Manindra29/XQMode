@@ -13,6 +13,6 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.osgi_3.7.1.R37x_v20110808-1106.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.text_3.5.101.r371_v20110810-0800.jar"/>
 	<classpathentry kind="lib" path="C:/Users/QuarkNinja/processing-read-only/processing/app/lib/antlr.jar"/>
-	<classpathentry kind="lib" path="E:/WorkSpaces/Debugmode/martinleopold-DebugMode-4402ed2/dist/pde.jar"/>
+	<classpathentry kind="lib" path="C:/Users/QuarkNinja/processing-read-only/processing/app/pde.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
