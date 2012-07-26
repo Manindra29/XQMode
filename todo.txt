@@ -6,18 +6,18 @@ O - to be pwned, X - pwned
 General
 -------
 
+O - Make messages more user friendly. (Think regex). Inputs from Dan.
+O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
+	Should I really do this?
+O - Explore adding components to Editor window. Well, almost done. 
 X - Add standard mode examples to example viewer.
 X - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
 	Sketches using OpenGL don't run from contributed modes. Fixed.
-O - Explore adding components to Editor window. Done to some extent. 
-O - Make messages more user friendly. (Think regex) To be done after compilation check is 
-	complete.
 X - Do bad things to the troublesome ecj.jar. Hail JDT Core! Ecj is past. JDT is the future.
 X - How to tackle bugs generated due to error line numbers that are outside the pde
 	code? Like adding a } to the end of the code, causes the parser to detect the
 	} added by the pre-processor as the error line. Current solution doesn't work as
 	expected. Difficult one. Done.
-O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
 X - Mode menu - Pause, Resume Thread. Show/Hide Problem window.
 X - Class loading technique used in Mode Contribution - Investigate.
 X - XQMode crashes PDE on startup on OS X Lion! Runs fine on Linux(Ubuntu 11.10). Solved.
@@ -29,14 +29,13 @@ X - Eclipse like error bar on the right of the editor text area. More UI design 
 Error Checker Service(ECS)
 ----------------------
 
-X - Deal with negative line numbers(compiler errors in import statements)
-O - What if compile check interface can be removed? Remember *that* blog?
 O - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more. Raw type warnings? Raw type warnings ignored.
+O - Add support for .java tabs - lower priority.
 X - Ignore Unused import warning for default imports only. Currently all unused imports ignored. Won't do.
 X - Handle library not found scenarios. Only error msg will be shown. No scroll to import.
-O - Add support for .java tabs - lower priority.
-
+X - Deal with negative line numbers(compiler errors in import statements)
+X - What if compile check interface can be removed? Remember *that* blog? Not a good approach. Won't do.
 X - color datatype changed to int by regexp search. The horror! Phew. 
 X - Custom preprocessor almost implemented. Lots of testing required.
 X - processing.video still not being added to the classpath. Investigate. Done.
@@ -78,8 +77,8 @@ O - Initially replaced all camel case words. But that corrects things like PAppl
 Error Window
 ------------
 
-O - Make Error Window sticky. DockTool2Base ftw. - Buggy on Windows with SketchOutline tool.
-O - Problem window itself as well as columns made resizable.
+O - Problem window's columns don't resize/scroll horizontally.
+X - Make Error Window sticky. DockTool2Base ftw. - Buggy on Windows with SketchOutline tool. Done.
 X - Disable dragging/reordering of columns. Causes errors.
 X - SwingWorker or synchronized for mouse event handler? Swing Workered everything.
 X - Handle basic/static mode offsets. After all it's used by absolute beginners.
