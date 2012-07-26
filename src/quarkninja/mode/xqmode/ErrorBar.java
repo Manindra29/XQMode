@@ -55,7 +55,7 @@ public class ErrorBar extends JPanel {
 	public final int errorMarkerHeight = 4;
 	public static final Color errorColor = new Color(0xED2630);
 	public static final Color warningColor = new Color(0xFFC30E);
-
+	public static final Color backgroundColor = new Color(0x2C343D);
 	XQEditor editor;
 	// public ErrorWindow errorWindow;
 	public ErrorCheckerService errorCheckerService;
@@ -72,13 +72,10 @@ public class ErrorBar extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setColor(new Color(0x2C343D));
+		g.setColor(backgroundColor);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		// g.setColor(new Color(0x2C343D));
-		// g.fillRect(0, 0, getWidth(), getHeight() - 15);
-		// g.setColor();
+
 		for (ErrorMarker emarker : errorPoints) {
-			// g.fillOval(getWidth()/2, y, (getWidth() - 6), (getWidth() - 6));
 			if (emarker.type == ErrorMarker.Error)
 				g.setColor(errorColor);
 			else
@@ -108,7 +105,6 @@ public class ErrorBar extends JPanel {
 	 * @param problems
 	 *            - List of problems.
 	 */
-	@SuppressWarnings("unchecked")
 	public void updateErrorPoints(ArrayList<Problem> problems) {
 
 		// NOTE TO SELF: ErrorMarkers are calculated for the present tab only
@@ -136,10 +132,12 @@ public class ErrorBar extends JPanel {
 			currentTab++;
 		}
 		// System.out.println("Total lines: " + totalLines);
-		errorPointsOld = (ArrayList<ErrorMarker>) errorPoints.clone();
-		// TODO: Swing Worker approach?
+
+		// TODO: Swing Worker approach? Not needed yet. Since repaint() is
+		// called only after error points have been updated.
 		errorPoints = new ArrayList<ErrorMarker>();
 		errorPoints.clear();
+		
 		// Each problem.getSourceLine() will have an extra line added because of
 		// class declaration in the beginnning
 		for (Problem problem : problems) {

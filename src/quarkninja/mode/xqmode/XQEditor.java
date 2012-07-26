@@ -50,7 +50,15 @@ public class XQEditor extends JavaEditor {
 	protected Thread errorCheckerThread = null;
 	protected ErrorCheckerService errorCheckerService;
 	protected ErrorBar errorBar;
+	/**
+	 *  Check box menu item for show/hide Problem Window 
+	 */
 	public JCheckBoxMenuItem problemWindowMenuCB;
+	
+	/**
+	 * Custom TextArea 
+	 */
+	protected XQTextArea xqTextArea;
 
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
@@ -62,7 +70,7 @@ public class XQEditor extends JavaEditor {
 		// Starts it too! Error bar should be ready beforehand
 		initializeErrorChecker();
 		errorBar.errorCheckerService = errorCheckerService;
-		ta.setECS(errorCheckerService);
+		xqTextArea.setErrorCheckerService(errorCheckerService);
 
 		// - Start
 		JPanel textAndError = new JPanel();
@@ -90,12 +98,13 @@ public class XQEditor extends JavaEditor {
 
 	}
 
-	XQTextArea ta;
 
+	/**
+	 * Override creation of the default textarea. Neat hack Martin!
+	 */
 	protected JEditTextArea createTextArea() {
-		ta = new XQTextArea(new PdeTextAreaDefaults(mode));
-
-		return ta;
+		xqTextArea = new XQTextArea(new PdeTextAreaDefaults(mode));
+		return xqTextArea;
 	}
 
 	public JMenu buildModeMenu() {
@@ -143,7 +152,7 @@ public class XQEditor extends JavaEditor {
 	}
 
 	/**
-	 * Initializes and starts Syntax Checker Service
+	 * Initializes and starts Error Checker Service
 	 */
 	private void initializeErrorChecker() {
 		if (errorCheckerThread == null) {
@@ -154,11 +163,11 @@ public class XQEditor extends JavaEditor {
 				errorCheckerThread.start();
 			} catch (Exception e) {
 				System.err
-						.println("Syntax Checker Service not initialized [XQEditor]: "
+						.println("Error Checker Service not initialized [XQEditor]: "
 								+ e);
 				// e.printStackTrace();
 			}
-			// System.out.println("Syntax Checker Service initialized.");
+			// System.out.println("Error Checker Service initialized.");
 		}
 
 	}

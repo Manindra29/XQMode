@@ -1,3 +1,25 @@
+/*
+  Part of the XQMode project - https://github.com/Manindra29/XQMode
+  
+  Under Google Summer of Code 2012 - 
+  http://www.google-melange.com/gsoc/homepage/google/gsoc2012
+  
+  Copyright (C) 2012 Manindra Moharana
+	
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License version 2
+  as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 package quarkninja.mode.xqmode;
 
 import java.util.ArrayList;
@@ -22,6 +44,15 @@ import org.eclipse.text.edits.TextEdit;
 import processing.app.Preferences;
 import processing.core.PApplet;
 
+/**
+ * My implementation of P5 preprocessor. Uses Eclipse JDT features instead of
+ * ANTLR. Performance gains mostly and full control over debug output. But needs
+ * lots and lots of testing. There will always an option to switch back to PDE
+ * preproc.
+ * 
+ * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
+ * 
+ */
 public class XQPreprocessor {
 
 	private ASTRewrite rewrite = null;
@@ -29,6 +60,12 @@ public class XQPreprocessor {
 	ArrayList<String> imports;
 	ArrayList<ImportStatement> extraImports;
 
+	/**
+	 * The main method that performs preprocessing
+	 * @param source - String
+	 * @param programImports - List of import statements
+	 * @return String - Compile ready java code
+	 */
 	public String doYourThing(String source,
 			ArrayList<ImportStatement> programImports) {
 		this.extraImports = programImports;
@@ -77,6 +114,11 @@ public class XQPreprocessor {
 		return doc.get();
 	}
 
+	/**
+	 * Returns all import statements as lines of code
+	 * 
+	 * @return String - All import statements combined
+	 */
 	public String prepareImports() {
 		imports = new ArrayList<String>();
 		for (int i = 0; i < extraImports.size(); i++) {
@@ -109,6 +151,7 @@ public class XQPreprocessor {
 	}
 
 	/**
+	 * Visitor implementation that does all the substitution dirty work. <br>
 	 * <LI>Any function not specified as being protected or private will be made
 	 * 'public'. This means that <TT>void setup()</TT> becomes
 	 * <TT>public void setup()</TT>.
@@ -183,6 +226,11 @@ public class XQPreprocessor {
 		// return true;
 		// }
 
+		/**
+		 * This is added just for debugging purposes - to make sure that all
+		 * instances of color type have been substituded as in by the regex
+		 * search in ErrorCheckerService.preprocessCode().
+		 */
 		public boolean visit(SimpleType node) {
 			if (node.toString().equals("color")) {
 				System.err

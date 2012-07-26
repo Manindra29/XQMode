@@ -73,17 +73,17 @@ public class ErrorWindow extends JFrame {
 	public static final String[] columnNames = { "Problem", "Tab", "Line" };
 
 	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					ErrorWindow frame = new ErrorWindow(null, null);
-//					frame.setVisible(true);
-//					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		// EventQueue.invokeLater(new Runnable() {
+		// public void run() {
+		// try {
+		// ErrorWindow frame = new ErrorWindow(null, null);
+		// frame.setVisible(true);
+		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// });
 	}
 
 	public ErrorWindow(Editor editor, ErrorCheckerService syncheck) {
@@ -261,21 +261,10 @@ public class ErrorWindow extends JFrame {
 
 		if (thisErrorWindow == null)
 			System.out.println("ERW null");
+		// Mouse click listner for Error Table
 		errorTable.addMouseListener(new MouseAdapter() {
 			// TODO: synchronized or Swing Worker ?
-
-			/**
-			 * Clicking on an error in the list scrolls to its location. This is
-			 * the funcition that handles it all. Now this might look really
-			 * messy. But it's just getting two offsets(line start and line end)
-			 * and then switching to the appropriate tab, and then selecting the
-			 * line. I tried to select the exact point of the error in the line,
-			 * but it is never accurate because of processing's syntax which
-			 * deviates from pure Jave like #ffffff is actually 0xffffffff, int(
-			 * is actually (int)(, color is an int, etc.
-			 */
 			synchronized public void mouseReleased(MouseEvent e) {
-
 				handlePause(e);
 				try {
 					errorCheckerService.scrollToErrorLine(errorTable
@@ -324,7 +313,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				
+
 			}
 
 			@Override
@@ -423,12 +412,17 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void componentHidden(ComponentEvent e) {
-				System.out.println("ed hidden");
+				// System.out.println("ed hidden");
 			}
 		});
 
 	}
 
+	/**
+	 * Hnadle pausing the Error Checker Service thread.
+	 * 
+	 * @param e - MouseEvent
+	 */
 	public void handlePause(MouseEvent e) {
 
 		if (e.isControlDown()) {
@@ -446,7 +440,7 @@ public class ErrorWindow extends JFrame {
 	/**
 	 * Implements the docking feature of the tool - The frame sticks to the
 	 * editor and once docked, moves along with it as the editor is resized,
-	 * moved, maximized, minimized or closed.
+	 * moved, or closed.
 	 * 
 	 * This class has been borrowed from Tab Manager tool by Thomas Diewald. It
 	 * has been slightly modified and used here.

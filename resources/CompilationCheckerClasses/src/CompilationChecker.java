@@ -1,3 +1,25 @@
+/*
+  Part of the XQMode project - https://github.com/Manindra29/XQMode
+  
+  Under Google Summer of Code 2012 - 
+  http://www.google-melange.com/gsoc/homepage/google/gsoc2012
+  
+  Copyright (C) 2012 Manindra Moharana
+	
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License version 2
+  as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,6 +61,11 @@ import org.eclipse.jface.text.Document;
 
 import quarkninja.mode.xqmode.CompilationCheckerInterface;
 
+/**
+ * Teh class that handles Compilation Check!
+ *
+ * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
+ */
 public class CompilationChecker implements CompilationCheckerInterface {
 	/**
 	 * ICompilationUnit implementation

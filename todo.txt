@@ -9,7 +9,8 @@ General
 O - Make messages more user friendly. (Think regex). Inputs from Dan.
 O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
 	Should I really do this?
-O - Explore adding components to Editor window. Well, almost done. 
+O - Explore adding components to Editor window. Well, almost done.
+O - Improve code documentation. 
 X - Add standard mode examples to example viewer.
 X - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
 	Sketches using OpenGL don't run from contributed modes. Fixed.
@@ -70,6 +71,7 @@ X - Refactor SyntaxCheckerService to umm.. ErrorCheckerService?
 
 Messages Filter
 ---------------
+
 X - All instances of the word 'token' removed.
 O - Initially replaced all camel case words. But that corrects things like PApplet, MyCustomClass, etc.
 	So will have to make a list of common words used by JDT.
@@ -99,6 +101,7 @@ X - Error bar to the right of the editor. Small red rectangles as error markers.
 
 Known Bugs
 ----------
+
 X - Underline bug if line has extra spaces in the end. Underlining shifts to the right. Fixed.
 X - Messages from processing preprocessor.
 	At the end of an import statement, delete the ; and type ';

@@ -650,7 +650,8 @@ public class ErrorCheckerService implements Runnable {
 	 */
 	public void stopThread() {
 		stopThread = true;
-		System.out.println("Syntax Checker Service stopped.");
+		System.out.println(editor.getSketch().getName()
+				+ " - Error Checker stopped.");
 	}
 
 	/**
@@ -662,7 +663,8 @@ public class ErrorCheckerService implements Runnable {
 	 * color representation <li>Appends class declaration statement after
 	 * determining the mode the sketch is in - ACTIVE or BASIC
 	 * 
-	 * @return String - Pure java representation of PDE code
+	 * @return String - Pure java representation of PDE code. Note that this
+	 *         code is not yet compile ready.
 	 */
 	private String preprocessCode() {
 
@@ -760,7 +762,7 @@ public class ErrorCheckerService implements Runnable {
 
 		// Find all #[web color] and replace with 0xff[webcolor]
 		// Should be 6 digits only.
-		String webColorRegexp = "#{1}[A-F|a-f|0-9]{6}\\W";
+		final String webColorRegexp = "#{1}[A-F|a-f|0-9]{6}\\W";
 		Pattern webPattern = Pattern.compile(webColorRegexp);
 		Matcher webMatcher = webPattern.matcher(sourceAlt);
 		while (webMatcher.find()) {
@@ -774,8 +776,10 @@ public class ErrorCheckerService implements Runnable {
 
 		// TODO: Experimental.
 		// Replace all color data types with int
+		// Regex, Y U SO powerful?
+		final String colorTypeRegex = "color(?![a-zA-Z0-9_])(?=\\[*)(?!(\\s*\\())";
 		Pattern colorPattern = Pattern
-				.compile("color(?![a-zA-Z0-9_])(?=\\[*)(?!(\\s*\\())");
+				.compile(colorTypeRegex);  
 		Matcher colorMatcher = colorPattern.matcher(sourceAlt);
 		sourceAlt = colorMatcher.replaceAll("int");
 
@@ -913,7 +917,6 @@ public class ErrorCheckerService implements Runnable {
 				// System.out.println("lib->" + library.getClassPath() + "<-");
 				String libraryPath[] = PApplet.split(library.getClassPath()
 						.substring(1).trim(), File.pathSeparatorChar);
-				// TODO: Investigate the jar path added twice issue here
 				for (int i = 0; i < libraryPath.length; i++) {
 					// System.out.println(entry + " ::"
 					// + new File(libraryPath[i]).toURI().toURL());
@@ -1013,7 +1016,6 @@ public class ErrorCheckerService implements Runnable {
 		try {
 			String[][] errorData = new String[problemsList.size()][3];
 			for (int i = 0; i < problems.length; i++) {
-				// TODO: Make this message more natural.
 				errorData[i][0] = problemsList.get(i).message;
 				errorData[i][1] = editor.getSketch()
 						.getCode(problemsList.get(i).tabIndex).getPrettyName();

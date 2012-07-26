@@ -33,7 +33,7 @@ import processing.app.syntax.TextAreaDefaults;
  * Custom TextArea for XQMode
  * 
  * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
- *
+ * 
  */
 public class XQTextArea extends JEditTextArea {
 	XQTextAreaPainter xqpainter;
@@ -63,7 +63,12 @@ public class XQTextArea extends JEditTextArea {
 		add(CENTER, painter);
 	}
 
-	public void setECS(ErrorCheckerService ecs) {
+	/**
+	 * Set the error checker service object
+	 * 
+	 * @param ecs - ErrorCheckerService
+	 */
+	public void setErrorCheckerService(ErrorCheckerService ecs) {
 		xqpainter.errorCheckerService = ecs;
 	}
 
