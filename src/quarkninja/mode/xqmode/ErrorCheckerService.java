@@ -274,7 +274,7 @@ public class ErrorCheckerService implements Runnable {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
-					errorWindow.setVisible(true);
+					// errorWindow.setVisible(true);
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
 					editor.setSelection(0, 0);
@@ -778,8 +778,7 @@ public class ErrorCheckerService implements Runnable {
 		// Replace all color data types with int
 		// Regex, Y U SO powerful?
 		final String colorTypeRegex = "color(?![a-zA-Z0-9_])(?=\\[*)(?!(\\s*\\())";
-		Pattern colorPattern = Pattern
-				.compile(colorTypeRegex);  
+		Pattern colorPattern = Pattern.compile(colorTypeRegex);
 		Matcher colorMatcher = colorPattern.matcher(sourceAlt);
 		sourceAlt = colorMatcher.replaceAll("int");
 
@@ -1028,7 +1027,7 @@ public class ErrorCheckerService implements Runnable {
 				DefaultTableModel tm = new DefaultTableModel(errorData,
 						ErrorWindow.columnNames);
 				errorWindow.updateTable(tm);
-				((XQEditor)editor).updateTable(tm);
+				((XQEditor) editor).updateTable(tm);
 				// A nifty rotating slash animation on the title bar to show
 				// that error checker thread is running
 

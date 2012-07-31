@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -68,7 +69,6 @@ public class XQEditor extends JavaEditor {
 	 */
 	protected XQTextArea xqTextArea;
 	javax.swing.JTable errorTable;
-	protected JPanel cards;
 
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
@@ -102,7 +102,7 @@ public class XQEditor extends JavaEditor {
 
 		// -----------------------------------------
 
-		final JScrollPane jsp = new JScrollPane();
+		jsp = new JScrollPane();
 		errorTable = new JTable() {
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false; // Disallow the editing of any cell
@@ -133,8 +133,7 @@ public class XQEditor extends JavaEditor {
 		JPanel lineStatusPanel = new JPanel();
 		lineStatusPanel.setLayout(new BorderLayout());
 
-		final XQConsoleToggle xqcont = new XQConsoleToggle(thisEditor,
-				lineStatus.getHeight());
+		xqcont = new XQConsoleToggle(thisEditor, lineStatus.getHeight());
 		xqcont.addMouseListener(xqcont);
 		lineStatusPanel.add(xqcont, BorderLayout.EAST);
 		lineStatus.setBounds(0, 0, xqcont.getX() - 1, xqcont.getHeight());
@@ -145,15 +144,36 @@ public class XQEditor extends JavaEditor {
 		// consolePanel.add(jsp);
 		// setDividerLocation(getHeight() - 200);
 
-//		cards = new JPanel(new CardLayout());
-//		 cards.add(console, XQConsoleToggle.text[0]);
-//		 cards.add(jsp, XQConsoleToggle.text[1]);
-//		 consolePanel.add(cards, BorderLayout.CENTER);
-
 		lineStatusPanel.repaint();
+		consolePanel.remove(1);
+		// jlp = new JLayeredPane();
+		// jlp.setPreferredSize(console.getPreferredSize());
+		// jlp.add(console, new Integer(0));
+		// jlp.add(jsp, new Integer(1));
+		// jlp.validate();
+		cards = new JPanel(new CardLayout());
+		cards.add(jsp, XQConsoleToggle.text[1]);
+		cards.add(console, XQConsoleToggle.text[0]);		
+		consolePanel.add(cards, BorderLayout.CENTER);
+
+		System.out.println("-----------");
+		for (int i = 0; i < consolePanel.getComponentCount(); i++) {
+			System.out.println("Console: " + consolePanel.getComponent(i));
+		}
 	}
 
+	public void toggleView() {
+
+		CardLayout cl = (CardLayout) cards.getLayout();
+		cl.show(cards, xqcont.toggleText ? XQConsoleToggle.text[0]
+				: XQConsoleToggle.text[1]);
+	}
+
+	XQConsoleToggle xqcont;
+	public JLayeredPane jlp;
 	boolean ab = true;
+	final JScrollPane jsp;
+	public JPanel cards;
 
 	@SuppressWarnings("rawtypes")
 	synchronized public boolean updateTable(final TableModel tableModel) {
@@ -243,7 +263,7 @@ public class XQEditor extends JavaEditor {
 		menu.add(item);
 
 		problemWindowMenuCB = new JCheckBoxMenuItem("Show Problem Window");
-		problemWindowMenuCB.setSelected(true);
+//		problemWindowMenuCB.setSelected(true);
 		problemWindowMenuCB.addActionListener(new ActionListener() {
 
 			@Override
