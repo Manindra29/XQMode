@@ -1026,7 +1026,8 @@ public class ErrorCheckerService implements Runnable {
 			if (errorWindow != null) {
 				DefaultTableModel tm = new DefaultTableModel(errorData,
 						ErrorWindow.columnNames);
-				errorWindow.updateTable(tm);
+				if (errorWindow.isVisible())
+					errorWindow.updateTable(tm);
 				((XQEditor) editor).updateTable(tm);
 				// A nifty rotating slash animation on the title bar to show
 				// that error checker thread is running

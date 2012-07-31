@@ -1,13 +1,10 @@
 package quarkninja.mode.xqmode;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -25,7 +22,7 @@ public class XQConsoleToggle extends JPanel implements MouseListener {
 	}
 
 	public Dimension getPreferredSize() {
-		return new Dimension(50, height);
+		return new Dimension(70, height);
 	}
 
 	public Dimension getMinimumSize() {
@@ -51,9 +48,13 @@ public class XQConsoleToggle extends JPanel implements MouseListener {
 		}
 
 		if (toggleText) {
-			g.drawString(text[0], 6, this.getHeight() - 6);
+			g.drawString(text[0], getWidth() / 2
+					- getFontMetrics(getFont()).stringWidth(text[0]) / 2,
+					this.getHeight() - 6);
 		} else {
-			g.drawString(text[1], 4, this.getHeight() - 6);
+			g.drawString(text[1], getWidth() / 2
+					- getFontMetrics(getFont()).stringWidth(text[1]) / 2,
+					this.getHeight() - 6);
 		}
 	}
 

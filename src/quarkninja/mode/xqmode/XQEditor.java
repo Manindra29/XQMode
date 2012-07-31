@@ -82,7 +82,7 @@ public class XQEditor extends JavaEditor {
 		errorBar.errorCheckerService = errorCheckerService;
 		xqTextArea.setErrorCheckerService(errorCheckerService);
 
-		// - Start
+		// Adding ErrorBar
 		JPanel textAndError = new JPanel();
 		Box box = (Box) textarea.getParent();
 		box.remove(2); // Remove textArea from it's container, i.e Box
@@ -93,16 +93,9 @@ public class XQEditor extends JavaEditor {
 		box.add(textAndError);
 		// - End
 
-		// textarea.setBounds(errorBar.getX() + errorBar.getWidth(),
-		// errorBar.getY(), textarea.getWidth(), textarea.getHeight());
 
-		for (int i = 0; i < consolePanel.getComponentCount(); i++) {
-			System.out.println("Console: " + consolePanel.getComponent(i));
-		}
-
-		// -----------------------------------------
-
-		jsp = new JScrollPane();
+		// Adding Error Table in a scroll pane
+		errorTableScrollPane = new JScrollPane();
 		errorTable = new JTable() {
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false; // Disallow the editing of any cell
@@ -127,57 +120,46 @@ public class XQEditor extends JavaEditor {
 				}
 			}
 		});
-		jsp.setViewportView(errorTable);
+		errorTableScrollPane.setViewportView(errorTable);
 
+		// Adding toggle console button
 		consolePanel.remove(2);
 		JPanel lineStatusPanel = new JPanel();
 		lineStatusPanel.setLayout(new BorderLayout());
-
 		xqcont = new XQConsoleToggle(thisEditor, lineStatus.getHeight());
 		xqcont.addMouseListener(xqcont);
 		lineStatusPanel.add(xqcont, BorderLayout.EAST);
 		lineStatus.setBounds(0, 0, xqcont.getX() - 1, xqcont.getHeight());
 		lineStatusPanel.add(lineStatus);
 		consolePanel.add(lineStatusPanel, BorderLayout.SOUTH);
-
-		// consolePanel.remove(1);
-		// consolePanel.add(jsp);
-		// setDividerLocation(getHeight() - 200);
-
 		lineStatusPanel.repaint();
-		consolePanel.remove(1);
-		// jlp = new JLayeredPane();
-		// jlp.setPreferredSize(console.getPreferredSize());
-		// jlp.add(console, new Integer(0));
-		// jlp.add(jsp, new Integer(1));
-		// jlp.validate();
-		cards = new JPanel(new CardLayout());
-		cards.add(jsp, XQConsoleToggle.text[1]);
-		cards.add(console, XQConsoleToggle.text[0]);		
-		consolePanel.add(cards, BorderLayout.CENTER);
 
-		System.out.println("-----------");
-		for (int i = 0; i < consolePanel.getComponentCount(); i++) {
-			System.out.println("Console: " + consolePanel.getComponent(i));
-		}
+		// Adding JPanel with CardLayout for Console/Problems Toggle 
+		consolePanel.remove(1);
+		consoleProblemsPane = new JPanel(new CardLayout());
+		consoleProblemsPane.add(errorTableScrollPane, XQConsoleToggle.text[1]);
+		consoleProblemsPane.add(console, XQConsoleToggle.text[0]);		
+		consolePanel.add(consoleProblemsPane, BorderLayout.CENTER);
 	}
 
 	public void toggleView() {
-
-		CardLayout cl = (CardLayout) cards.getLayout();
-		cl.show(cards, xqcont.toggleText ? XQConsoleToggle.text[0]
+		CardLayout cl = (CardLayout) consoleProblemsPane.getLayout();
+		cl.show(consoleProblemsPane, xqcont.toggleText ? XQConsoleToggle.text[0]
 				: XQConsoleToggle.text[1]);
 	}
 
 	XQConsoleToggle xqcont;
 	public JLayeredPane jlp;
 	boolean ab = true;
-	final JScrollPane jsp;
-	public JPanel cards;
+	final JScrollPane errorTableScrollPane;
+	public JPanel consoleProblemsPane;
 
 	@SuppressWarnings("rawtypes")
 	synchronized public boolean updateTable(final TableModel tableModel) {
-
+		
+		// If problems list is not visible, no need to update
+		if(!xqcont.toggleText)
+			return false;
 		/*
 		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
 		 * swing component outside of the swing event thread, all sort of weird
