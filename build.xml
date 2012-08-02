@@ -13,13 +13,13 @@
 	<property name="java.target.version" value="1.6" />
 
 	<!-- location of processing jars (core.jar, pde.jar, ..) -->
-	<property name="processing.classes" location="C:/Users/QuarkNinja/processing-read-only/processing/build/windows/work/lib" />
+	<property name="processing.classes" location="C:/Users/QuarkNinja.XQ/processing-read-only/build/windows/work/lib" />
 
 	<!-- folder to install modes in (probably a folder called "modes" inside your sketchbook folder) -->
-	<property name="processing.modes" location="C:/Users/QuarkNinja/Documents/Processing/modes" />
+	<property name="processing.modes" location="C:/Users/QuarkNinja.XQ/Documents/Processing/modes" />
 
 	<!-- path to your processing executable. -->
-	<property name="processing.executable" location="C:/Users/QuarkNinja/processing-read-only/processing/build/windows/work" />
+	<property name="processing.executable" location="C:/Users/QuarkNinja.XQ/processing-read-only/build/windows/work" />
 
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - - -->
@@ -37,7 +37,7 @@
 		<fileset dir="lib">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="C:/Users/QuarkNinja/processing-read-only/processing/core/">
+		<fileset dir="C:/Users/QuarkNinja.XQ/processing-read-only/core/library/">
 			<include name="*.jar" />
 		</fileset>
 	</path>
@@ -141,7 +141,7 @@
 	<target name="run" depends="install">
 		<!-- <exec executable="${processing.executable}" spawn="false" /> -->
 		<exec executable="${processing.executable}/processing.exe" dir="${processing.executable}" spawn="true">
-			<arg value="C:\Users\QuarkNinja\Documents\Processing\japaneseText\japaneseText.pde" />
+			<arg value="C:\Users\QuarkNinja.XQ\Documents\Processing\japaneseText\japaneseText.pde" />
 		</exec>
 
 		<echo>
