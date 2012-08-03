@@ -39,6 +39,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -140,6 +141,13 @@ public class ErrorWindow extends JFrame {
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false; // Disallow the editing of any cell
 			}
+			
+			public void columnMarginChanged(ChangeEvent e){
+//				JTable table = (JTable) e.getSource();
+//				System.out.println(e.getSource().getClass().getCanonicalName() + " ");
+				if( errorTable.getTableHeader().getResizingColumn()!= null)
+					System.out.println( errorTable.getTableHeader().getResizingColumn().getIdentifier());
+			}
 		};
 		errorTable.setModel(new DefaultTableModel(new Object[][] {},
 				columnNames));
@@ -223,6 +231,7 @@ public class ErrorWindow extends JFrame {
 			protected void done() {
 
 				try {
+					errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 					errorTable.setModel(tableModel);
 					errorTable.getColumnModel().getColumn(0)
 							.setPreferredWidth(600);
@@ -231,8 +240,8 @@ public class ErrorWindow extends JFrame {
 					errorTable.getColumnModel().getColumn(2)
 							.setPreferredWidth(50);
 					errorTable.getTableHeader().setReorderingAllowed(false);
-					errorTable.validate();
-					errorTable.updateUI();
+//					errorTable.validate();
+//					errorTable.updateUI();
 					errorTable.repaint();
 					// errorTable.setFocusable(false);
 				} catch (Exception e) {
@@ -276,6 +285,7 @@ public class ErrorWindow extends JFrame {
 				}
 			}
 		});
+		
 
 		thisErrorWindow.addComponentListener(new ComponentListener() {
 

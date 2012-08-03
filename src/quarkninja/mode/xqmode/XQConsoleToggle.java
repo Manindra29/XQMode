@@ -33,7 +33,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JPanel;
 
 public class XQConsoleToggle extends JPanel implements MouseListener {
-	public static String[] text = { "Console", "Problems" };
+	public static String[] text = { "Console", "Error" };
 	public boolean toggleText = true, toggleBG = true;
 	public int height;
 	public XQEditor editor;

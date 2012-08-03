@@ -24,6 +24,7 @@ package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -107,6 +108,7 @@ public class XQEditor extends JavaEditor {
 		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
 		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
 		errorTable.getTableHeader().setReorderingAllowed(false);
+		errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		errorTable.addMouseListener(new MouseAdapter() {
 			// TODO: synchronized or Swing Worker ?
 			synchronized public void mouseReleased(MouseEvent e) {
@@ -182,11 +184,12 @@ public class XQEditor extends JavaEditor {
 				try {
 					errorTable.setModel(tableModel);
 					errorTable.getColumnModel().getColumn(0)
-							.setPreferredWidth(600);
+							.setPreferredWidth(500);
 					errorTable.getColumnModel().getColumn(1)
 							.setPreferredWidth(100);
 					errorTable.getColumnModel().getColumn(2)
-							.setPreferredWidth(50);
+							.setPreferredWidth(70);
+//					errorTable.setPreferredScrollableViewportSize(new Dimension(1000, 500));
 					errorTable.getTableHeader().setReorderingAllowed(false);
 					errorTable.validate();
 					errorTable.updateUI();

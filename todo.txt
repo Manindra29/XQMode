@@ -27,6 +27,13 @@ X - On OS X and Linux, XQMode doesn't let the PDE to start! Investigate. Ant jav
 X - Eclipse like error bar on the right of the editor text area. More UI design inputs 
 	from Dan, and Casey too. 
 
+Issues
+------
+
+O - Add toggle for warnings
+O - Add tab like view for Console/Errors List
+O - Figure out a way to make columnds resizable. 
+
 Error Checker Service(ECS)
 ----------------------
 
