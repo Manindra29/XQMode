@@ -21,6 +21,8 @@
  */
 package quarkninja.mode.xqmode;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 /**
  * Interface for Compiler Class
@@ -30,5 +32,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 public interface CompilationCheckerInterface {
 	public IProblem[] getErrors(String sourceName, String source);
+	public IProblem[] getErrors(String sourceName, String source, Map settings);
 	public void display();
 }

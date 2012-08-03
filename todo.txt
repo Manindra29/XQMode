@@ -32,7 +32,7 @@ Issues
 
 O - Add toggle for warnings
 O - Add tab like view for Console/Errors List
-O - Figure out a way to make columnds resizable. 
+O - Figure out a way to make columns resizable. 
 
 Error Checker Service(ECS)
 ----------------------

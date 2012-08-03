@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,6 +45,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import processing.app.Base;
 import processing.app.Editor;
@@ -82,7 +84,7 @@ public class ErrorCheckerService implements Runnable {
 	 * The amazing eclipse ast parser
 	 */
 	private ASTParser parser;
-	public Editor editor;
+	public XQEditor editor;
 	/**
 	 * Used to indirectly stop the Error Checker Thread
 	 */
@@ -238,7 +240,7 @@ public class ErrorCheckerService implements Runnable {
 		initializeErrorWindow();
 	}
 
-	public ErrorCheckerService(Editor editor, ErrorBar erb) {
+	public ErrorCheckerService(XQEditor editor, ErrorBar erb) {
 		initParser();
 		this.editor = editor;
 		this.errorBar = erb;
@@ -274,7 +276,7 @@ public class ErrorCheckerService implements Runnable {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
-					 errorWindow.setVisible(true);
+					errorWindow.setVisible(true);
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
 					editor.setSelection(0, 0);
@@ -463,9 +465,13 @@ public class ErrorCheckerService implements Runnable {
 				loadCompClass = false;
 			}
 
+			if (compilerSettings == null)
+				prepareCompilerSetting();
+
 			// The one line that does it all! All heavylifting happens in
 			// CompilationChecker.java!
-			IProblem[] prob = compCheck.getErrors(className, sourceCode);
+			IProblem[] prob = compCheck.getErrors(className, sourceCode,
+					compilerSettings);
 
 			if (problems == null || problems.length == 0) {
 				problems = new IProblem[prob.length];
@@ -478,10 +484,12 @@ public class ErrorCheckerService implements Runnable {
 					System.out.println(i + " is null.");
 					continue;
 				}
-				if (problem.getID() == IProblem.UnusedImport
-						|| problem.getID() == IProblem.MissingSerialVersion)
-					continue;
+//				if (problem.getID() == IProblem.UnusedImport
+//						|| problem.getID() == IProblem.MissingSerialVersion)
+//					continue;
 				problems[k++] = problem;
+				if(problems[i].isWarning() && !warningsEnabled)
+					continue;
 				int a[] = calculateTabIndexAndLineNumber(problem);
 				problemsList.add(new Problem(problem, a[0], a[1]));
 
@@ -521,6 +529,32 @@ public class ErrorCheckerService implements Runnable {
 		}
 
 		// System.out.println("Compilecheck, Done.");
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Map compilerSettings;
+	public boolean warningsEnabled = true;
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void prepareCompilerSetting() {
+		compilerSettings = new HashMap();
+
+		compilerSettings.put(CompilerOptions.OPTION_LineNumberAttribute,
+				CompilerOptions.GENERATE);
+		compilerSettings.put(CompilerOptions.OPTION_SourceFileAttribute,
+				CompilerOptions.GENERATE);
+		compilerSettings.put(CompilerOptions.OPTION_Source,
+				CompilerOptions.VERSION_1_6);
+		compilerSettings.put(CompilerOptions.OPTION_ReportUnusedImport,
+				CompilerOptions.IGNORE);
+		compilerSettings.put(CompilerOptions.OPTION_ReportMissingSerialVersion,
+				CompilerOptions.IGNORE);
+		compilerSettings.put(CompilerOptions.OPTION_ReportRawTypeReference,
+				CompilerOptions.IGNORE);
+		compilerSettings.put(
+				CompilerOptions.OPTION_ReportUncheckedTypeOperation,
+				CompilerOptions.IGNORE);
+
 	}
 
 	/**
@@ -1014,7 +1048,7 @@ public class ErrorCheckerService implements Runnable {
 
 		try {
 			String[][] errorData = new String[problemsList.size()][3];
-			for (int i = 0; i < problems.length; i++) {
+			for (int i = 0; i < problemsList.size(); i++) {
 				errorData[i][0] = problemsList.get(i).message;
 				errorData[i][1] = editor.getSketch()
 						.getCode(problemsList.get(i).tabIndex).getPrettyName();

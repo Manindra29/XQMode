@@ -145,6 +145,7 @@ public class ErrorWindow extends JFrame {
 			public void columnMarginChanged(ChangeEvent e){
 //				JTable table = (JTable) e.getSource();
 //				System.out.println(e.getSource().getClass().getCanonicalName() + " ");
+//				errorCheckerService.pauseThread = true;
 				if( errorTable.getTableHeader().getResizingColumn()!= null)
 					System.out.println( errorTable.getTableHeader().getResizingColumn().getIdentifier());
 			}

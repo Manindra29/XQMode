@@ -24,7 +24,6 @@ package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -69,12 +68,13 @@ public class XQEditor extends JavaEditor {
 	 * Custom TextArea
 	 */
 	protected XQTextArea xqTextArea;
-	javax.swing.JTable errorTable;
+	JTable errorTable;
+	protected final XQEditor thisEditor;
 
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
 		super(base, path, state, mode);
-		final XQEditor thisEditor = this;
+		thisEditor = this;
 
 		xqmode = (XQMode) mode;
 		errorBar = new ErrorBar(thisEditor, textarea.getMinimumSize().height);
@@ -93,7 +93,6 @@ public class XQEditor extends JavaEditor {
 		textAndError.add(textarea);
 		box.add(textAndError);
 		// - End
-
 
 		// Adding Error Table in a scroll pane
 		errorTableScrollPane = new JScrollPane();
@@ -136,18 +135,19 @@ public class XQEditor extends JavaEditor {
 		consolePanel.add(lineStatusPanel, BorderLayout.SOUTH);
 		lineStatusPanel.repaint();
 
-		// Adding JPanel with CardLayout for Console/Problems Toggle 
+		// Adding JPanel with CardLayout for Console/Problems Toggle
 		consolePanel.remove(1);
 		consoleProblemsPane = new JPanel(new CardLayout());
 		consoleProblemsPane.add(errorTableScrollPane, XQConsoleToggle.text[1]);
-		consoleProblemsPane.add(console, XQConsoleToggle.text[0]);		
+		consoleProblemsPane.add(console, XQConsoleToggle.text[0]);
 		consolePanel.add(consoleProblemsPane, BorderLayout.CENTER);
 	}
 
 	public void toggleView() {
 		CardLayout cl = (CardLayout) consoleProblemsPane.getLayout();
-		cl.show(consoleProblemsPane, xqcont.toggleText ? XQConsoleToggle.text[0]
-				: XQConsoleToggle.text[1]);
+		cl.show(consoleProblemsPane,
+				xqcont.toggleText ? XQConsoleToggle.text[0]
+						: XQConsoleToggle.text[1]);
 	}
 
 	XQConsoleToggle xqcont;
@@ -158,9 +158,9 @@ public class XQEditor extends JavaEditor {
 
 	@SuppressWarnings("rawtypes")
 	synchronized public boolean updateTable(final TableModel tableModel) {
-		
+
 		// If problems list is not visible, no need to update
-		if(!xqcont.toggleText)
+		if (!xqcont.toggleText)
 			return false;
 		/*
 		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
@@ -189,7 +189,8 @@ public class XQEditor extends JavaEditor {
 							.setPreferredWidth(100);
 					errorTable.getColumnModel().getColumn(2)
 							.setPreferredWidth(70);
-//					errorTable.setPreferredScrollableViewportSize(new Dimension(1000, 500));
+					// errorTable.setPreferredScrollableViewportSize(new
+					// Dimension(1000, 500));
 					errorTable.getTableHeader().setReorderingAllowed(false);
 					errorTable.validate();
 					errorTable.updateUI();
@@ -221,11 +222,13 @@ public class XQEditor extends JavaEditor {
 		return xqTextArea;
 	}
 
+	public JCheckBoxMenuItem showWarnings;
+
 	public JMenu buildModeMenu() {
 
 		// Enable Error Checker - CB
 		// Show/Hide Problem Window - CB
-
+		// Show Warnings - CB
 		JMenu menu = new JMenu("XQMode");
 		JCheckBoxMenuItem item;
 
@@ -248,7 +251,7 @@ public class XQEditor extends JavaEditor {
 		menu.add(item);
 
 		problemWindowMenuCB = new JCheckBoxMenuItem("Show Problem Window");
-//		problemWindowMenuCB.setSelected(true);
+		// problemWindowMenuCB.setSelected(true);
 		problemWindowMenuCB.addActionListener(new ActionListener() {
 
 			@Override
@@ -262,6 +265,19 @@ public class XQEditor extends JavaEditor {
 		});
 		menu.add(problemWindowMenuCB);
 
+		showWarnings = new JCheckBoxMenuItem("Warnings Enabled");
+		showWarnings.setSelected(true);
+		showWarnings.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				errorCheckerService.warningsEnabled = ((JCheckBoxMenuItem) e
+						.getSource()).isSelected();
+				errorCheckerService.editor.getTextArea().repaint();
+			}
+		});
+		menu.add(showWarnings);
+
 		return menu;
 	}
 
@@ -270,7 +286,7 @@ public class XQEditor extends JavaEditor {
 	 */
 	private void initializeErrorChecker() {
 		if (errorCheckerThread == null) {
-			errorCheckerService = new ErrorCheckerService(this, errorBar);
+			errorCheckerService = new ErrorCheckerService(thisEditor, errorBar);
 			errorCheckerService.problemWindowMenuCB = this.problemWindowMenuCB;
 			errorCheckerThread = new Thread(errorCheckerService);
 			try {
