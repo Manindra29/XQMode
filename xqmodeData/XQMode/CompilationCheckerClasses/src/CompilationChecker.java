@@ -1,25 +1,3 @@
-/*
-  Part of the XQMode project - https://github.com/Manindra29/XQMode
-  
-  Under Google Summer of Code 2012 - 
-  http://www.google-melange.com/gsoc/homepage/google/gsoc2012
-  
-  Copyright (C) 2012 Manindra Moharana
-	
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License version 2
-  as published by the Free Software Foundation.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software Foundation,
-  Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,11 +39,6 @@ import org.eclipse.jface.text.Document;
 
 import quarkninja.mode.xqmode.CompilationCheckerInterface;
 
-/**
- * Teh class that handles Compilation Check!
- *
- * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
- */
 public class CompilationChecker implements CompilationCheckerInterface {
 	/**
 	 * ICompilationUnit implementation
@@ -289,7 +262,7 @@ public class CompilationChecker implements CompilationCheckerInterface {
 
 		PackageDeclaration packageDeclaration = ast.newPackageDeclaration();
 		unit.setPackage(packageDeclaration);
-//		unit.se
+		// unit.se
 		packageDeclaration.setName(ast.newSimpleName(fileName));
 		// System.out.println("Filename: " + fileName);
 		// class declaration
@@ -311,7 +284,7 @@ public class CompilationChecker implements CompilationCheckerInterface {
 		System.out.println(fileName);
 		try {
 			reader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(new File("E:/TestStuff/" + fileName
+					new FileInputStream(new File("D:/TestStuff/" + fileName
 							+ ".java"))));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -393,16 +366,31 @@ public class CompilationChecker implements CompilationCheckerInterface {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
-	private void compileMeQuitely(ICompilationUnit unit) {
+	private void compileMeQuitely(ICompilationUnit unit, Map compilerSettings) {
 
-		Map settings = new HashMap();
-		settings.put(CompilerOptions.OPTION_LineNumberAttribute,
-				CompilerOptions.GENERATE);
-		settings.put(CompilerOptions.OPTION_SourceFileAttribute,
-				CompilerOptions.GENERATE);
-		settings.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-		settings.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
-		settings.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
+		Map settings;
+		if (compilerSettings == null) {
+			settings = new HashMap();
+
+			settings.put(CompilerOptions.OPTION_LineNumberAttribute,
+					CompilerOptions.GENERATE);
+			settings.put(CompilerOptions.OPTION_SourceFileAttribute,
+					CompilerOptions.GENERATE);
+			settings.put(CompilerOptions.OPTION_Source,
+					CompilerOptions.VERSION_1_6);
+//			settings.put(CompilerOptions.OPTION_ReportUnusedImport,
+//					CompilerOptions.IGNORE);
+//			settings.put(CompilerOptions.OPTION_ReportMissingSerialVersion,
+//					CompilerOptions.IGNORE);
+//			settings.put(CompilerOptions.OPTION_ReportRawTypeReference,
+//					CompilerOptions.IGNORE);
+//			settings.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation,
+//					CompilerOptions.IGNORE);
+			settings.put(CompilerOptions.OPTION_SuppressWarnings,
+					CompilerOptions.DISABLED);
+		} else {
+			settings = compilerSettings;
+		}
 		CompileRequestorImpl requestor = new CompileRequestorImpl();
 		Compiler compiler = new Compiler(new NameEnvironmentImpl(unit),
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -448,6 +436,10 @@ public class CompilationChecker implements CompilationCheckerInterface {
 
 	}
 
+	private void compileMeQuitely(ICompilationUnit unit) {
+		compileMeQuitely(unit, null);
+	}
+
 	static private String[] getSimpleNames(String qualifiedName) {
 		StringTokenizer st = new StringTokenizer(qualifiedName, ".");
 		ArrayList list = new ArrayList();
@@ -460,14 +452,9 @@ public class CompilationChecker implements CompilationCheckerInterface {
 	}
 
 	public static void main(String[] args) {
-		// ASTMain_Original astMain = new ASTMain_Original("Brightness", true);
-		// System.out.println(astMain.prob[0]);
-		// astMain = new ASTMain_Original();
 		CompilationChecker cc = new CompilationChecker();
-		cc.getErrors("CoolParticles");
+		cc.getErrors("DisplayFrame");
 		cc.display();
-		// System.out.println(cc.getErrors("CoolParticles")[0]);
-
 	}
 
 	public void display() {
@@ -500,7 +487,7 @@ public class CompilationChecker implements CompilationCheckerInterface {
 			System.out.println("====================================");
 		} else {
 			System.out.println("====================================");
-			System.out.println("Compilation failed. You erred man!");
+			System.out.println(" Compilation failed. You erred man! ");
 			System.out.println("====================================");
 
 		}
@@ -522,11 +509,16 @@ public class CompilationChecker implements CompilationCheckerInterface {
 	String sourceText = "";
 
 	public IProblem[] getErrors(String sourceName, String source) {
+		return getErrors(sourceName, source, null);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public IProblem[] getErrors(String sourceName, String source,  Map settings) {
 		fileName = sourceName;
 		readFromFile = false;
 		sourceText = "package " + fileName + ";\n" + source;
 
-		compileMeQuitely(generateCompilationUnit());
+		compileMeQuitely(generateCompilationUnit(), settings);
 		// System.out.println("getErrors(), Done.");
 		return prob;
 	}

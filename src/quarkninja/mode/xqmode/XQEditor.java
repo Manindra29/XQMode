@@ -127,10 +127,20 @@ public class XQEditor extends JavaEditor {
 		consolePanel.remove(2);
 		JPanel lineStatusPanel = new JPanel();
 		lineStatusPanel.setLayout(new BorderLayout());
-		xqcont = new XQConsoleToggle(thisEditor, lineStatus.getHeight());
-		xqcont.addMouseListener(xqcont);
-		lineStatusPanel.add(xqcont, BorderLayout.EAST);
-		lineStatus.setBounds(0, 0, xqcont.getX() - 1, xqcont.getHeight());
+		btnShowConsole = new XQConsoleToggle(thisEditor,XQConsoleToggle.text[0], lineStatus.getHeight());
+		btnShowErrors = new XQConsoleToggle(thisEditor,XQConsoleToggle.text[1], lineStatus.getHeight());
+		btnShowConsole.addMouseListener(btnShowConsole);
+
+		// lineStatusPanel.add(btnShowConsole, BorderLayout.EAST);
+		// lineStatusPanel.add(btnShowErrors);
+		btnShowErrors.addMouseListener(btnShowErrors);
+
+		JPanel toggleButtonPanel = new JPanel(new BorderLayout());
+		toggleButtonPanel.add(btnShowConsole, BorderLayout.EAST);
+		toggleButtonPanel.add(btnShowErrors, BorderLayout.WEST);
+		lineStatusPanel.add(toggleButtonPanel, BorderLayout.EAST);
+		lineStatus.setBounds(0, 0, toggleButtonPanel.getX() - 1,
+				toggleButtonPanel.getHeight());
 		lineStatusPanel.add(lineStatus);
 		consolePanel.add(lineStatusPanel, BorderLayout.SOUTH);
 		lineStatusPanel.repaint();
@@ -143,14 +153,13 @@ public class XQEditor extends JavaEditor {
 		consolePanel.add(consoleProblemsPane, BorderLayout.CENTER);
 	}
 
-	public void toggleView() {
+	public void toggleView(String buttonName) {
 		CardLayout cl = (CardLayout) consoleProblemsPane.getLayout();
-		cl.show(consoleProblemsPane,
-				xqcont.toggleText ? XQConsoleToggle.text[0]
-						: XQConsoleToggle.text[1]);
+		cl.show(consoleProblemsPane, buttonName);
 	}
 
-	XQConsoleToggle xqcont;
+	XQConsoleToggle btnShowConsole;
+	XQConsoleToggle btnShowErrors;
 	public JLayeredPane jlp;
 	boolean ab = true;
 	final JScrollPane errorTableScrollPane;
@@ -160,7 +169,7 @@ public class XQEditor extends JavaEditor {
 	synchronized public boolean updateTable(final TableModel tableModel) {
 
 		// If problems list is not visible, no need to update
-		if (!xqcont.toggleText)
+		if (!btnShowConsole.toggleText)
 			return false;
 		/*
 		 * SwingWorker - The dirty side of Swing. Turns out that if you update a

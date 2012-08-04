@@ -30,8 +30,9 @@ X - Eclipse like error bar on the right of the editor text area. More UI design 
 Issues
 ------
 
-O - Add toggle for warnings
+X - Add toggle for warnings
 O - Add tab like view for Console/Errors List
+O - Dynamically switch to Console when something is printed
 O - Figure out a way to make columns resizable. 
 
 Error Checker Service(ECS)
