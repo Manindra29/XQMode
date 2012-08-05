@@ -435,7 +435,7 @@ public class ErrorCheckerService implements Runnable {
 			if (loadCompClass) {
 				if (classpathJars.size() > 0)
 					System.out
-							.println("XQMode: Reloading contributed libraries referenced by import statements.");
+							.println("XQMode: Loading contributed libraries referenced by import statements.");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator
