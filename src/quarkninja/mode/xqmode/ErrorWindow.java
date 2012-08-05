@@ -71,7 +71,17 @@ public class ErrorWindow extends JFrame {
 	public ErrorCheckerService errorCheckerService;
 	public JCheckBoxMenuItem problemWindowMenuCB;
 
+	/**
+	 * Column Names of JTable
+	 */
 	public static final String[] columnNames = { "Problem", "Tab", "Line" };
+
+	/**
+	 * Column Widths of JTable.
+	 */
+	public int[] columnWidths = { 600, 100, 50 }; // Default Values
+
+	private boolean columnResizing = false;
 
 	public static void main(String[] args) {
 		// EventQueue.invokeLater(new Runnable() {
@@ -141,13 +151,14 @@ public class ErrorWindow extends JFrame {
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false; // Disallow the editing of any cell
 			}
-			
-			public void columnMarginChanged(ChangeEvent e){
-//				JTable table = (JTable) e.getSource();
-//				System.out.println(e.getSource().getClass().getCanonicalName() + " ");
-//				errorCheckerService.pauseThread = true;
-				if( errorTable.getTableHeader().getResizingColumn()!= null)
-					System.out.println( errorTable.getTableHeader().getResizingColumn().getIdentifier());
+
+			public void columnMarginChanged(ChangeEvent e) {
+				// JTable table = (JTable) e.getSource();
+				// System.out.println(e.getSource().getClass().getCanonicalName()
+				// + " ");
+				// if (errorTable.getTableHeader().getResizingColumn() != null)
+				// System.out.println(errorTable.getTableHeader()
+				// .getResizingColumn().getIdentifier());
 			}
 		};
 		errorTable.setModel(new DefaultTableModel(new Object[][] {},
@@ -175,31 +186,6 @@ public class ErrorWindow extends JFrame {
 
 	}
 
-	/**
-	 * Converts offsets returned by Eclipse Parser to PDE offset so that text
-	 * can be selected in the editor window. Not being used presently because of
-	 * unbalanced offset issue.
-	 */
-	protected int normalizeOffset(int offset) {
-		int finalOffset = 0, codeIndex = 0;
-		System.out.println("OF: " + offset);
-		for (SketchCode sc : thisEditor.getSketch().getCode()) {
-
-			// + 1 for \n at end of each tab
-			int scOffset = sc.getProgram().length() + 1;
-			System.out.println(codeIndex + ".Offset " + scOffset);
-			if (offset > scOffset) {
-				offset -= scOffset;
-			} else {
-				finalOffset = offset;
-				thisEditor.getSketch().setCurrentCode(codeIndex);
-				break;
-			}
-			codeIndex++;
-		}
-		System.out.println("FO: " + finalOffset);
-		return finalOffset;
-	}
 
 	/**
 	 * Updates the error table with new data(Table Model). Called from Syntax
@@ -232,17 +218,16 @@ public class ErrorWindow extends JFrame {
 			protected void done() {
 
 				try {
-					errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//					errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 					errorTable.setModel(tableModel);
-					errorTable.getColumnModel().getColumn(0)
-							.setPreferredWidth(600);
-					errorTable.getColumnModel().getColumn(1)
-							.setPreferredWidth(100);
-					errorTable.getColumnModel().getColumn(2)
-							.setPreferredWidth(50);
+					for (int i = 0; i < errorTable.getColumnModel().getColumnCount(); i++) {
+						errorTable.getColumnModel().getColumn(i)
+						.setPreferredWidth(columnWidths[i]);	
+					}
+
 					errorTable.getTableHeader().setReorderingAllowed(false);
-//					errorTable.validate();
-//					errorTable.updateUI();
+					// errorTable.validate();
+					// errorTable.updateUI();
 					errorTable.repaint();
 					// errorTable.setFocusable(false);
 				} catch (Exception e) {
@@ -254,7 +239,9 @@ public class ErrorWindow extends JFrame {
 			}
 		};
 		try {
-			worker.execute();
+			// Update the table only if user is not interacting with the table.
+			if (!columnResizing)
+				worker.execute();
 		} catch (Exception e) {
 			System.out.println("Errorwindow updateTable Worker's slacking."
 					+ e.getMessage());
@@ -284,9 +271,27 @@ public class ErrorWindow extends JFrame {
 				} catch (Exception e1) {
 					System.out.println("Exception EW mouseReleased " + e);
 				}
+
+			}
+
+		});
+
+		errorTable.getTableHeader().addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				columnResizing = true;
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				columnResizing = false;
+				for (int i = 0; i < errorTable.getColumnModel().getColumnCount(); i++) {
+					 columnWidths[i] =
+					 errorTable.getColumnModel().getColumn(i).getWidth();
+//					System.out.println(i + " w: "
+//							+ errorTable.getColumnModel().getColumn(i).getWidth());
+				}
+//				System.out.println("--");
 			}
 		});
-		
 
 		thisErrorWindow.addComponentListener(new ComponentListener() {
 
@@ -432,7 +437,8 @@ public class ErrorWindow extends JFrame {
 	/**
 	 * Hnadle pausing the Error Checker Service thread.
 	 * 
-	 * @param e - MouseEvent
+	 * @param e
+	 *            - MouseEvent
 	 */
 	public void handlePause(MouseEvent e) {
 

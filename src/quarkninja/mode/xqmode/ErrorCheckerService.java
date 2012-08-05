@@ -276,7 +276,7 @@ public class ErrorCheckerService implements Runnable {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
-					errorWindow.setVisible(true);
+					//errorWindow.setVisible(true);
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
 					editor.setSelection(0, 0);

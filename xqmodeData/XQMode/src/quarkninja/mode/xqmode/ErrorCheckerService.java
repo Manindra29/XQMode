@@ -276,7 +276,7 @@ public class ErrorCheckerService implements Runnable {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
 					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
-					errorWindow.setVisible(true);
+					//errorWindow.setVisible(true);
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
 					editor.setSelection(0, 0);
@@ -435,7 +435,7 @@ public class ErrorCheckerService implements Runnable {
 			if (loadCompClass) {
 				if (classpathJars.size() > 0)
 					System.out
-							.println("XQMode: Reloading contributed libraries referenced by import statements.");
+							.println("XQMode: Loading contributed libraries referenced by import statements.");
 				File f = new File(editor.getBase().getSketchbookFolder()
 						.getAbsolutePath()
 						+ File.separator

@@ -70,6 +70,12 @@ public class XQEditor extends JavaEditor {
 	protected XQTextArea xqTextArea;
 	JTable errorTable;
 	protected final XQEditor thisEditor;
+	/**
+	 * Column Widths of JTable.
+	 */
+	public int[] columnWidths = { 600, 100, 50 }; // Default Values
+
+	private boolean columnResizing = false;
 
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
@@ -107,7 +113,7 @@ public class XQEditor extends JavaEditor {
 		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
 		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
 		errorTable.getTableHeader().setReorderingAllowed(false);
-		errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		// errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		errorTable.addMouseListener(new MouseAdapter() {
 			// TODO: synchronized or Swing Worker ?
 			synchronized public void mouseReleased(MouseEvent e) {
@@ -121,14 +127,32 @@ public class XQEditor extends JavaEditor {
 				}
 			}
 		});
+
+		errorTable.getTableHeader().addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				columnResizing = true;
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				columnResizing = false;
+				for (int i = 0; i < errorTable.getColumnModel()
+						.getColumnCount(); i++) {
+					columnWidths[i] = errorTable.getColumnModel().getColumn(i)
+							.getWidth();
+				}
+			}
+		});
+
 		errorTableScrollPane.setViewportView(errorTable);
 
 		// Adding toggle console button
 		consolePanel.remove(2);
 		JPanel lineStatusPanel = new JPanel();
 		lineStatusPanel.setLayout(new BorderLayout());
-		btnShowConsole = new XQConsoleToggle(thisEditor,XQConsoleToggle.text[0], lineStatus.getHeight());
-		btnShowErrors = new XQConsoleToggle(thisEditor,XQConsoleToggle.text[1], lineStatus.getHeight());
+		btnShowConsole = new XQConsoleToggle(thisEditor,
+				XQConsoleToggle.text[0], lineStatus.getHeight());
+		btnShowErrors = new XQConsoleToggle(thisEditor,
+				XQConsoleToggle.text[1], lineStatus.getHeight());
 		btnShowConsole.addMouseListener(btnShowConsole);
 
 		// lineStatusPanel.add(btnShowConsole, BorderLayout.EAST);
@@ -192,12 +216,11 @@ public class XQEditor extends JavaEditor {
 
 				try {
 					errorTable.setModel(tableModel);
-					errorTable.getColumnModel().getColumn(0)
-							.setPreferredWidth(500);
-					errorTable.getColumnModel().getColumn(1)
-							.setPreferredWidth(100);
-					errorTable.getColumnModel().getColumn(2)
-							.setPreferredWidth(70);
+					for (int i = 0; i < errorTable.getColumnModel()
+							.getColumnCount(); i++) {
+						errorTable.getColumnModel().getColumn(i)
+								.setPreferredWidth(columnWidths[i]);
+					}
 					// errorTable.setPreferredScrollableViewportSize(new
 					// Dimension(1000, 500));
 					errorTable.getTableHeader().setReorderingAllowed(false);
@@ -214,7 +237,8 @@ public class XQEditor extends JavaEditor {
 			}
 		};
 		try {
-			worker.execute();
+			if (!columnResizing)
+				worker.execute();
 		} catch (Exception e) {
 			System.out.println("Errorwindow updateTable Worker's slacking."
 					+ e.getMessage());
