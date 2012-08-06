@@ -9,6 +9,7 @@ General
 O - Make messages more user friendly. (Think regex). Inputs from Dan.
 O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
 	Should I really do this?
+O - Error Table into a separate class. Remove redundant code.	
 X - Explore adding components to Editor window. Well, almost done.
 O - Improve code documentation. 
 X - Add standard mode examples to example viewer.
@@ -40,7 +41,6 @@ Error Checker Service(ECS)
 
 X - Create a list of ignorable warnings - Discuss with Dan
 	SerializableVersionID, and more. Raw type warnings? Raw type warnings ignored.
-O - Add support for .java tabs - lower priority.
 X - Ignore Unused import warning for default imports only. Currently all unused imports ignored. Won't do.
 X - Handle library not found scenarios. Only error msg will be shown. No scroll to import.
 X - Deal with negative line numbers(compiler errors in import statements)
