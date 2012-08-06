@@ -29,6 +29,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -60,7 +61,7 @@ public class ErrorWindow extends JFrame {
 	/**
 	 * The table displaying the errors
 	 */
-	public JTable errorTable;
+	public XQErrorTable errorTable;
 	/**
 	 * Scroll pane that contains the Error Table
 	 */
@@ -70,18 +71,6 @@ public class ErrorWindow extends JFrame {
 	private DockTool2Base Docker;
 	public ErrorCheckerService errorCheckerService;
 	public JCheckBoxMenuItem problemWindowMenuCB;
-
-	/**
-	 * Column Names of JTable
-	 */
-	public static final String[] columnNames = { "Problem", "Tab", "Line" };
-
-	/**
-	 * Column Widths of JTable.
-	 */
-	public int[] columnWidths = { 600, 100, 50 }; // Default Values
-
-	private boolean columnResizing = false;
 
 	public static void main(String[] args) {
 		// EventQueue.invokeLater(new Runnable() {
@@ -147,28 +136,7 @@ public class ErrorWindow extends JFrame {
 			}
 		});
 
-		errorTable = new JTable() {
-			public boolean isCellEditable(int rowIndex, int colIndex) {
-				return false; // Disallow the editing of any cell
-			}
-
-			public void columnMarginChanged(ChangeEvent e) {
-				// JTable table = (JTable) e.getSource();
-				// System.out.println(e.getSource().getClass().getCanonicalName()
-				// + " ");
-				// if (errorTable.getTableHeader().getResizingColumn() != null)
-				// System.out.println(errorTable.getTableHeader()
-				// .getResizingColumn().getIdentifier());
-			}
-		};
-		errorTable.setModel(new DefaultTableModel(new Object[][] {},
-				columnNames));
-		// errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-		// errorTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-		errorTable.getTableHeader().setReorderingAllowed(false);
+		errorTable = new XQErrorTable(errorCheckerService);
 		scrollPane.setViewportView(errorTable);
 
 		try {
@@ -195,59 +163,8 @@ public class ErrorWindow extends JFrame {
 	 *            - Table Model
 	 * @return True - If error table was updated successfully.
 	 */
-	@SuppressWarnings("rawtypes")
 	synchronized public boolean updateTable(final TableModel tableModel) {
-
-		/*
-		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
-		 * swing component outside of the swing event thread, all sort of weird
-		 * exceptions are thrown. The worse part is, these exception don't get
-		 * caught easily either.
-		 * 
-		 * The 'correct' way of updating swing components is therefore, to do
-		 * the updating through a SwingWorker, inside done(). The updating then
-		 * takes place in a thread safe manner.
-		 */
-
-		SwingWorker worker = new SwingWorker() {
-
-			protected Object doInBackground() throws Exception {
-				return null;
-			}
-
-			protected void done() {
-
-				try {
-//					errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-					errorTable.setModel(tableModel);
-					for (int i = 0; i < errorTable.getColumnModel().getColumnCount(); i++) {
-						errorTable.getColumnModel().getColumn(i)
-						.setPreferredWidth(columnWidths[i]);	
-					}
-
-					errorTable.getTableHeader().setReorderingAllowed(false);
-					// errorTable.validate();
-					// errorTable.updateUI();
-					errorTable.repaint();
-					// errorTable.setFocusable(false);
-				} catch (Exception e) {
-					System.out.println("Exception at updatTable " + e);
-					// e.printStackTrace();
-				}
-				// errorTable.getModel()
-
-			}
-		};
-		try {
-			// Update the table only if user is not interacting with the table.
-			if (!columnResizing)
-				worker.execute();
-		} catch (Exception e) {
-			System.out.println("Errorwindow updateTable Worker's slacking."
-					+ e.getMessage());
-			// e.printStackTrace();
-		}
-		return true;
+		return errorTable.updateTable(tableModel);
 	}
 
 	/**
@@ -258,40 +175,6 @@ public class ErrorWindow extends JFrame {
 
 		if (thisErrorWindow == null)
 			System.out.println("ERW null");
-		// Mouse click listner for Error Table
-		errorTable.addMouseListener(new MouseAdapter() {
-			// TODO: synchronized or Swing Worker ?
-			synchronized public void mouseReleased(MouseEvent e) {
-				handlePause(e);
-				try {
-					errorCheckerService.scrollToErrorLine(errorTable
-							.getSelectedRow());
-					// System.out.print("Row clicked: "
-					// + (errorTable.getSelectedRow()));
-				} catch (Exception e1) {
-					System.out.println("Exception EW mouseReleased " + e);
-				}
-
-			}
-
-		});
-
-		errorTable.getTableHeader().addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				columnResizing = true;
-			}
-
-			public void mouseReleased(MouseEvent e) {
-				columnResizing = false;
-				for (int i = 0; i < errorTable.getColumnModel().getColumnCount(); i++) {
-					 columnWidths[i] =
-					 errorTable.getColumnModel().getColumn(i).getWidth();
-//					System.out.println(i + " w: "
-//							+ errorTable.getColumnModel().getColumn(i).getWidth());
-				}
-//				System.out.println("--");
-			}
-		});
 
 		thisErrorWindow.addComponentListener(new ComponentListener() {
 
@@ -316,11 +199,7 @@ public class ErrorWindow extends JFrame {
 			}
 		});
 
-		thisErrorWindow.addWindowListener(new WindowListener() {
-
-			public void windowOpened(WindowEvent e) {
-
-			}
+		thisErrorWindow.addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -328,29 +207,10 @@ public class ErrorWindow extends JFrame {
 			}
 
 			@Override
-			public void windowClosed(WindowEvent e) {
-
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e) {
-
-			}
-
-			@Override
 			public void windowDeiconified(WindowEvent e) {
 				thisEditor.setExtendedState(Editor.NORMAL);
 			}
 
-			@Override
-			public void windowActivated(WindowEvent e) {
-
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-
-			}
 		});
 
 		if (thisEditor == null) {
@@ -358,7 +218,8 @@ public class ErrorWindow extends JFrame {
 			return;
 		}
 
-		thisEditor.addWindowListener(new WindowListener() {
+		thisEditor.addWindowListener(new WindowAdapter() {
+		
 
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -380,21 +241,6 @@ public class ErrorWindow extends JFrame {
 			@Override
 			public void windowDeiconified(WindowEvent e) {
 				thisErrorWindow.setExtendedState(Frame.NORMAL);
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-
-			}
-
-			@Override
-			public void windowOpened(WindowEvent e) {
-
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-
 			}
 
 		});
@@ -462,7 +308,7 @@ public class ErrorWindow extends JFrame {
 	 * This class has been borrowed from Tab Manager tool by Thomas Diewald. It
 	 * has been slightly modified and used here.
 	 * 
-	 * @author: Thomas Diewald
+	 * @author: Thomas Diewald , http://thomasdiewald.com
 	 */
 	private class DockTool2Base {
 

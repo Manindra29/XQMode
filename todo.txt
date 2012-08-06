@@ -6,12 +6,12 @@ O - to be pwned, X - pwned
 General
 -------
 
+O - Improve code documentation.
 O - Make messages more user friendly. (Think regex). Inputs from Dan.
 O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
 	Should I really do this?
-O - Error Table into a separate class. Remove redundant code.	
+X - Error Table into a separate class. Remove redundant code.	
 X - Explore adding components to Editor window. Well, almost done.
-O - Improve code documentation. 
 X - Add standard mode examples to example viewer.
 X - processing.opengl package is not present in classpath for any Contribution - Tools and Modes! Bug?
 	Sketches using OpenGL don't run from contributed modes. Fixed.
@@ -31,9 +31,9 @@ X - Eclipse like error bar on the right of the editor text area. More UI design 
 Issues
 ------
 
+O - Display message for sketches containing java tabs not supported.
 X - Add toggle for warnings
 X - Add tab like view for Console/Errors List
-X - Dynamically switch to Console when something is printed. Bad idea.
 X - Figure out a way to make columns resizable. Done! 
 
 Error Checker Service(ECS)
@@ -100,7 +100,6 @@ X - Scrollable tabular view of errors, line nos.
 Error Bar
 ---------
 
-O - Discuss the UI and aesthetics with Dan and Casey. My design looks too crappy.
 X - Hyperlink(Hand) cursor when hovering over error marker.
 X - Display error as tooltip on hover.
 X - Clicking on an error marker, scrolls to the error location. Done.

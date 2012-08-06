@@ -26,18 +26,12 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import processing.app.Base;
@@ -68,14 +62,13 @@ public class XQEditor extends JavaEditor {
 	 * Custom TextArea
 	 */
 	protected XQTextArea xqTextArea;
-	JTable errorTable;
+	protected XQErrorTable errorTable;
 	protected final XQEditor thisEditor;
-	/**
-	 * Column Widths of JTable.
-	 */
-	public int[] columnWidths = { 600, 100, 50 }; // Default Values
 
-	private boolean columnResizing = false;
+	XQConsoleToggle btnShowConsole;
+	XQConsoleToggle btnShowErrors;
+	final JScrollPane errorTableScrollPane;
+	public JPanel consoleProblemsPane;
 
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
@@ -102,47 +95,7 @@ public class XQEditor extends JavaEditor {
 
 		// Adding Error Table in a scroll pane
 		errorTableScrollPane = new JScrollPane();
-		errorTable = new JTable() {
-			public boolean isCellEditable(int rowIndex, int colIndex) {
-				return false; // Disallow the editing of any cell
-			}
-		};
-		errorTable.setModel(new DefaultTableModel(new Object[][] {},
-				ErrorWindow.columnNames));
-		errorTable.getColumnModel().getColumn(0).setPreferredWidth(300);
-		errorTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-		errorTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-		errorTable.getTableHeader().setReorderingAllowed(false);
-		// errorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		errorTable.addMouseListener(new MouseAdapter() {
-			// TODO: synchronized or Swing Worker ?
-			synchronized public void mouseReleased(MouseEvent e) {
-				try {
-					errorCheckerService.scrollToErrorLine(errorTable
-							.getSelectedRow());
-					// System.out.print("Row clicked: "
-					// + (errorTable.getSelectedRow()));
-				} catch (Exception e1) {
-					System.out.println("Exception EW mouseReleased " + e);
-				}
-			}
-		});
-
-		errorTable.getTableHeader().addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				columnResizing = true;
-			}
-
-			public void mouseReleased(MouseEvent e) {
-				columnResizing = false;
-				for (int i = 0; i < errorTable.getColumnModel()
-						.getColumnCount(); i++) {
-					columnWidths[i] = errorTable.getColumnModel().getColumn(i)
-							.getWidth();
-				}
-			}
-		});
-
+		errorTable = new XQErrorTable(errorCheckerService);
 		errorTableScrollPane.setViewportView(errorTable);
 
 		// Adding toggle console button
@@ -182,69 +135,8 @@ public class XQEditor extends JavaEditor {
 		cl.show(consoleProblemsPane, buttonName);
 	}
 
-	XQConsoleToggle btnShowConsole;
-	XQConsoleToggle btnShowErrors;
-	public JLayeredPane jlp;
-	boolean ab = true;
-	final JScrollPane errorTableScrollPane;
-	public JPanel consoleProblemsPane;
-
-	@SuppressWarnings("rawtypes")
 	synchronized public boolean updateTable(final TableModel tableModel) {
-
-		// If problems list is not visible, no need to update
-		if (!btnShowConsole.toggleText)
-			return false;
-		/*
-		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
-		 * swing component outside of the swing event thread, all sort of weird
-		 * exceptions are thrown. The worse part is, these exception don't get
-		 * caught easily either.
-		 * 
-		 * The 'correct' way of updating swing components is therefore, to do
-		 * the updating through a SwingWorker, inside done(). The updating then
-		 * takes place in a thread safe manner.
-		 */
-
-		SwingWorker worker = new SwingWorker() {
-
-			protected Object doInBackground() throws Exception {
-				return null;
-			}
-
-			protected void done() {
-
-				try {
-					errorTable.setModel(tableModel);
-					for (int i = 0; i < errorTable.getColumnModel()
-							.getColumnCount(); i++) {
-						errorTable.getColumnModel().getColumn(i)
-								.setPreferredWidth(columnWidths[i]);
-					}
-					// errorTable.setPreferredScrollableViewportSize(new
-					// Dimension(1000, 500));
-					errorTable.getTableHeader().setReorderingAllowed(false);
-					errorTable.validate();
-					errorTable.updateUI();
-					errorTable.repaint();
-					// errorTable.setFocusable(false);
-				} catch (Exception e) {
-					System.out.println("Exception at updatTable " + e);
-					// e.printStackTrace();
-				}
-				// errorTable.getModel()
-
-			}
-		};
-		try {
-			if (!columnResizing)
-				worker.execute();
-		} catch (Exception e) {
-			System.out.println("Errorwindow updateTable Worker's slacking."
-					+ e.getMessage());
-			// e.printStackTrace();
-		}
-		return true;
+		return errorTable.updateTable(tableModel);
 	}
 
 	/**

@@ -32,6 +32,14 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
 
+/**
+ * Toggle Button displayed in the editor line status panel for toggling bewtween
+ * console and problems list. Glorified JPanel.
+ * 
+ * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
+ * 
+ */
+
 public class XQConsoleToggle extends JPanel implements MouseListener {
 	public static String[] text = { "Console", "Errors" };
 	public boolean toggleText = true, toggleBG = true;
@@ -77,7 +85,7 @@ public class XQConsoleToggle extends JPanel implements MouseListener {
 		}
 
 		g.drawString(buttonName, getWidth() / 2 + 2
-				- getFontMetrics(getFont()).stringWidth(text[0]) / 2 ,
+				- getFontMetrics(getFont()).stringWidth(text[0]) / 2,
 				this.getHeight() - 6);
 	}
 

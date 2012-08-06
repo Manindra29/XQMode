@@ -1059,7 +1059,7 @@ public class ErrorCheckerService implements Runnable {
 
 			if (errorWindow != null) {
 				DefaultTableModel tm = new DefaultTableModel(errorData,
-						ErrorWindow.columnNames);
+						XQErrorTable.columnNames);
 				if (errorWindow.isVisible())
 					errorWindow.updateTable(tm);
 				((XQEditor) editor).updateTable(tm);
