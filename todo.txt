@@ -7,9 +7,10 @@ General
 -------
 
 O - Improve code documentation.
-O - Make messages more user friendly. (Think regex). Inputs from Dan.
-O - OS X Installation script needs to be updated. Doesn't work with folder names with spaces.
-	Should I really do this?
+O - Make messages more user friendly. To be done after public release.
+X - Switch to Console if Problem Window is opened.
+X - Display message for sketches containing java tabs not supported.
+X - Center align labels.
 X - Error Table into a separate class. Remove redundant code.	
 X - Explore adding components to Editor window. Well, almost done.
 X - Add standard mode examples to example viewer.
@@ -31,7 +32,6 @@ X - Eclipse like error bar on the right of the editor text area. More UI design 
 Issues
 ------
 
-O - Display message for sketches containing java tabs not supported.
 X - Add toggle for warnings
 X - Add tab like view for Console/Errors List
 X - Figure out a way to make columns resizable. Done! 

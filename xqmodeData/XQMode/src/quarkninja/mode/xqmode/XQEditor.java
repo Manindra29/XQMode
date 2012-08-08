@@ -24,12 +24,14 @@ package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableModel;
@@ -64,7 +66,7 @@ public class XQEditor extends JavaEditor {
 	protected XQTextArea xqTextArea;
 	protected XQErrorTable errorTable;
 	protected final XQEditor thisEditor;
-
+	protected boolean compilationCheckEnabled = true;
 	XQConsoleToggle btnShowConsole;
 	XQConsoleToggle btnShowErrors;
 	final JScrollPane errorTableScrollPane;
@@ -76,6 +78,9 @@ public class XQEditor extends JavaEditor {
 		thisEditor = this;
 
 		xqmode = (XQMode) mode;
+
+		checkForJavaTabs();
+
 		errorBar = new ErrorBar(thisEditor, textarea.getMinimumSize().height);
 		// Starts it too! Error bar should be ready beforehand
 		initializeErrorChecker();
@@ -130,6 +135,10 @@ public class XQEditor extends JavaEditor {
 		consolePanel.add(consoleProblemsPane, BorderLayout.CENTER);
 	}
 
+	/**
+	 * Toggle between Console and Errors List
+	 * @param buttonName - Button Label
+	 */
 	public void toggleView(String buttonName) {
 		CardLayout cl = (CardLayout) consoleProblemsPane.getLayout();
 		cl.show(consoleProblemsPane, buttonName);
@@ -186,6 +195,8 @@ public class XQEditor extends JavaEditor {
 				errorCheckerService.errorWindow
 						.setVisible(((JCheckBoxMenuItem) e.getSource())
 								.isSelected());
+				// switch to console, now that Error Window is open
+				toggleView(XQConsoleToggle.text[0]);
 			}
 		});
 		menu.add(problemWindowMenuCB);
@@ -224,6 +235,27 @@ public class XQEditor extends JavaEditor {
 			// System.out.println("Error Checker Service initialized.");
 		}
 
+	}
+
+	/**
+	 * Checks if the sketch contains java tabs. If it does, XQMode ain't built
+	 * for it, yet. Also, user should really start looking at Eclipse. Disable
+	 * compilation check.
+	 */
+	private void checkForJavaTabs() {
+		for (int i = 0; i < thisEditor.getSketch().getCodeCount(); i++) {
+			System.out
+					.println(thisEditor.getSketch().getCode(i).getExtension());
+			if (thisEditor.getSketch().getCode(i).getExtension().equals("java")) {
+				compilationCheckEnabled = false;
+				JOptionPane.showMessageDialog(new Frame(), thisEditor
+						.getSketch().getName()
+						+ " contains .java tabs. XQMode doesn't "
+						+ "support java tabs. Only "
+						+ "syntax errors will be reported for .pde tabs.");
+				break;
+			}
+		}
 	}
 
 }

@@ -84,8 +84,8 @@ public class XQConsoleToggle extends JPanel implements MouseListener {
 			g.setColor(Color.WHITE);
 		}
 
-		g.drawString(buttonName, getWidth() / 2 + 2
-				- getFontMetrics(getFont()).stringWidth(text[0]) / 2,
+		g.drawString(buttonName, getWidth() / 2 + 2 // + 2 is a offset
+				- getFontMetrics(getFont()).stringWidth(buttonName) / 2,
 				this.getHeight() - 6);
 	}
 

@@ -31,22 +31,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import processing.app.Base;
 import processing.app.Editor;
-import processing.app.SketchCode;
 
 /**
  * Error Window that displays a tablular list of errors. Clicking on an error

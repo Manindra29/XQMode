@@ -321,7 +321,7 @@ public class ErrorCheckerService implements Runnable {
 			syntaxCheck();
 
 			// No syntax errors, proceed for compilation check, Stage 2.
-			if (problems.length == 0) {
+			if (problems.length == 0 && editor.compilationCheckEnabled) {
 				sourceCode = xqpreproc.doYourThing(sourceCode, programImports);
 				prepareCompilerClasspath();
 				mainClassOffset = xqpreproc.mainClassOffset;
