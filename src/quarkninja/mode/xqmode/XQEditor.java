@@ -67,9 +67,20 @@ public class XQEditor extends JavaEditor {
 	protected XQErrorTable errorTable;
 	protected final XQEditor thisEditor;
 	protected boolean compilationCheckEnabled = true;
+	
+	/**
+	 * Show Console button
+	 */
 	XQConsoleToggle btnShowConsole;
+	
+	/**
+	 * Show Problems button
+	 */
 	XQConsoleToggle btnShowErrors;
+	
+	
 	final JScrollPane errorTableScrollPane;
+	
 	public JPanel consoleProblemsPane;
 
 	protected XQEditor(Base base, String path, EditorState state,
