@@ -1,26 +1,26 @@
 package quarkninja.mode.xqmode;
 
 /*
-Part of the XQMode project - https://github.com/Manindra29/XQMode
+ Part of the XQMode project - https://github.com/Manindra29/XQMode
 
-Under Google Summer of Code 2012 - 
-http://www.google-melange.com/gsoc/homepage/google/gsoc2012
+ Under Google Summer of Code 2012 - 
+ http://www.google-melange.com/gsoc/homepage/google/gsoc2012
 
-Copyright (C) 2012 Manindra Moharana
+ Copyright (C) 2012 Manindra Moharana
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License version 2
+ as published by the Free Software Foundation.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software Foundation,
-Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,8 +32,9 @@ import javax.swing.table.TableModel;
 
 /**
  * Custom JTable implementation for XQMode. Minor tweaks.
+ * 
  * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
- *
+ * 
  */
 public class XQErrorTable extends JTable {
 
@@ -81,6 +82,10 @@ public class XQErrorTable extends JTable {
 			}
 		});
 
+		// Handles the resizing of columns. When mouse press is detected on
+		// table header, Stop updating the table, store new values of column
+		// widths,and resume updating. Updating is disabled as long as
+		// columnResizing is true
 		this.getTableHeader().addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				columnResizing = true;
