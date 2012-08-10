@@ -6,8 +6,8 @@ O - to be pwned, X - pwned
 General
 -------
 
-O - Improve code documentation.
 O - Make messages more user friendly. To be done after public release.
+X - Improve code documentation.
 X - Switch to Console if Problem Window is opened.
 X - Display message for sketches containing java tabs not supported.
 X - Center align labels.

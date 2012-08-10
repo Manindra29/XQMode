@@ -135,7 +135,7 @@ public class ErrorBar extends JPanel {
 
 		// TODO: Swing Worker approach? Not needed yet. Since repaint() is
 		// called only after error points have been updated.
-		errorPoints = new ArrayList<ErrorMarker>();
+		errorPointsOld = errorPoints;
 		errorPoints.clear();
 		
 		// Each problem.getSourceLine() will have an extra line added because of

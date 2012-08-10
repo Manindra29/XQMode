@@ -641,7 +641,10 @@ public class ErrorCheckerService implements Runnable {
 		return new int[] { codeIndex, x };
 	}
 
-	int runCount = 0;
+	/**
+	 * Pretty silly this one. Shows the XQMode version number after 3 seconds of running.
+	 */
+	private int runCount = 0;
 
 	/**
 	 * Starts the Syntax Checker Service thread
@@ -675,7 +678,7 @@ public class ErrorCheckerService implements Runnable {
 			}
 
 			if (runCount == 3)
-				System.out.println("XQMode v0.2 alpha");
+				System.out.println("XQMode v0.3 alpha");
 		}
 	}
 
