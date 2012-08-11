@@ -7,6 +7,10 @@ General
 -------
 
 O - Make messages more user friendly. To be done after public release.
+X - Installer scripts for:
+	X	Windows - No sym inks please!
+	X	OS X - No sym inks please!
+	X	Linux, just copy the jar files. Executing script is more pain.
 X - Improve code documentation.
 X - Switch to Console if Problem Window is opened.
 X - Display message for sketches containing java tabs not supported.
