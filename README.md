@@ -10,7 +10,8 @@ Features include underlining error lines, tabular list of errors, click to scrol
 and eclipse like error bar displaying positions of all errors in the tab.<br />
 
 Download XQMode v0.3 alpha from [here](https://github.com/downloads/Manindra29/XQMode/XQMode%20v0.3a.zip)
-(Installation instruction in the ReadMe)<br/>
+<br/>
+You can find installation instruction in the ReadMe. Requires Processing 2.0a8 and up.<br/>
 
 Contributors:
 * [Manindra Moharana](www.mkmoharana.com)
