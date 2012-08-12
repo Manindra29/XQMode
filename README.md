@@ -1,15 +1,22 @@
-XQMode
-======
+XQMode for PDE (Processing Development Environment)
+---------------------------------------------------
 
-It's coming. Stay tuned.
+[www.processing.org](http://www.processing.org)
+
+XQMode is a contributed Mode for Processing that reports syntax and compilation 
+errors in code as you type, on the fly.<br />
+
+Features include underlining error lines, tabular list of errors, click to scroll to error line
+and eclipse like error bar displaying positions of all errors in the tab.<br />
 
 Contributors:
-* Daniel Shiffman
-* Manindra Moharana
+* [Manindra Moharana](www.mkmoharana.com)
+* [Daniel Shiffman](www.shiffman.net)
+
 
 [Project Update #1] (http://mkmoharana.com/2012/07/gsoc-update-1-xqmode-for-processing.html) 
 
-[Part of Google Summer of Code 2012 Project for Processing]
+Part of [Google Summer of Code 2012](http://code.google.com/soc/) Project for Processing
 
 
-Processing Mode Template by Martin Leopold.
+Processing Mode Template by [Martin Leopold](http://martinleopold.com/).
