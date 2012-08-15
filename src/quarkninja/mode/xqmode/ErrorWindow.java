@@ -55,12 +55,12 @@ public class ErrorWindow extends JFrame {
 	/**
 	 * The table displaying the errors
 	 */
-	public XQErrorTable errorTable;
+	protected XQErrorTable errorTable;
 	/**
 	 * Scroll pane that contains the Error Table
 	 */
-	private JScrollPane scrollPane;
-	public Editor thisEditor;
+	protected JScrollPane scrollPane;
+	protected Editor thisEditor;
 	private JFrame thisErrorWindow;
 	private DockTool2Base Docker;
 	public ErrorCheckerService errorCheckerService;

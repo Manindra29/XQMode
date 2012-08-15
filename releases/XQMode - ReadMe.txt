@@ -33,7 +33,8 @@ Linux
 
 1. Create a backup/copy of your Processing folder
 2. Copy all files inside xqmodeData/lib folder into processing-2.0a8/lib folder.
-3. Now copy the XQMode to <Your Processing Sketchbook>/modes folder. Create a folder named 'modes' if there isn’t one.
+3. Move ecj.jar from processing-2.0a8/lib folder into processing-2.0a8 folder.
+4. Now copy the XQMode to <Your Processing Sketchbook>/modes folder. Create a folder named 'modes' if there isn’t one.
 5. Run Processing. Switch to XQMode.
 
 ----------------------------------------------------------------------------------------------------------------------------------

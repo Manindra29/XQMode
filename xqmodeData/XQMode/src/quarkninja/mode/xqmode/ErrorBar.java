@@ -42,31 +42,55 @@ import processing.app.SketchCode;
 /**
  * The bar on the left of the text area whih displays all errors as rectangles. <br>
  * <br>
- * Current idea: All errors and warnings of a sketch are drawn on the bar,
- * clikcing on one, scrolls to the tab and location. Error messages displayed on
- * hover. Markers are not in sync with the error line. Similar to eclipse's
- * right error bar which displays the overall errors in a document
+ * All errors and warnings of a sketch are drawn on the bar, clikcing on one,
+ * scrolls to the tab and location. Error messages displayed on hover. Markers
+ * are not in sync with the error line. Similar to eclipse's right error bar
+ * which displays the overall errors in a document
  * 
  * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
  * 
  */
 public class ErrorBar extends JPanel {
-	public int preffHeight;
-	public final int errorMarkerHeight = 4;
+	/**
+	 * Preferred height of the component
+	 */
+	protected int preferredHeight;
+
+	/**
+	 * Preferred height of the component
+	 */
+	protected int preferredWidth = 12;
+
+	/**
+	 * Height of marker
+	 */
+	public static final int errorMarkerHeight = 4;
+
+	/**
+	 * Color of Error Marker
+	 */
 	public static final Color errorColor = new Color(0xED2630);
+
+	/**
+	 * Color of Warning Marker
+	 */
 	public static final Color warningColor = new Color(0xFFC30E);
+
+	/**
+	 * Background color of the component
+	 */
 	public static final Color backgroundColor = new Color(0x2C343D);
-	XQEditor editor;
-	// public ErrorWindow errorWindow;
-	public ErrorCheckerService errorCheckerService;
-	Color errorStatus = Color.GREEN;
+
+	protected XQEditor editor;
+
+	protected ErrorCheckerService errorCheckerService;
 
 	/**
 	 * Stores error markers displayed PER TAB along the error bar.
 	 */
-	public ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
+	protected ArrayList<ErrorMarker> errorPoints = new ArrayList<ErrorMarker>();
 
-	public ArrayList<ErrorMarker> errorPointsOld = new ArrayList<ErrorMarker>();
+	protected ArrayList<ErrorMarker> errorPointsOld = new ArrayList<ErrorMarker>();
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -85,7 +109,7 @@ public class ErrorBar extends JPanel {
 	}
 
 	public Dimension getPreferredSize() {
-		return new Dimension(12, preffHeight);
+		return new Dimension(preferredWidth, preferredHeight);
 	}
 
 	public Dimension getMinimumSize() {
@@ -94,8 +118,7 @@ public class ErrorBar extends JPanel {
 
 	public ErrorBar(XQEditor editor, int height) {
 		this.editor = editor;
-		this.preffHeight = height;
-		// syntaxCheckerService = synCheck;
+		this.preferredHeight = height;
 		addListeners();
 	}
 
@@ -137,7 +160,7 @@ public class ErrorBar extends JPanel {
 		// called only after error points have been updated.
 		errorPointsOld = errorPoints;
 		errorPoints.clear();
-		
+
 		// Each problem.getSourceLine() will have an extra line added because of
 		// class declaration in the beginnning
 		for (Problem problem : problems) {
@@ -145,26 +168,26 @@ public class ErrorBar extends JPanel {
 				// Ratio of error line to total lines
 				float y = problem.lineNumber / ((float) totalLines);
 				// Ratio multiplied by height of the error bar
-				y *= this.getHeight() - 15;
+				y *= this.getHeight() - 15; // -15 is just a vertical offset
 				errorPoints.add(new ErrorMarker(problem, (int) y,
 						problem.iProblem.isError() ? ErrorMarker.Error
 								: ErrorMarker.Warning));
 				// System.out.println("Y: " + y);
 			}
 		}
-		if (errorPoints.size() > 0)
-			errorStatus = Color.RED;
-		else
-			errorStatus = Color.GREEN;
+
 		repaint();
 	}
 
 	/**
 	 * Add various mouse listeners.
 	 */
-	private void addListeners() {
+	protected void addListeners() {
 
 		this.addMouseListener(new MouseAdapter() {
+			
+			// Find out which error/warning the user has clicked
+			// and then scroll to that
 			@SuppressWarnings("rawtypes")
 			@Override
 			public void mouseClicked(final MouseEvent e) {
@@ -176,6 +199,8 @@ public class ErrorBar extends JPanel {
 
 					protected void done() {
 						for (ErrorMarker eMarker : errorPoints) {
+							// -2 and +2 are extra allowance, clicks in the
+							// vicinity of the markers register that way
 							if (e.getY() >= eMarker.y - 2
 									&& e.getY() <= eMarker.y + 2
 											+ errorMarkerHeight) {
@@ -189,6 +214,7 @@ public class ErrorBar extends JPanel {
 														.getCurrentCode());
 
 								int totalErrorIndex = currentTabErrorIndex;
+								
 								for (int i = 0; i < errorCheckerService.problemsList
 										.size(); i++) {
 									Problem p = errorCheckerService.problemsList
@@ -205,10 +231,11 @@ public class ErrorBar extends JPanel {
 
 					}
 				};
+				
 				try {
 					worker.execute();
 				} catch (Exception exp) {
-					System.out.println("Errorbar mouseclicked is slacking."
+					System.out.println("Errorbar mouseClicked is slacking."
 							+ exp.getMessage());
 					// e.printStackTrace();
 				}
@@ -216,6 +243,7 @@ public class ErrorBar extends JPanel {
 			}
 		});
 
+		// Tooltip on hover
 		this.addMouseMotionListener(new MouseMotionListener() {
 
 			@SuppressWarnings("rawtypes")

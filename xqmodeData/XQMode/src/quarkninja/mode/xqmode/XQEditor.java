@@ -255,8 +255,6 @@ public class XQEditor extends JavaEditor {
 	 */
 	private void checkForJavaTabs() {
 		for (int i = 0; i < thisEditor.getSketch().getCodeCount(); i++) {
-			System.out
-					.println(thisEditor.getSketch().getCode(i).getExtension());
 			if (thisEditor.getSketch().getCode(i).getExtension().equals("java")) {
 				compilationCheckEnabled = false;
 				JOptionPane.showMessageDialog(new Frame(), thisEditor
