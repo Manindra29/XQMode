@@ -34,8 +34,22 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * 
  */
 public class Problem {
+	/**
+	 * The IProblem which is being wrapped
+	 */
 	public IProblem iProblem;
-	public int tabIndex, lineNumber;
+	/**
+	 * The tab number to which the error belongs to
+	 */
+	public int tabIndex; 
+	/**
+	 * Line number(pde code) of the error
+	 */
+	public int lineNumber;
+	
+	/**
+	 * Error Message. Processed form of IProblem.getMessage()
+	 */
 	public String message;
 
 	public Problem(IProblem iProblem, int tabIndex, int lineNumber) {

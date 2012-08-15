@@ -50,8 +50,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
- * Makes iProblem error messages jargon free. Or as Sammy would say it,
- * "Designed for Humans."
+ * Makes IProblem error messages jargon free. 
  * 
  * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
  * 
@@ -67,6 +66,14 @@ public class ProblemsFilter {
 		return process(problem.getMessage());
 	}
 
+	/**
+	 * Processes error messages and attempts to make them a bit more english like. 
+	 * Currently performs:
+	 * <li>Remove all instances of token. "Syntax error on token 'blah', delete this token"
+	 * becomes "Syntax error on 'blah', delete this"
+	 * @param message - The message to be processed
+	 * @return String - The processed message
+	 */
 	public static String process(String message) {
 		// Remove all instances of token
 		// "Syntax error on token 'blah', delete this token"

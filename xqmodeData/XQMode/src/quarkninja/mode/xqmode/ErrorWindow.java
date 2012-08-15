@@ -27,8 +27,6 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -62,6 +60,7 @@ public class ErrorWindow extends JFrame {
 
 	protected XQEditor thisEditor;
 	private JFrame thisErrorWindow;
+	
 	/**
 	 * Handles the sticky Problem window
 	 */
@@ -74,7 +73,7 @@ public class ErrorWindow extends JFrame {
 	 * 
 	 * @param editor
 	 *            - Editor
-	 * @param ecs
+	 * @param ecs - ErrorCheckerService
 	 */
 	public ErrorWindow(XQEditor editor, ErrorCheckerService ecs) {
 		thisErrorWindow = this;
@@ -91,7 +90,7 @@ public class ErrorWindow extends JFrame {
 		Base.setIcon(this);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		// Default size: setBounds(100, 100, 458, 160);
-		setBounds(100, 100, 458, 160); // Yeah, I hardcoded this one. Hate me.
+		setBounds(100, 100, 458, 160); // Yeah, I hardcode such things sometimes. Hate me.
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -136,7 +135,7 @@ public class ErrorWindow extends JFrame {
 	 * Adds various listeners to components of EditorWindow and to the Editor
 	 * window
 	 */
-	private void addListeners() {
+	protected void addListeners() {
 
 		if (thisErrorWindow == null)
 			System.out.println("ERW null");
@@ -253,7 +252,7 @@ public class ErrorWindow extends JFrame {
 	 * This class has been borrowed from Tab Manager tool by Thomas Diewald. It
 	 * has been slightly modified and used here.
 	 * 
-	 * @author: Thomas Diewald , http://thomasdiewald.com
+	 * @author Thomas Diewald , http://thomasdiewald.com
 	 */
 	private class DockTool2Base {
 

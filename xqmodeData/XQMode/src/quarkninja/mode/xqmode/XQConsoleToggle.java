@@ -41,11 +41,17 @@ import javax.swing.JPanel;
  */
 
 public class XQConsoleToggle extends JPanel implements MouseListener {
-	public static String[] text = { "Console", "Errors" };
-	public boolean toggleText = true, toggleBG = true;
-	public int height;
-	public XQEditor editor;
-	public String buttonName;
+	public static final String[] text = { "Console", "Errors" };
+	
+	private boolean toggleText = true;
+	private boolean toggleBG = true;
+	
+	/**
+	 * Height of the component
+	 */
+	protected int height;
+	protected XQEditor editor;
+	protected String buttonName;
 
 	public XQConsoleToggle(XQEditor editor, String buttonName, int height) {
 		this.editor = editor;
@@ -69,7 +75,8 @@ public class XQConsoleToggle extends JPanel implements MouseListener {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		// lineStatus BG Color 0xff29333D
+		
+		// On mouse hover, text and background color are changed.
 		if (toggleBG) {
 			g.setColor(new Color(0xff9DA7B0));
 			g.fillRect(0, 0, this.getWidth(), this.getHeight());
