@@ -23,6 +23,7 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.EventQueue;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +49,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import processing.app.Base;
-import processing.app.Editor;
 import processing.app.Library;
 import processing.app.SketchCode;
 import processing.core.PApplet;
@@ -94,7 +94,7 @@ public class ErrorCheckerService implements Runnable {
 	 * Used to indirectly pause the Error Checking. Calls to checkCode() become
 	 * useless.
 	 */
-	public boolean pauseThread = false;
+	private boolean pauseThread = false;
 
 	public ErrorWindow errorWindow;
 	public ErrorBar errorBar;
@@ -270,12 +270,11 @@ public class ErrorCheckerService implements Runnable {
 			return;
 
 		final ErrorCheckerService thisService = this;
-		final Editor thisEditor = editor;
+		final XQEditor thisEditor = editor;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					errorWindow = new ErrorWindow(thisEditor, thisService);
-					errorWindow.problemWindowMenuCB = problemWindowMenuCB;
 					//errorWindow.setVisible(true);
 					editor.toFront();
 					errorWindow.errorTable.setFocusable(false);
@@ -689,6 +688,42 @@ public class ErrorCheckerService implements Runnable {
 		stopThread = true;
 		System.out.println(editor.getSketch().getName()
 				+ " - Error Checker stopped.");
+	}
+	
+	/**
+	 * Pauses the Error Checker Service thread
+	 */
+	public void pauseThread(){
+		pauseThread = true;
+	}
+	
+	/**
+	 * Resumes the Error Checker Service thread
+	 */
+	public void resumeThread(){
+		pauseThread = false;
+	}
+	
+	/**
+	 * Gets if Error Checker Service thread is paused 
+	 * @return ErrorCheckerService.pauseThread
+	 */
+	public boolean isThreadPaused(){
+		return pauseThread;
+	}
+	
+	/**
+	 * Hnadle pausing the Error Checker Service thread.
+	 * 
+	 * @param e
+	 *            - MouseEvent
+	 */
+	public void handlePause(MouseEvent e) {
+
+		if (e.isControlDown()) {
+
+			
+		}
 	}
 
 	/**

@@ -183,14 +183,17 @@ public class XQEditor extends JavaEditor {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				errorCheckerService.pauseThread = !((JCheckBoxMenuItem) e
-						.getSource()).isSelected();
-				if (errorCheckerService.pauseThread)
-					System.out.println(getSketch().getName()
+				if (!((JCheckBoxMenuItem) e
+						.getSource()).isSelected()) {
+					// unticked Menu Item
+					errorCheckerService.pauseThread();
+					System.out.println(thisEditor.getSketch().getName()
 							+ " - Error Checker paused.");
-				else
-					System.out.println(getSketch().getName()
+				} else {
+					errorCheckerService.resumeThread();
+					System.out.println(thisEditor.getSketch().getName()
 							+ " - Error Checker resumed.");
+				}
 			}
 		});
 		menu.add(item);

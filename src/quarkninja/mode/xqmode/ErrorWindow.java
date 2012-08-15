@@ -27,12 +27,9 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -60,29 +57,27 @@ public class ErrorWindow extends JFrame {
 	 * Scroll pane that contains the Error Table
 	 */
 	protected JScrollPane scrollPane;
-	protected Editor thisEditor;
+
+	protected XQEditor thisEditor;
 	private JFrame thisErrorWindow;
+	
+	/**
+	 * Handles the sticky Problem window
+	 */
 	private DockTool2Base Docker;
-	public ErrorCheckerService errorCheckerService;
-	public JCheckBoxMenuItem problemWindowMenuCB;
 
-	public static void main(String[] args) {
-		// EventQueue.invokeLater(new Runnable() {
-		// public void run() {
-		// try {
-		// ErrorWindow frame = new ErrorWindow(null, null);
-		// frame.setVisible(true);
-		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// });
-	}
+	protected ErrorCheckerService errorCheckerService;
 
-	public ErrorWindow(Editor editor, ErrorCheckerService syncheck) {
+	/**
+	 * Preps up ErrorWindow
+	 * 
+	 * @param editor
+	 *            - Editor
+	 * @param ecs - ErrorCheckerService
+	 */
+	public ErrorWindow(XQEditor editor, ErrorCheckerService ecs) {
 		thisErrorWindow = this;
-		errorCheckerService = syncheck;
+		errorCheckerService = ecs;
 		thisEditor = editor;
 		setTitle("Problems");
 		prepareFrame();
@@ -91,44 +86,19 @@ public class ErrorWindow extends JFrame {
 	/**
 	 * Sets up ErrorWindow
 	 */
-	private void prepareFrame() { // Not createAndShowGUI().
+	protected void prepareFrame() {
 		Base.setIcon(this);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		// Default size: setBounds(100, 100, 458, 160);
-		setBounds(100, 100, 458, 160);
-		contentPane = new JPanel();
-		contentPane.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				handlePause(e);
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					// TODO: Remove this later. For stopping syntax
-					// checker.
-					errorCheckerService.stopThread();
-					System.out.println("Syntax checker thread paused.");
-				}
-			}
-		});
+		setBounds(100, 100, 458, 160); // Yeah, I hardcode such things sometimes. Hate me.
 
+		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 
 		scrollPane = new JScrollPane();
 		contentPane.add(scrollPane);
-
-		scrollPane.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				handlePause(e);
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					// TODO: Remove this later. For stopping syntax
-					// checker.
-					errorCheckerService.stopThread();
-					System.out.println("Syntax checker thread paused.");
-				}
-			}
-		});
 
 		errorTable = new XQErrorTable(errorCheckerService);
 		scrollPane.setViewportView(errorTable);
@@ -148,9 +118,8 @@ public class ErrorWindow extends JFrame {
 
 	}
 
-
 	/**
-	 * Updates the error table with new data(Table Model). Called from Syntax
+	 * Updates the error table with new data(Table Model). Called from Error
 	 * Checker Service.
 	 * 
 	 * @param tableModel
@@ -158,14 +127,15 @@ public class ErrorWindow extends JFrame {
 	 * @return True - If error table was updated successfully.
 	 */
 	synchronized public boolean updateTable(final TableModel tableModel) {
+		// XQErrorTable handles evrything now
 		return errorTable.updateTable(tableModel);
 	}
 
 	/**
-	 * Adds various listeners to components of EditorWindow and also to the
-	 * Editor window
+	 * Adds various listeners to components of EditorWindow and to the Editor
+	 * window
 	 */
-	private void addListeners() {
+	protected void addListeners() {
 
 		if (thisErrorWindow == null)
 			System.out.println("ERW null");
@@ -197,7 +167,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				problemWindowMenuCB.setSelected(false);
+				thisEditor.problemWindowMenuCB.setSelected(false);
 			}
 
 			@Override
@@ -213,7 +183,6 @@ public class ErrorWindow extends JFrame {
 		}
 
 		thisEditor.addWindowListener(new WindowAdapter() {
-		
 
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -222,7 +191,7 @@ public class ErrorWindow extends JFrame {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				errorCheckerService.pauseThread = true;
+				errorCheckerService.pauseThread();
 				errorCheckerService.stopThread(); // Bye bye thread.
 				thisErrorWindow.dispose();
 			}
@@ -274,25 +243,6 @@ public class ErrorWindow extends JFrame {
 
 	}
 
-	/**
-	 * Hnadle pausing the Error Checker Service thread.
-	 * 
-	 * @param e
-	 *            - MouseEvent
-	 */
-	public void handlePause(MouseEvent e) {
-
-		if (e.isControlDown()) {
-			errorCheckerService.pauseThread = !errorCheckerService.pauseThread;
-
-			if (errorCheckerService.pauseThread)
-				System.out.println(thisEditor.getSketch().getName()
-						+ " - Error Checker paused.");
-			else
-				System.out.println(thisEditor.getSketch().getName()
-						+ " - Error Checker resumed.");
-		}
-	}
 
 	/**
 	 * Implements the docking feature of the tool - The frame sticks to the
@@ -302,7 +252,7 @@ public class ErrorWindow extends JFrame {
 	 * This class has been borrowed from Tab Manager tool by Thomas Diewald. It
 	 * has been slightly modified and used here.
 	 * 
-	 * @author: Thomas Diewald , http://thomasdiewald.com
+	 * @author Thomas Diewald , http://thomasdiewald.com
 	 */
 	private class DockTool2Base {
 
