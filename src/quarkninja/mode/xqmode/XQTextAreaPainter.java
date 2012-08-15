@@ -40,8 +40,8 @@ import processing.app.syntax.TokenMarker;
 public class XQTextAreaPainter extends TextAreaPainter {
 
 	protected JEditTextArea ta;
-	public ErrorCheckerService errorCheckerService;
-	public int horizontalAdjustment = 0;
+	protected ErrorCheckerService errorCheckerService;
+	protected int horizontalAdjustment = 0;
 
 	public XQTextAreaPainter(JEditTextArea textArea, TextAreaDefaults defaults) {
 		super(textArea, defaults);
@@ -49,7 +49,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	}
 
 	/**
-	 * Paint a line.
+	 * Paint a line of text
 	 * 
 	 * @param gfx
 	 *            the graphics context
@@ -70,7 +70,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	ErrorMarker currentMarker = null;
 
 	/**
-	 * Paints the underline for an error line
+	 * Paints the underline for an error/warning line
 	 * 
 	 * @param gfx
 	 *            the graphics context
@@ -139,7 +139,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 			gfx.fillRect(1, y + 2, 3, height - 2);
 			int xx = x1;
 
-			// Jagged lines are pretty.
+			// Draw the jagged lines
 			while (xx < x2) {
 				gfx.drawLine(xx, y1, xx + 2, y1 + 1);
 				xx += 2;

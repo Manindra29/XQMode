@@ -31,7 +31,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
 
 /**
- * Custom JTable implementation for XQMode. Minor tweaks.
+ * Custom JTable implementation for XQMode. Minor tweaks and addtions.
  * 
  * @author Manindra Moharana &lt;mkmoharana29@gmail.com&gt;
  * 
@@ -53,8 +53,9 @@ public class XQErrorTable extends JTable {
 	 */
 	private boolean columnResizing = false;
 
-	ErrorCheckerService errorCheckerService;
+	protected ErrorCheckerService errorCheckerService;
 
+	@Override
 	public boolean isCellEditable(int rowIndex, int colIndex) {
 		return false; // Disallow the editing of any cell
 	}
@@ -69,6 +70,7 @@ public class XQErrorTable extends JTable {
 		this.getTableHeader().setReorderingAllowed(false);
 
 		this.addMouseListener(new MouseAdapter() {
+			@Override
 			synchronized public void mouseReleased(MouseEvent e) {
 				try {
 					errorCheckerService.scrollToErrorLine(((XQErrorTable) e
@@ -76,7 +78,7 @@ public class XQErrorTable extends JTable {
 					// System.out.print("Row clicked: "
 					// + ((XQErrorTable) e.getSource()).getSelectedRow());
 				} catch (Exception e1) {
-					System.out.println("Exception ErrorTable mouseReleased "
+					System.out.println("Exception XQErrorTable mouseReleased "
 							+ e);
 				}
 			}
@@ -87,10 +89,13 @@ public class XQErrorTable extends JTable {
 		// widths,and resume updating. Updating is disabled as long as
 		// columnResizing is true
 		this.getTableHeader().addMouseListener(new MouseAdapter() {
+			
+			@Override
 			public void mousePressed(MouseEvent e) {
 				columnResizing = true;
 			}
 
+			@Override
 			public void mouseReleased(MouseEvent e) {
 				columnResizing = false;
 				for (int i = 0; i < ((JTableHeader) e.getSource())
@@ -109,16 +114,6 @@ public class XQErrorTable extends JTable {
 		// If problems list is not visible, no need to update
 		if (!this.isVisible())
 			return false;
-		/*
-		 * SwingWorker - The dirty side of Swing. Turns out that if you update a
-		 * swing component outside of the swing event thread, all sort of weird
-		 * exceptions are thrown. The worse part is, these exception don't get
-		 * caught easily either.
-		 * 
-		 * The 'correct' way of updating swing components is therefore, to do
-		 * the updating through a SwingWorker, inside done(). The updating then
-		 * takes place in a thread safe manner.
-		 */
 
 		SwingWorker worker = new SwingWorker() {
 
@@ -130,13 +125,14 @@ public class XQErrorTable extends JTable {
 
 				try {
 					setModel(tableModel);
+					
+					// Set column widths to user defined widths
 					for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
 						getColumnModel().getColumn(i).setPreferredWidth(
 								columnWidths[i]);
 					}
 					getTableHeader().setReorderingAllowed(false);
 					validate();
-					updateUI();
 					repaint();
 				} catch (Exception e) {
 					System.out.println("Exception at updatTable " + e);

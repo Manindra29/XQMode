@@ -84,7 +84,7 @@ public class ErrorCheckerService implements Runnable {
 	 * The amazing eclipse ast parser
 	 */
 	private ASTParser parser;
-	public XQEditor editor;
+	protected XQEditor editor;
 	/**
 	 * Used to indirectly stop the Error Checker Thread
 	 */

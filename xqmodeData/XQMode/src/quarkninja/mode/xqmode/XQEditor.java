@@ -67,21 +67,26 @@ public class XQEditor extends JavaEditor {
 	protected XQErrorTable errorTable;
 	protected final XQEditor thisEditor;
 	protected boolean compilationCheckEnabled = true;
-	
+
 	/**
 	 * Show Console button
 	 */
-	XQConsoleToggle btnShowConsole;
-	
+	protected XQConsoleToggle btnShowConsole;
+
 	/**
 	 * Show Problems button
 	 */
-	XQConsoleToggle btnShowErrors;
-	
-	
+	protected XQConsoleToggle btnShowErrors;
+
+	/**
+	 * Scroll pane for Error Table
+	 */
 	final JScrollPane errorTableScrollPane;
-	
-	public JPanel consoleProblemsPane;
+
+	/**
+	 * Panel with card layout which contains the p5 console and Error Table panes
+	 */
+	protected JPanel consoleProblemsPane;
 
 	protected XQEditor(Base base, String path, EditorState state,
 			final Mode mode) {
@@ -148,7 +153,9 @@ public class XQEditor extends JavaEditor {
 
 	/**
 	 * Toggle between Console and Errors List
-	 * @param buttonName - Button Label
+	 * 
+	 * @param buttonName
+	 *            - Button Label
 	 */
 	public void toggleView(String buttonName) {
 		CardLayout cl = (CardLayout) consoleProblemsPane.getLayout();
@@ -167,7 +174,10 @@ public class XQEditor extends JavaEditor {
 		return xqTextArea;
 	}
 
-	public JCheckBoxMenuItem showWarnings;
+	/**
+	 * Show warnings menu item
+	 */
+	protected JCheckBoxMenuItem showWarnings;
 
 	public JMenu buildModeMenu() {
 
@@ -183,8 +193,7 @@ public class XQEditor extends JavaEditor {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (!((JCheckBoxMenuItem) e
-						.getSource()).isSelected()) {
+				if (!((JCheckBoxMenuItem) e.getSource()).isSelected()) {
 					// unticked Menu Item
 					errorCheckerService.pauseThread();
 					System.out.println(thisEditor.getSketch().getName()
