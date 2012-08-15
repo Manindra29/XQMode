@@ -24,6 +24,7 @@ package quarkninja.mode.xqmode;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,6 +35,9 @@ import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.TableModel;
 
 import processing.app.Base;
@@ -66,6 +70,10 @@ public class XQEditor extends JavaEditor {
 	protected XQTextArea xqTextArea;
 	protected XQErrorTable errorTable;
 	protected final XQEditor thisEditor;
+	
+	/**
+	 * Enable/Disable compilation checking
+	 */
 	protected boolean compilationCheckEnabled = true;
 
 	/**
@@ -117,6 +125,8 @@ public class XQEditor extends JavaEditor {
 		// Adding Error Table in a scroll pane
 		errorTableScrollPane = new JScrollPane();
 		errorTable = new XQErrorTable(errorCheckerService);
+		//errorTableScrollPane.setBorder(new EmptyBorder(2, 2, 2, 2));
+		errorTableScrollPane.setBorder(new EtchedBorder());
 		errorTableScrollPane.setViewportView(errorTable);
 
 		// Adding toggle console button
@@ -245,7 +255,6 @@ public class XQEditor extends JavaEditor {
 	private void initializeErrorChecker() {
 		if (errorCheckerThread == null) {
 			errorCheckerService = new ErrorCheckerService(thisEditor, errorBar);
-			errorCheckerService.problemWindowMenuCB = this.problemWindowMenuCB;
 			errorCheckerThread = new Thread(errorCheckerService);
 			try {
 				errorCheckerThread.start();

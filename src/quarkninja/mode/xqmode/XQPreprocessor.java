@@ -61,7 +61,7 @@ public class XQPreprocessor {
 	ArrayList<ImportStatement> extraImports;
 
 	/**
-	 * The main method that performs preprocessing
+	 * The main method that performs preprocessing. Converts code into compilable java.
 	 * @param source - String
 	 * @param programImports - List of import statements
 	 * @return String - Compile ready java code

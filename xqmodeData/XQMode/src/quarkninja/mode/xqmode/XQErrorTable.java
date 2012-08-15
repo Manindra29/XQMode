@@ -108,6 +108,12 @@ public class XQErrorTable extends JTable {
 		});
 	}
 
+	
+	/**
+	 * Updates table contents with new data
+	 * @param tableModel - TableModel
+	 * @return boolean - If table data was updated
+	 */
 	@SuppressWarnings("rawtypes")
 	synchronized public boolean updateTable(final TableModel tableModel) {
 
@@ -135,7 +141,7 @@ public class XQErrorTable extends JTable {
 					validate();
 					repaint();
 				} catch (Exception e) {
-					System.out.println("Exception at updatTable " + e);
+					System.out.println("Exception at XQErrorTable.updateTable " + e);
 					// e.printStackTrace();
 				}
 			}
