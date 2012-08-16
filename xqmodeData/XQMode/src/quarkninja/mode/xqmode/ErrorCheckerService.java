@@ -23,7 +23,6 @@
 package quarkninja.mode.xqmode;
 
 import java.awt.EventQueue;
-import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
