@@ -13,8 +13,9 @@ Contributors:
 * [Manindra Moharana](www.mkmoharana.com)
 * [Daniel Shiffman](www.shiffman.net)
 
-
-[Project Update #1] (http://mkmoharana.com/2012/07/gsoc-update-1-xqmode-for-processing.html) 
+[Project Update #2] (http://www.mkmoharana.com/2012/08/gsoc-update-2-xqmode-for-processing.html) 
+<br/>
+[Project Update #1] (http://www.mkmoharana.com/2012/07/gsoc-update-1-xqmode-for-processing.html) 
 
 Part of [Google Summer of Code 2012](http://code.google.com/soc/) Project for Processing
 
