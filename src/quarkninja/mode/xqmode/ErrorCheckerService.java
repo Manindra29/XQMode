@@ -433,7 +433,7 @@ public class ErrorCheckerService implements Runnable {
 						+ "modes"
 						+ File.separator
 						+ "XQMode"
-						+ File.separator + "CompilationCheckerClasses");
+						+ File.separator + "mode" + File.separator + "CompilationChecker.jar");
 				classpath = new URL[classpathJars.size() + 1]; // + 1 for
 																// Compilation
 																// Checker class
@@ -502,6 +502,10 @@ public class ErrorCheckerService implements Runnable {
 		} catch (Exception e) {
 			System.err.println("compileCheck() problem." + e);
 			e.printStackTrace();
+		} catch (NoClassDefFoundError e){
+			System.err
+			.println(e
+					+ " compileCheck() problem. Somebody tried to mess with XQMode files.");
 		}
 		// System.out.println("Compilecheck, Done.");
 	}

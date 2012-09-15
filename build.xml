@@ -88,11 +88,11 @@
 			<fileset dir="resources/" />
 		</copy>
 
-		<!-- No need to copy the jdt jars.
+		<!-- No need to copy the jdt jars.-->
 		<copy todir="${bundle}/mode">
 			<fileset dir="lib/" />
 		</copy>
-		-->
+		
 
 		<delete dir="xqmodeData/XQMode" />
 		<copy todir="xqmodeData/">
