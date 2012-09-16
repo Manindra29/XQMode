@@ -37,7 +37,7 @@ public class Problem {
 	/**
 	 * The IProblem which is being wrapped
 	 */
-	public IProblem iProblem;
+	private IProblem iProblem;
 	/**
 	 * The tab number to which the error belongs to
 	 */
@@ -51,16 +51,49 @@ public class Problem {
 	 * Error Message. Processed form of IProblem.getMessage()
 	 */
 	public String message;
+	
+	public int type;
 
+	public static final int ERROR = 1, WARNING = 2;
+	
 	public Problem(IProblem iProblem, int tabIndex, int lineNumber) {
 		this.iProblem = iProblem;
+		if(iProblem.isError())
+			type = ERROR;
+		if(iProblem.isWarning())
+			type = WARNING;
 		this.tabIndex = tabIndex;
 		this.lineNumber = lineNumber;
 		this.message = ProblemsFilter.process(iProblem);
 	}
-
+	
 	public String display() {
 		return new String("Tab" + tabIndex + ",LN" + lineNumber + "PROB:"
-				+ iProblem.getMessage());
+				+ message);
 	}
+	
+	public boolean isError(){
+		return type == ERROR;
+	}
+	
+	public boolean isWarning(){
+		return type == WARNING;
+	}
+	
+	public String getMessage(){
+		return message;
+	}
+	
+	public IProblem getIProblem(){
+		return iProblem;
+	}
+	
+	public void setType(int ProblemType){
+		if(ProblemType == ERROR)
+			type = ERROR;
+		else if(ProblemType == WARNING)
+			type = WARNING;
+		else throw new IllegalArgumentException("Illegal Problem type passed to Problem.setType(int)");
+	}
+	
 }

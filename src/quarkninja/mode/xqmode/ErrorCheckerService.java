@@ -25,9 +25,11 @@ package quarkninja.mode.xqmode;
 import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -45,6 +47,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 import processing.app.Base;
 import processing.app.Library;
@@ -72,7 +75,7 @@ import processing.core.PApplet;
  */
 public class ErrorCheckerService implements Runnable {
 
-	static private String PATH = "E:/TestStuff/HelloPeasy.java";
+	static private String PATH = "D:/TestStuff/HelloPeasy.java";
 	/**
 	 * Error check happens every sleepTime milliseconds
 	 */
@@ -217,11 +220,11 @@ public class ErrorCheckerService implements Runnable {
 			ErrorCheckerService.showClassPath();
 			// syncheck.checkCode();
 			// syncheck.preprocessCode();
-			// File f = new File(
-			// "E:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
-			File f = new File("resources/CompilationCheckerClasses");
-
-			File f2 = new File(" peasycam.jar");
+			File f = new File(
+					"D:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin");
+			// File f = new File("resources/CompilationCheckerClasses");
+			System.out.println(f.toURI().toURL().toString());
+			File f2 = new File("peasycam.jar");
 
 			URL[] classpath;
 			classpath = new URL[] { f2.toURI().toURL(), f.toURI().toURL() };
@@ -261,6 +264,7 @@ public class ErrorCheckerService implements Runnable {
 		initParser();
 		this.editor = editor;
 		this.errorBar = erb;
+
 	}
 
 	/**
@@ -315,6 +319,20 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("---------------------");
 	}
 
+	String[] tempPath = {
+			// "file:/D:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.contenttype_3.4.100.v20110423-0524.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.jobs_3.5.100.v20110404.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.resources_3.7.100.v20110510-0712.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.runtime_3.7.0.v20110110.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.equinox.common_3.6.0.v20110523.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.equinox.preferences_3.4.1.R37x_v20110725.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.jdt.core_3.7.1.v_B76_R37x.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.osgi_3.7.1.R37x_v20110808-1106.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.text_3.5.101.r371_v20110810-0800.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/XQMode.jar",
+			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/CompilationChecker.jar" };
+
 	/**
 	 * Perform error check
 	 * 
@@ -324,6 +342,20 @@ public class ErrorCheckerService implements Runnable {
 		// Reset stuff here, maybe make reset()?
 		sourceCode = "";
 		lastTimeStamp = System.currentTimeMillis();
+
+		/*
+		 * File f = new File(editor.getBase().getSketchbookFolder()
+		 * .getAbsolutePath() + File.separator + "modes" + File.separator +
+		 * "XQMode" + File.separator + "mode");
+		 * 
+		 * FileFilter fileFilter = new FileFilter() { public boolean accept(File
+		 * file) { return (file.getName().endsWith(".jar")); } };
+		 * 
+		 * File[] jarFiles = f.listFiles(fileFilter); for (File jarFile :
+		 * jarFiles) { try { System.out.print(jarFile.toURI().toURL() +
+		 * "\", \""); } catch (MalformedURLException e) { // TODO Auto-generated
+		 * catch block e.printStackTrace(); } }
+		 */
 
 		try {
 			if (editor != null)
@@ -424,6 +456,7 @@ public class ErrorCheckerService implements Runnable {
 
 			// If imports have changed, reload classes with new classpath.
 			if (loadCompClass) {
+
 				if (classpathJars.size() > 0)
 					System.out
 							.println("XQMode: Loading contributed libraries referenced by import statements.");
@@ -433,79 +466,102 @@ public class ErrorCheckerService implements Runnable {
 						+ "modes"
 						+ File.separator
 						+ "XQMode"
-						+ File.separator + "mode" + File.separator + "CompilationChecker.jar");
-				classpath = new URL[classpathJars.size() + 1]; // + 1 for
-																// Compilation
-																// Checker class
+						+ File.separator + "mode");
+
+				FileFilter fileFilter = new FileFilter() {
+					public boolean accept(File file) {
+						return (file.getName().endsWith(".jar") && !file
+								.getName().startsWith("XQMode"));
+					}
+				};
+
+				File[] jarFiles = f.listFiles(fileFilter);
+				for (File jarFile : jarFiles) {
+					classpathJars.add(jarFile.toURI().toURL());
+				}
+
+				// for (int i = 0; i < tempPath.length; i++) {
+				// classpathJars.add(new URL(tempPath[i]));
+				// }
+
+				classpath = new URL[classpathJars.size()]; // + 1 for
+															// Compilation
+															// Checker class
 				for (int i = 0; i < classpathJars.size(); i++) {
 					classpath[i] = classpathJars.get(i);
-					// System.out.println(classpathJars.get(i));
 				}
-				// System.out.println("---------" + classpath.length);
-				classpath[classpath.length - 1] = f.toURI().toURL();
 
 				// System.out.println("-- " + classpath.length);
 				URLClassLoader classLoader = new URLClassLoader(classpath);
-
+				// System.out.println("1.");
 				checkerClass = Class.forName("CompilationChecker", true,
 						classLoader);
-				compCheck = (CompilationCheckerInterface) checkerClass
-						.newInstance();
+				// System.out.println("2.");
 				loadCompClass = false;
 			}
 
 			if (compilerSettings == null)
 				prepareCompilerSetting();
+			Method getErrors = checkerClass.getMethod("getErrorsAsObjArr",
+					new Class[] { String.class, String.class, Map.class });
+			// Method disp = checkerClass.getMethod("test", (Class<?>[])null);
+			Object obj = checkerClass.newInstance();
+			Object[][] ob = (Object[][]) getErrors.invoke(obj, className,
+					sourceCode, compilerSettings);
 
-			// The one line that does it all! All heavylifting happens in
-			// CompilationChecker.java!
-			IProblem[] prob = compCheck.getErrors(className, sourceCode,
-					compilerSettings);
+			if (ob == null)
+				return;
+			
+			problems = new DefaultProblem[ob.length];
 
-			if (problems == null || problems.length == 0) {
-				problems = new IProblem[prob.length];
-			}
+			for (int i = 0; i < ob.length; i++) {
 
-			// int errorCount = 0, warningCount = 0;
-			for (int i = 0, k = 0; i < prob.length; i++) {
-				IProblem problem = prob[i];
-				if (problem == null) {
-					System.out.println(i + " is null.");
-					continue;
-				}
-				// if (problem.getID() == IProblem.UnusedImport
-				// || problem.getID() == IProblem.MissingSerialVersion)
-				// continue;
-				problems[k++] = problem;
-				if (problems[i].isWarning() && !warningsEnabled)
+				// for (int j = 0; j < ob[i].length; j++)
+				// System.out.print(ob[i][j] + ", ");
+
+				problems[i] = new DefaultProblem((char[]) ob[i][0],
+						(String) ob[i][1], ((Integer) ob[i][2]).intValue(),
+						(String[]) ob[i][3], ((Integer) ob[i][4]).intValue(),
+						((Integer) ob[i][5]).intValue(),
+						((Integer) ob[i][6]).intValue(),
+						((Integer) ob[i][7]).intValue(), 0);
+
+				// System.out
+				// .println("ECS: " + problems[i].getMessage() + ","
+				// + problems[i].isError() + ","
+				// + problems[i].isWarning());
+
+				IProblem problem = problems[i];
+
+				if (problem.isWarning() && !warningsEnabled)
 					continue;
 				int a[] = calculateTabIndexAndLineNumber(problem);
-				problemsList.add(new Problem(problem, a[0], a[1]));
+				Problem p = new Problem(problem, a[0], a[1]);
+				if ((Boolean) ob[i][8])
+					p.setType(Problem.ERROR);
+				if ((Boolean) ob[i][9])
+					p.setType(Problem.WARNING);
 
+				problemsList.add(p);
 			}
 
-			// System.out.println("Total warnings: " + warningCount
-			// + ", Total errors: " + errorCount + " , Len: "
-			// + prob.length);
-		} catch (InstantiationException e) {
-			System.err
-					.println(e
-							+ " compileCheck() problem. Somebody tried to mess with XQMode files.");
-		} catch (IllegalAccessException e) {
-			System.err.println(e + " compileCheck() problem.");
 		} catch (ClassNotFoundException e) {
 			System.err.println("Compiltation Checker files couldn't be found! "
 					+ e + " compileCheck() problem.");
+			stopThread();
 		} catch (MalformedURLException e) {
 			System.err.println("Compiltation Checker files couldn't be found! "
 					+ e + " compileCheck() problem.");
+			stopThread();
 		} catch (Exception e) {
 			System.err.println("compileCheck() problem." + e);
 			e.printStackTrace();
-		} catch (NoClassDefFoundError e){
+			stopThread();
+		} catch (NoClassDefFoundError e) {
 			System.err
-			.println(e
-					+ " compileCheck() problem. Somebody tried to mess with XQMode files.");
+					.println(e
+							+ " compileCheck() problem. Somebody tried to mess with XQMode files.");
+			stopThread();
 		}
 		// System.out.println("Compilecheck, Done.");
 	}
@@ -1131,7 +1187,8 @@ public class ErrorCheckerService implements Runnable {
 	 * Scrolls to the error source in code. And selects the line text. Used by
 	 * XQErrorTable and ErrorBar
 	 * 
-	 * @param errorIndex - index of error
+	 * @param errorIndex
+	 *            - index of error
 	 */
 	public void scrollToErrorLine(int errorIndex) {
 		if (editor == null)
@@ -1207,6 +1264,7 @@ public class ErrorCheckerService implements Runnable {
 
 	/**
 	 * File I/O
+	 * 
 	 * @param file
 	 * @return String - Contents of the file
 	 * @throws IOException

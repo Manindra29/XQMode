@@ -170,7 +170,7 @@ public class ErrorBar extends JPanel {
 				// Ratio multiplied by height of the error bar
 				y *= this.getHeight() - 15; // -15 is just a vertical offset
 				errorPoints.add(new ErrorMarker(problem, (int) y,
-						problem.iProblem.isError() ? ErrorMarker.Error
+						problem.isError() ? ErrorMarker.Error
 								: ErrorMarker.Warning));
 				// System.out.println("Y: " + y);
 			}
@@ -276,7 +276,7 @@ public class ErrorBar extends JPanel {
 										if (currentTabErrorCount == errorPoints
 												.indexOf(eMarker)) {
 											// System.out.println("Roger that.");
-											String msg = (p.iProblem.isError() ? "Error: "
+											String msg = (p.isError() ? "Error: "
 													: "Warning: ")
 													+ p.message;
 											setToolTipText(msg);
