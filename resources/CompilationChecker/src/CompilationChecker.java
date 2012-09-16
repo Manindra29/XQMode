@@ -37,9 +37,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jface.text.Document;
 
-import quarkninja.mode.xqmode.CompilationCheckerInterface;
-
-public class CompilationChecker implements CompilationCheckerInterface {
+public class CompilationChecker {
 	/**
 	 * ICompilationUnit implementation
 	 */
@@ -277,7 +275,7 @@ public class CompilationChecker implements CompilationCheckerInterface {
 		return new CompilationUnitImpl(unit);
 	}
 
-	public static String fileName = "Brightness";
+	public static String fileName = "HelloPeasy";
 
 	public static String readFile() {
 		BufferedReader reader = null;
@@ -378,19 +376,20 @@ public class CompilationChecker implements CompilationCheckerInterface {
 					CompilerOptions.GENERATE);
 			settings.put(CompilerOptions.OPTION_Source,
 					CompilerOptions.VERSION_1_6);
-//			settings.put(CompilerOptions.OPTION_ReportUnusedImport,
-//					CompilerOptions.IGNORE);
-//			settings.put(CompilerOptions.OPTION_ReportMissingSerialVersion,
-//					CompilerOptions.IGNORE);
-//			settings.put(CompilerOptions.OPTION_ReportRawTypeReference,
-//					CompilerOptions.IGNORE);
-//			settings.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation,
-//					CompilerOptions.IGNORE);
 			settings.put(CompilerOptions.OPTION_SuppressWarnings,
 					CompilerOptions.DISABLED);
+			// settings.put(CompilerOptions.OPTION_ReportUnusedImport,
+			// CompilerOptions.IGNORE);
+			// settings.put(CompilerOptions.OPTION_ReportMissingSerialVersion,
+			// CompilerOptions.IGNORE);
+			// settings.put(CompilerOptions.OPTION_ReportRawTypeReference,
+			// CompilerOptions.IGNORE);
+			// settings.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation,
+			// CompilerOptions.IGNORE);
 		} else {
 			settings = compilerSettings;
 		}
+
 		CompileRequestorImpl requestor = new CompileRequestorImpl();
 		Compiler compiler = new Compiler(new NameEnvironmentImpl(unit),
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -399,40 +398,12 @@ public class CompilationChecker implements CompilationCheckerInterface {
 		compiler.compile(new ICompilationUnit[] { unit });
 
 		List problems = requestor.getProblems();
-		boolean error = false;
 		prob = new IProblem[problems.size()];
-		int errorCount = 0, warningCount = 0, count = 0;
+		int count = 0;
 		for (Iterator it = problems.iterator(); it.hasNext();) {
 			IProblem problem = (IProblem) it.next();
-			// StringBuffer buffer = new StringBuffer();
-			// buffer.append(problem.getMessage());
-			// buffer.append(" | line: ");
-			// buffer.append(problem.getSourceLineNumber());
-			// String msg = buffer.toString();
-			// if (problem.isError()) {
-			// error = true;
-			// msg = "Error: " + msg;
-			// errorCount++;
-			// } else if (problem.isWarning()) {
-			// msg = "Warning: " + msg;
-			// warningCount++;
-			// }
-			// System.out.println(msg);
 			prob[count++] = problem;
 		}
-
-		// if (!error) {
-		// System.out.println("====================================");
-		// System.out.println("    Compiled without any errors.    ");
-		// System.out.println("====================================");
-		// } else {
-		// System.out.println("====================================");
-		// System.out.println("Compilation failed. You erred man!");
-		// System.out.println("====================================");
-		//
-		// }
-		// System.out.print("Total warnings: " + warningCount);
-		// System.out.println(", Total errors: " + errorCount);
 
 	}
 
@@ -505,15 +476,42 @@ public class CompilationChecker implements CompilationCheckerInterface {
 		return prob;
 	}
 
+	public Object[][] getErrorsAsObjArr(String sourceName, String source,
+			Map settings) {
+		fileName = sourceName;
+		readFromFile = false;
+		sourceText = "package " + fileName + ";\n" + source;
+
+		compileMeQuitely(generateCompilationUnit(), settings);
+		// System.out.println("getErrors(), Done.");
+
+		if (prob.length > 0) {
+			Object[][] data = new Object[prob.length][10];
+			for (int i = 0; i < data.length; i++) {
+				IProblem p = prob[i];
+				// data[i] = new
+				// Object[]{p.getMessage(),p.getSourceLineNumber(),p.isError(),p};
+				data[i] = new Object[] { p.getOriginatingFileName(),
+						p.getMessage(), p.getID(), p.getArguments(), 0,
+						p.getSourceStart(), p.getSourceEnd(),
+						p.getSourceLineNumber(), p.isError(), p.isWarning() };
+
+			}
+
+			return data;
+		}
+		return null;
+	}
+
 	private boolean readFromFile = true;
 	String sourceText = "";
 
 	public IProblem[] getErrors(String sourceName, String source) {
 		return getErrors(sourceName, source, null);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	public IProblem[] getErrors(String sourceName, String source,  Map settings) {
+	public IProblem[] getErrors(String sourceName, String source, Map settings) {
 		fileName = sourceName;
 		readFromFile = false;
 		sourceText = "package " + fileName + ";\n" + source;
