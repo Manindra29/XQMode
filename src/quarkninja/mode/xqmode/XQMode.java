@@ -28,7 +28,11 @@ import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
 import processing.app.Mode;
+import processing.app.RunnerListener;
+import processing.app.Sketch;
+import processing.app.SketchException;
 import processing.mode.java.JavaMode;
+import processing.mode.java.runner.Runner;
 
 /**
  * Teh XQMode
@@ -48,10 +52,10 @@ public class XQMode extends JavaMode {
 				break;
 			}
 		}
-		
+
 		// Fetch examples from java mode
-		examplesFolder =  Base.getContentFile("modes/java/examples");
-		
+		examplesFolder = Base.getContentFile("modes/java/examples");
+
 		System.out.println("XQMode initialized.");
 	}
 
@@ -65,6 +69,22 @@ public class XQMode extends JavaMode {
 	@Override
 	public String getTitle() {
 		return "XQMode";
+	}
+
+	public Runner handleRun(Sketch sketch, RunnerListener listener)
+			throws SketchException {
+		XQJavaBuild build = new XQJavaBuild(sketch);
+		String appletClassName = build.build(false);
+		if (appletClassName != null) {
+			final Runner runtime = new Runner(build, listener);
+			new Thread(new Runnable() {
+				public void run() {
+					runtime.launch(false); // this blocks until finished
+				}
+			}).start();
+			return runtime;
+		}
+		return null;
 	}
 
 }
