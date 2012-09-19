@@ -158,9 +158,15 @@ public class ErrorCheckerService implements Runnable {
 	private boolean loadCompClass = true;
 
 	/**
-	 * Compiler Checker class
+	 * Compiler Checker class. Note that methods for compilation checking are
+	 * called from the compilationChecker object, not from this
 	 */
 	protected Class<?> checkerClass;
+
+	/**
+	 * Compilation Checker object.
+	 */
+	protected Object compilationChecker;
 
 	/**
 	 * Compiler Checker used by compCheck class
@@ -319,19 +325,20 @@ public class ErrorCheckerService implements Runnable {
 		System.out.println("---------------------");
 	}
 
-	String[] tempPath = {
-			// "file:/D:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.contenttype_3.4.100.v20110423-0524.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.jobs_3.5.100.v20110404.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.resources_3.7.100.v20110510-0712.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.runtime_3.7.0.v20110110.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.equinox.common_3.6.0.v20110523.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.equinox.preferences_3.4.1.R37x_v20110725.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.jdt.core_3.7.1.v_B76_R37x.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.osgi_3.7.1.R37x_v20110808-1106.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.text_3.5.101.r371_v20110810-0800.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/XQMode.jar",
-			"file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/CompilationChecker.jar" };
+	// String[] tempPath = {
+	// // "file:/D:/WorkSpaces/Eclipse Workspace 2/AST Test 2/bin",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.contenttype_3.4.100.v20110423-0524.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.jobs_3.5.100.v20110404.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.resources_3.7.100.v20110510-0712.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.core.runtime_3.7.0.v20110110.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.equinox.common_3.6.0.v20110523.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.equinox.preferences_3.4.1.R37x_v20110725.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.jdt.core_3.7.1.v_B76_R37x.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.osgi_3.7.1.R37x_v20110808-1106.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/org.eclipse.text_3.5.101.r371_v20110810-0800.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/XQMode.jar",
+	// "file:/C:/Users/QuarkNinja.XQ/Documents/Processing/modes/XQMode/mode/CompilationChecker.jar"
+	// };
 
 	/**
 	 * Perform error check
@@ -342,20 +349,6 @@ public class ErrorCheckerService implements Runnable {
 		// Reset stuff here, maybe make reset()?
 		sourceCode = "";
 		lastTimeStamp = System.currentTimeMillis();
-
-		/*
-		 * File f = new File(editor.getBase().getSketchbookFolder()
-		 * .getAbsolutePath() + File.separator + "modes" + File.separator +
-		 * "XQMode" + File.separator + "mode");
-		 * 
-		 * FileFilter fileFilter = new FileFilter() { public boolean accept(File
-		 * file) { return (file.getName().endsWith(".jar")); } };
-		 * 
-		 * File[] jarFiles = f.listFiles(fileFilter); for (File jarFile :
-		 * jarFiles) { try { System.out.print(jarFile.toURI().toURL() +
-		 * "\", \""); } catch (MalformedURLException e) { // TODO Auto-generated
-		 * catch block e.printStackTrace(); } }
-		 */
 
 		try {
 			if (editor != null)
@@ -449,6 +442,13 @@ public class ErrorCheckerService implements Runnable {
 	 * The name cannot get any simpler, can it?
 	 */
 	private void compileCheck() {
+
+		// Currently (Sept, 2012) I'm using Java's reflection api to load the
+		// CompilationChecker class(from CompilationChecker.jar) that houses the
+		// Eclispe JDT compiler and call its getErrorsAsObj method to obtain
+		// errors. This way, I'm able to add the paths of contributed libraries
+		// to the classpath of CompilationChecker, dynamically.
+
 		try {
 
 			// NOTE TO SELF: If classpath contains null Strings
@@ -497,6 +497,7 @@ public class ErrorCheckerService implements Runnable {
 				checkerClass = Class.forName("CompilationChecker", true,
 						classLoader);
 				// System.out.println("2.");
+				compilationChecker = checkerClass.newInstance();
 				loadCompClass = false;
 			}
 
@@ -505,26 +506,29 @@ public class ErrorCheckerService implements Runnable {
 			Method getErrors = checkerClass.getMethod("getErrorsAsObjArr",
 					new Class[] { String.class, String.class, Map.class });
 			// Method disp = checkerClass.getMethod("test", (Class<?>[])null);
-			Object obj = checkerClass.newInstance();
-			Object[][] ob = (Object[][]) getErrors.invoke(obj, className,
-					sourceCode, compilerSettings);
 
-			if (ob == null)
+			Object[][] errorList = (Object[][]) getErrors
+					.invoke(compilationChecker, className, sourceCode,
+							compilerSettings);
+
+			if (errorList == null)
 				return;
-			
-			problems = new DefaultProblem[ob.length];
 
-			for (int i = 0; i < ob.length; i++) {
+			problems = new DefaultProblem[errorList.length];
 
-				// for (int j = 0; j < ob[i].length; j++)
-				// System.out.print(ob[i][j] + ", ");
+			for (int i = 0; i < errorList.length; i++) {
 
-				problems[i] = new DefaultProblem((char[]) ob[i][0],
-						(String) ob[i][1], ((Integer) ob[i][2]).intValue(),
-						(String[]) ob[i][3], ((Integer) ob[i][4]).intValue(),
-						((Integer) ob[i][5]).intValue(),
-						((Integer) ob[i][6]).intValue(),
-						((Integer) ob[i][7]).intValue(), 0);
+				// for (int j = 0; j < errorList[i].length; j++)
+				// System.out.print(errorList[i][j] + ", ");
+
+				problems[i] = new DefaultProblem((char[]) errorList[i][0],
+						(String) errorList[i][1],
+						((Integer) errorList[i][2]).intValue(),
+						(String[]) errorList[i][3],
+						((Integer) errorList[i][4]).intValue(),
+						((Integer) errorList[i][5]).intValue(),
+						((Integer) errorList[i][6]).intValue(),
+						((Integer) errorList[i][7]).intValue(), 0);
 
 				// System.out
 				// .println("ECS: " + problems[i].getMessage() + ","
@@ -537,9 +541,9 @@ public class ErrorCheckerService implements Runnable {
 					continue;
 				int a[] = calculateTabIndexAndLineNumber(problem);
 				Problem p = new Problem(problem, a[0], a[1]);
-				if ((Boolean) ob[i][8])
+				if ((Boolean) errorList[i][8])
 					p.setType(Problem.ERROR);
-				if ((Boolean) ob[i][9])
+				if ((Boolean) errorList[i][9])
 					p.setType(Problem.WARNING);
 
 				problemsList.add(p);
