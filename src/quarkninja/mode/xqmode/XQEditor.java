@@ -211,6 +211,11 @@ public class XQEditor extends JavaEditor {
 					errorCheckerService.pauseThread();
 					System.out.println(thisEditor.getSketch().getName()
 							+ " - Error Checker paused.");
+					errorCheckerService.errorBar.errorPoints.clear();
+					errorCheckerService.problemsList.clear();
+					errorCheckerService.updateErrorTable();
+					errorCheckerService.updateEditorStatus();
+					getTextArea().repaint();
 				} else {
 					errorCheckerService.resumeThread();
 					System.out.println(thisEditor.getSketch().getName()
