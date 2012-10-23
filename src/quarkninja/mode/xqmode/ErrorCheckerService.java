@@ -283,6 +283,10 @@ public class ErrorCheckerService implements Runnable {
 			System.err.println("XQMode initialization failed. "
 					+ "Are you running the right version of Processing? ");
 			pauseThread();
+		} catch (Error e) {
+			System.err.println("XQMode initialization failed. ");
+			e.printStackTrace();
+			pauseThread();
 		}
 	}
 
@@ -729,7 +733,7 @@ public class ErrorCheckerService implements Runnable {
 			}
 
 			if (runCount == 3)
-				System.out.println("XQMode v0.3 alpha");
+				System.out.println("XQMode v0.4 alpha");
 		}
 	}
 

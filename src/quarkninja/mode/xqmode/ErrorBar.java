@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
 import processing.app.Base;
+import processing.app.Mode;
 import processing.app.SketchCode;
 
 /**
@@ -69,17 +70,17 @@ public class ErrorBar extends JPanel {
 	/**
 	 * Color of Error Marker
 	 */
-	public static final Color errorColor = new Color(0xED2630);
+	public Color errorColor = new Color(0xED2630);
 
 	/**
 	 * Color of Warning Marker
 	 */
-	public static final Color warningColor = new Color(0xFFC30E);
+	public Color warningColor = new Color(0xFFC30E);
 
 	/**
 	 * Background color of the component
 	 */
-	public static final Color backgroundColor = new Color(0x2C343D);
+	public Color backgroundColor = new Color(0x2C343D);
 
 	protected XQEditor editor;
 
@@ -116,9 +117,13 @@ public class ErrorBar extends JPanel {
 		return getPreferredSize();
 	}
 
-	public ErrorBar(XQEditor editor, int height) {
+	public ErrorBar(XQEditor editor, int height, XQMode mode) {
 		this.editor = editor;
 		this.preferredHeight = height;
+		
+		errorColor = mode.loadColorFromTheme("errorbar.errorcolor", errorColor);
+		warningColor = mode.loadColorFromTheme("errorbar.warningcolor", warningColor);
+		backgroundColor = mode.loadColorFromTheme("errorbar.backgroundcolor", backgroundColor );
 		addListeners();
 	}
 
@@ -169,9 +174,8 @@ public class ErrorBar extends JPanel {
 				float y = problem.lineNumber / ((float) totalLines);
 				// Ratio multiplied by height of the error bar
 				y *= this.getHeight() - 15; // -15 is just a vertical offset
-				errorPoints.add(new ErrorMarker(problem, (int) y,
-						problem.isError() ? ErrorMarker.Error
-								: ErrorMarker.Warning));
+				errorPoints.add(new ErrorMarker(problem, (int) y, problem
+						.isError() ? ErrorMarker.Error : ErrorMarker.Warning));
 				// System.out.println("Y: " + y);
 			}
 		}
@@ -185,7 +189,7 @@ public class ErrorBar extends JPanel {
 	protected void addListeners() {
 
 		this.addMouseListener(new MouseAdapter() {
-			
+
 			// Find out which error/warning the user has clicked
 			// and then scroll to that
 			@SuppressWarnings("rawtypes")
@@ -214,7 +218,7 @@ public class ErrorBar extends JPanel {
 														.getCurrentCode());
 
 								int totalErrorIndex = currentTabErrorIndex;
-								
+
 								for (int i = 0; i < errorCheckerService.problemsList
 										.size(); i++) {
 									Problem p = errorCheckerService.problemsList
@@ -231,7 +235,7 @@ public class ErrorBar extends JPanel {
 
 					}
 				};
-				
+
 				try {
 					worker.execute();
 				} catch (Exception exp) {

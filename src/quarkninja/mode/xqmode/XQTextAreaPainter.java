@@ -22,6 +22,7 @@
 
 package quarkninja.mode.xqmode;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.text.BadLocationException;
@@ -42,10 +43,40 @@ public class XQTextAreaPainter extends TextAreaPainter {
 	protected JEditTextArea ta;
 	protected ErrorCheckerService errorCheckerService;
 	protected int horizontalAdjustment = 0;
+	/**
+	 * Error line underline color
+	 */
+	public Color errorColor = new Color(0xED2630);
+
+	/**
+	 * Warning line underline color
+	 */
+
+	public Color warningColor = new Color(0xFFC30E);
+
+	/**
+	 * Color of Error Marker
+	 */
+	public Color errorMarkerColor = new Color(0xED2630);
+
+	/**
+	 * Color of Warning Marker
+	 */
+	public Color warningMarkerColor = new Color(0xFFC30E);
 
 	public XQTextAreaPainter(JEditTextArea textArea, TextAreaDefaults defaults) {
 		super(textArea, defaults);
 		ta = textArea;
+	}
+	
+	public void loadTheme(XQMode mode){
+		errorColor = mode.loadColorFromTheme("editor.errorcolor", errorColor);
+		warningColor = mode.loadColorFromTheme("editor.warningcolor",
+				warningColor);
+		errorMarkerColor = mode.loadColorFromTheme("editor.errormarkercolor",
+				errorMarkerColor);
+		warningMarkerColor = mode.loadColorFromTheme(
+				"editor.warningmarkercolor", warningMarkerColor);
 	}
 
 	/**
@@ -133,10 +164,14 @@ public class XQTextAreaPainter extends TextAreaPainter {
 			// gfx.fillRect(x1, y, rw, height);
 
 			// Let the painting begin!
-			gfx.setColor(ErrorBar.errorColor);
+			gfx.setColor(errorMarkerColor);
 			if (isWarning)
-				gfx.setColor(ErrorBar.warningColor);
+				gfx.setColor(warningMarkerColor);
 			gfx.fillRect(1, y + 2, 3, height - 2);
+			
+			gfx.setColor(errorColor);
+			if (isWarning)
+				gfx.setColor(warningColor);
 			int xx = x1;
 
 			// Draw the jagged lines
@@ -152,7 +187,7 @@ public class XQTextAreaPainter extends TextAreaPainter {
 							+ e);
 			// e.printStackTrace();
 		}
-		
+
 		// Won't highlight the line. Select the text instead.
 		// gfx.setColor(Color.RED);
 		// gfx.fillRect(2, y, 3, height);

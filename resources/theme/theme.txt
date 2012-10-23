@@ -71,6 +71,11 @@ editor.eolmarkers.color = #999999
 editor.brackethighlight = true
 editor.brackethighlight.color = #006699
 
+# underline colors
+editor.errorcolor = #ed2630
+editor.warningcolor = #ffc30e
+editor.errormarkercolor = #ed2630
+editor.warningmarkercolor = #ffc30e
 
 # TEXT - KEYWORDS
 
@@ -109,3 +114,8 @@ editor.comment2.style = #7e7e7e,plain
 linestatus.font = SansSerif,plain,10
 #linestatus.font.macosx = Helvetica,plain,10
 linestatus.height  = 20
+
+# ERROR BAR - error bar on the right that shows the markers
+errorbar.errorcolor = #ed2630
+errorbar.warningcolor = #ffc30e
+errorbar.backgroundcolor #2c343d

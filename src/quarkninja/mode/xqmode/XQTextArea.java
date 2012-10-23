@@ -64,12 +64,13 @@ public class XQTextArea extends JEditTextArea {
 	}
 
 	/**
-	 * Set the error checker service object
+	 * Set the error checker service object. Also loads the colors from theme.txt
 	 * 
 	 * @param ecs - ErrorCheckerService
 	 */
-	public void setErrorCheckerService(ErrorCheckerService ecs) {
+	public void setECSandThemes(ErrorCheckerService ecs, XQMode mode) {
 		xqpainter.errorCheckerService = ecs;
+		xqpainter.loadTheme(mode);
 	}
 
 }

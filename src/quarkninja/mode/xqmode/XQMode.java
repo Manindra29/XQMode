@@ -22,6 +22,7 @@
 
 package quarkninja.mode.xqmode;
 
+import java.awt.Color;
 import java.io.File;
 
 import processing.app.Base;
@@ -43,12 +44,13 @@ public class XQMode extends JavaMode {
 
 	public XQMode(Base base, File folder) {
 		super(base, folder);
-
+		
+		// Needed so that core libraries like opengl, etc. are loaded.
 		for (Mode m : base.getModeList()) {
 			if (m.getClass() == JavaMode.class) {
 				JavaMode jMode = (JavaMode) m;
 				librariesFolder = jMode.getLibrariesFolder();
-				rebuildLibraryList();
+				rebuildLibraryList(); 
 				break;
 			}
 		}
@@ -86,5 +88,39 @@ public class XQMode extends JavaMode {
 		}
 		return null;
 	}
+	
+	/**
+     * Load a String value from theme.txt
+     *
+     * @param attribute the attribute key to load
+     * @param defaultValue the default value
+     * @return the attributes value, or the default value if the attribute
+     * couldn't be loaded
+     */
+    public String loadStringFromTheme(String attribute, String defaultValue) {
+        String newString = theme.get(attribute);
+        if (newString != null) {
+            return newString;
+        }
+        System.out.println("Error loading String from theme.txt: " + attribute);
+        return defaultValue;
+    }
+
+    /**
+     * Load a Color value from theme.txt
+     *
+     * @param attribute the attribute key to load
+     * @param defaultValue the default value
+     * @return the attributes value, or the default value if the attribute
+     * couldn't be loaded
+     */
+    public Color loadColorFromTheme(String attribute, Color defaultValue) {
+        Color newColor = theme.getColor(attribute);
+        if (newColor != null) {
+            return newColor;
+        }
+        System.out.println("error loading color theme.txt: " + attribute);
+        return defaultValue;
+    }
 
 }

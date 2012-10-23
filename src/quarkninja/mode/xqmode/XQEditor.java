@@ -27,10 +27,13 @@ import java.awt.CardLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,8 +43,10 @@ import javax.swing.table.TableModel;
 import processing.app.Base;
 import processing.app.EditorState;
 import processing.app.Mode;
+import processing.app.SketchException;
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.PdeTextAreaDefaults;
+import processing.mode.java.JavaBuild;
 import processing.mode.java.JavaEditor;
 
 /**
@@ -67,7 +72,7 @@ public class XQEditor extends JavaEditor {
 	protected XQTextArea xqTextArea;
 	protected XQErrorTable errorTable;
 	protected final XQEditor thisEditor;
-	
+
 	/**
 	 * Enable/Disable compilation checking
 	 */
@@ -89,7 +94,8 @@ public class XQEditor extends JavaEditor {
 	final JScrollPane errorTableScrollPane;
 
 	/**
-	 * Panel with card layout which contains the p5 console and Error Table panes
+	 * Panel with card layout which contains the p5 console and Error Table
+	 * panes
 	 */
 	protected JPanel consoleProblemsPane;
 
@@ -102,11 +108,11 @@ public class XQEditor extends JavaEditor {
 
 		checkForJavaTabs();
 
-		errorBar = new ErrorBar(thisEditor, textarea.getMinimumSize().height);
+		errorBar = new ErrorBar(thisEditor, textarea.getMinimumSize().height, xqmode);
 		// Starts it too! Error bar should be ready beforehand
 		initializeErrorChecker();
 		errorBar.errorCheckerService = errorCheckerService;
-		xqTextArea.setErrorCheckerService(errorCheckerService);
+		xqTextArea.setECSandThemes(errorCheckerService, xqmode);
 
 		// Adding ErrorBar
 		JPanel textAndError = new JPanel();
@@ -122,7 +128,7 @@ public class XQEditor extends JavaEditor {
 		// Adding Error Table in a scroll pane
 		errorTableScrollPane = new JScrollPane();
 		errorTable = new XQErrorTable(errorCheckerService);
-		//errorTableScrollPane.setBorder(new EmptyBorder(2, 2, 2, 2));
+		// errorTableScrollPane.setBorder(new EmptyBorder(2, 2, 2, 2));
 		errorTableScrollPane.setBorder(new EtchedBorder());
 		errorTableScrollPane.setViewportView(errorTable);
 
@@ -242,7 +248,6 @@ public class XQEditor extends JavaEditor {
 			}
 		});
 		menu.add(showWarnings);
-
 		return menu;
 	}
 

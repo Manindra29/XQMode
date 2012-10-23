@@ -6,6 +6,8 @@ O - to be pwned, X - pwned
 General
 -------
 
+X - Now compatible out of the box with Processing 2.0b5!
+X - Colors can be customized from theme.txt.
 O - Make messages more user friendly. To be done after public release.
 X - Installer scripts for:
 	X	Windows - No sym inks please!

@@ -38,6 +38,7 @@ import javax.swing.table.TableModel;
 
 import processing.app.Base;
 import processing.app.Editor;
+import processing.app.Toolkit;
 
 /**
  * Error Window that displays a tablular list of errors. Clicking on an error
@@ -87,7 +88,7 @@ public class ErrorWindow extends JFrame {
 	 * Sets up ErrorWindow
 	 */
 	protected void prepareFrame() {
-		Base.setIcon(this);
+		Toolkit.setIcon(this);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		// Default size: setBounds(100, 100, 458, 160);
 		setBounds(100, 100, 458, 160); // Yeah, I hardcode such things sometimes. Hate me.
