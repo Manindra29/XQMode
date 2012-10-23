@@ -118,4 +118,4 @@ linestatus.height  = 20
 # ERROR BAR - error bar on the right that shows the markers
 errorbar.errorcolor = #ed2630
 errorbar.warningcolor = #ffc30e
-errorbar.backgroundcolor #2c343d
+errorbar.backgroundcolor = #2c343d

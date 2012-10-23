@@ -120,10 +120,12 @@ public class ErrorBar extends JPanel {
 	public ErrorBar(XQEditor editor, int height, XQMode mode) {
 		this.editor = editor;
 		this.preferredHeight = height;
-		
+
 		errorColor = mode.loadColorFromTheme("errorbar.errorcolor", errorColor);
-		warningColor = mode.loadColorFromTheme("errorbar.warningcolor", warningColor);
-		backgroundColor = mode.loadColorFromTheme("errorbar.backgroundcolor", backgroundColor );
+		warningColor = mode.loadColorFromTheme("errorbar.warningcolor",
+				warningColor);
+		backgroundColor = mode.loadColorFromTheme("errorbar.backgroundcolor",
+				backgroundColor);
 		addListeners();
 	}
 
@@ -163,7 +165,10 @@ public class ErrorBar extends JPanel {
 
 		// TODO: Swing Worker approach? Not needed yet. Since repaint() is
 		// called only after error points have been updated.
-		errorPointsOld = errorPoints;
+		errorPointsOld.clear();
+		for (ErrorMarker marker : errorPoints) {
+			errorPointsOld.add(marker);
+		}
 		errorPoints.clear();
 
 		// Each problem.getSourceLine() will have an extra line added because of
@@ -181,6 +186,31 @@ public class ErrorBar extends JPanel {
 		}
 
 		repaint();
+	}
+
+	/**
+	 * Check if new errors have popped up in the sketch since the last check
+	 * 
+	 * @return true - if errors have changed
+	 */
+	public boolean errorPointsChanged() {
+		if (errorPointsOld.size() != errorPoints.size()) {
+			editor.getTextArea().repaint();
+			// System.out.println("2 Repaint " + System.currentTimeMillis());
+			return true;
+		}
+
+		else {
+			for (int i = 0; i < errorPoints.size(); i++) {
+				if (errorPoints.get(i).y != errorPointsOld.get(i).y) {
+					editor.getTextArea().repaint();
+					// System.out.println("3 Repaint " +
+					// System.currentTimeMillis());
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

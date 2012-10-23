@@ -1183,12 +1183,13 @@ public class ErrorCheckerService implements Runnable {
 		if (currentTab != lastTab) {
 			lastTab = currentTab;
 			editor.getTextArea().repaint();
-			// System.out.println("Repaint");
+			// System.out.println("1 Repaint " + System.currentTimeMillis());
+			return;
 		}
 
-		if (!errorBar.errorPointsOld.equals(errorBar.errorPoints)) {
+		if (errorBar.errorPointsChanged())
 			editor.getTextArea().repaint();
-		}
+
 	}
 
 	/**
