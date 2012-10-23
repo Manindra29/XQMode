@@ -10,12 +10,12 @@ errors in code as you type, on the fly.<br />
 
 <br/>
 Features include underlining error lines, tabular list of errors, click to scroll to error line
-and eclipse like error bar displaying positions of all errors in the tab.<br /> <br />
+and eclipse like error bar displaying positions of all errors in the tab.<br />
 
 ## Installation
 
 1. You need Processing 2.0b5 or later ([http://www.processing.org/download/](http://www.processing.org/download/))
-2. Download the latest version of XQMode from [here](https://github.com/Manindra29/XQMode/downloads)
+2. Download the latest version of XQMode from [here](https://github.com/Manindra29/XQMode/downloads).
 3. If not already present, create a folder named "modes" inside your Sketchbook folder. (The location of the sketchbook folder is shown in Processing's Preferences dialog)
 4. Extract the contents of XQMode .zip into the modes folder.
 5. Restart Processing.
