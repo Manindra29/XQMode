@@ -8,11 +8,11 @@ errors in code as you type, on the fly.<br />
 
 ![XQMode](https://lh6.googleusercontent.com/-0Y7Ca_-yat8/UIcHrszopOI/AAAAAAAAAz4/PMyLalJJjHA/s512/xqscr1.png)
 
-<br/><br/>
+<br/>
 Features include underlining error lines, tabular list of errors, click to scroll to error line
 and eclipse like error bar displaying positions of all errors in the tab.<br /> <br />
 
-**Installation**
+## Installation
 
 1. You need Processing 2.0b5 or later ([http://www.processing.org/download/](http://www.processing.org/download/))
 2. Download the latest version of XQMode from [here](https://github.com/Manindra29/XQMode/downloads)
@@ -20,11 +20,10 @@ and eclipse like error bar displaying positions of all errors in the tab.<br /> 
 4. Extract the contents of XQMode .zip into the modes folder.
 5. Restart Processing.
 
-
-<br />
 [Geting started wiki](https://github.com/Manindra29/XQMode/wiki/Getting-Started)
 <br />
-Contributors:
+
+### Contributors:
 * [Manindra Moharana](www.mkmoharana.com)
 * [Daniel Shiffman](www.shiffman.net)
 
