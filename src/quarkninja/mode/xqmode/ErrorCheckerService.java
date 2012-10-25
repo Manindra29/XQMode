@@ -732,8 +732,11 @@ public class ErrorCheckerService implements Runnable {
 				runCount++;
 			}
 
-			if (runCount == 3)
-				System.out.println("XQMode v0.4 alpha");
+			if (runCount == 3) {
+				Package p = XQMode.class.getPackage();
+				System.out.println(p.getImplementationTitle() + " v"
+						+ p.getImplementationVersion());
+			}
 		}
 	}
 

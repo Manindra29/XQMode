@@ -253,6 +253,26 @@ public class XQEditor extends JavaEditor {
 			}
 		});
 		menu.add(showWarnings);
+		
+		menu.addSeparator();
+		
+		JMenuItem item2 = new JMenuItem("XQMode Wiki");
+		item2.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Base.openURL("https://github.com/Manindra29/XQMode/wiki");
+			}
+		});
+		menu.add(item2);
+		
+		item2 = new JMenuItem("XQMode on Github");
+		item2.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Base.openURL("https://github.com/Manindra29/XQMode");
+			}
+		});
+		menu.add(item2);
 		return menu;
 	}
 

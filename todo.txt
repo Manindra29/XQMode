@@ -7,11 +7,10 @@ General
 -------
 
 O - Add a revisions.txt.
-O - Add build numbers to version number(automate it with ant).
+X - Add build numbers to version number(automate it with ant).
 O - More wiki content - 
 	How to report issues and other feedback
-	Build instructions
-	 
+	Build instructions	 
 X - Now compatible out of the box with Processing 2.0b5!
 X - Colors can be customized from theme.txt.
 O - Make messages more user friendly. To be done after public release.

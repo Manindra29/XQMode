@@ -55,8 +55,9 @@ public class XQMode extends JavaMode {
 			}
 		}
 
-		// Fetch examples from java mode
+		// Fetch examples and reference from java mode
 		examplesFolder = Base.getContentFile("modes/java/examples");
+		referenceFolder = Base.getContentFile("modes/java/reference");
 
 		System.out.println("XQMode initialized.");
 	}

@@ -1,20 +1,21 @@
 <project name="XQMode" default="clean" basedir="./">
 	<description>
-		XQMode for Processing >2.0a6
+		XQMode for Processing >2.0b5
 	</description>
 
 	<!-- name of your mode package (will be used as dir name) -->
 	<property name="lib.name" value="XQMode" />
 
 	<!-- version -->
-	<property name="release" value="0.0.1" />
+	<property name="release" value="0.4a" />
 
 	<!-- java version -->
 	<property name="java.target.version" value="1.6" />
 
-	<!-- location of processing jars (core.jar, pde.jar, ..) -->
+	<!-- location of processing jars (pde.jar, ..) -->
 	<property name="processing.classes" location="C:/Users/QuarkNinja.XQ/processing-read-only/build/windows/work/lib" />
-
+	<!-- location of processing core jars (core.jar, ..) -->
+	<property name="processing.core" location="C:/Users/QuarkNinja.XQ/processing-read-only/core/library/" />
 	<!-- folder to install modes in (probably a folder called "modes" inside your sketchbook folder) -->
 	<property name="processing.modes" location="C:/Users/QuarkNinja.XQ/Documents/Processing/modes" />
 
@@ -37,7 +38,7 @@
 		<fileset dir="lib">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="C:/Users/QuarkNinja.XQ/processing-read-only/core/library/">
+		<fileset dir="${processing.core}">
 			<include name="*.jar" />
 		</fileset>
 	</path>
@@ -53,9 +54,11 @@
         BUILD
     - - - - - - - - - - - - - - - - - - - - - - - -->
 	<target name="build">
-		<propertyfile file="build.number" />
-		<!-- create the build.number file if it doesn't exist -->
-		<buildnumber file="build.number" />
+	<!-- create file if it doesn't exist. add release version -->
+		<propertyfile file="build.number"> 
+            <entry key="release" value="${release}" />
+        </propertyfile>
+        <buildnumber file="build.number" /> <!-- increment build number -->		        
 
 		<mkdir dir="${build}" />
 
@@ -75,11 +78,17 @@
 		<mkdir dir="${bundle}" />
 		<mkdir dir="${bundle}/mode" />
 
-		<jar jarfile="${bundle}/mode/${lib.name}.jar" basedir="build" />
+		<!--<jar jarfile="${bundle}/mode/${lib.name}.jar" basedir="build" /> -->
 		<!--zip destfile="${dist}/mode/${lib.name}.jar" excludes="**/*.MF">
 		    <zipgroupfileset dir="lib" includes="*.jar" />
 		</zip-->
-
+		 <jar jarfile="${bundle}/mode/${lib.name}.jar" basedir="build">
+            <manifest>
+                <attribute name="Implementation-Title" value="${lib.name}" />
+                <attribute name="Implementation-Version" value="${release} build ${build.number}" />
+            </manifest>
+        </jar>
+        
 		<copy todir="${bundle}/src">
 			<fileset dir="src/" />
 		</copy>
@@ -139,13 +148,17 @@
         RUN
     - - - - - - - - - - - - - - - - - - - - - - - -->
 	<target name="run" depends="install">
+		<!-- Uncomment the below line to run Processing. Or use the exec field 
+		to specify the path to open a particular sketch -->
+		
 		<!-- <exec executable="${processing.executable}" spawn="false" /> -->
+		
 		<exec executable="${processing.executable}/processing.exe" dir="${processing.executable}" spawn="true">
 			<arg value="C:\Users\QuarkNinja.XQ\Documents\Processing\japaneseText\japaneseText.pde" />
 		</exec>
 
 		<echo>
-Launching Processing from: ${processing.executable}
+			Launching Processing from: ${processing.executable}
     	</echo>
 	</target>
 </project>
