@@ -107,6 +107,9 @@
 		<copy todir="xqmodeData/">
 			<fileset dir="${dist}" />
 		</copy>
+		
+		<delete file = "releases/build/XQMode.jar"/>
+		<copy todir="releases/build" file = "${bundle}/mode/${lib.name}.jar"/>			
 
 		<replaceregexp file="${bundle}/mode.properties" flags="g" match="@@version@@" replace="${build.number}" />
 		<replaceregexp file="${bundle}/mode.properties" flags="g" match="@@pretty-version@@" replace="${release}" />
