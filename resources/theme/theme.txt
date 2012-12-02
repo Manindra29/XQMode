@@ -71,22 +71,23 @@ editor.eolmarkers.color = #999999
 editor.brackethighlight = true
 editor.brackethighlight.color = #006699
 
-# underline colors
-editor.errorcolor = #ed2630
-editor.warningcolor = #ffc30e
-editor.errormarkercolor = #ed2630
-editor.warningmarkercolor = #ffc30e
 
 # TEXT - KEYWORDS
 
-# e.g abstract, final, private
-editor.keyword1.style = #cc6600,plain
+# e.g. Functions 
+editor.function1.style = #006699,plain
 
-# e.g. beginShape, point, line
-editor.keyword2.style = #cc6600,plain
+# e.g. Methods (functions inside a class)
+editor.function2.style = #006699,plain
 
-# e.g. byte, char, short, color
-editor.keyword3.style = #cc6600,bold
+# e.g. Datatypes and keywords (void, int, boolean, etc.)
+editor.keyword1.style = #D86736,plain
+
+# e.g. Processing fields [variables within a class]
+editor.keyword2.style = #EE3C96,plain
+
+# e.g. Processing variables (width, height, focused, etc.)
+editor.keyword3.style = #EE3C96,plain
 
 
 # TEXT - LITERALS
@@ -114,6 +115,14 @@ editor.comment2.style = #7e7e7e,plain
 linestatus.font = SansSerif,plain,10
 #linestatus.font.macosx = Helvetica,plain,10
 linestatus.height  = 20
+
+# XQMODE
+
+# underline colors
+editor.errorcolor = #ed2630
+editor.warningcolor = #ffc30e
+editor.errormarkercolor = #ed2630
+editor.warningmarkercolor = #ffc30e
 
 # ERROR BAR - error bar on the right that shows the markers
 errorbar.errorcolor = #ed2630
