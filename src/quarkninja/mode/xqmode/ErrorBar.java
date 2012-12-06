@@ -171,8 +171,6 @@ public class ErrorBar extends JPanel {
 	        }
 	        // System.out.println("Total lines: " + totalLines);
 
-	        // TODO: Swing Worker approach? Not needed yet. Since repaint() is
-	        // called only after error points have been updated.
 	        errorPointsOld.clear();
 	        for (ErrorMarker marker : errorPoints) {
 	          errorPointsOld.add(marker);
@@ -198,7 +196,7 @@ public class ErrorBar extends JPanel {
 	    };
 
 	    try {
-	      worker.execute();
+	      worker.execute(); // I eat concurrency bugs for breakfast.
 	    } catch (Exception exp) {
 	      System.out.println("Errorbar update markers is slacking."
 	          + exp.getMessage());
