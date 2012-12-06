@@ -541,8 +541,6 @@ public class ErrorCheckerService implements Runnable {
 
 				IProblem problem = problems[i];
 
-				if (problem.isWarning() && !warningsEnabled)
-					continue;
 				int a[] = calculateTabIndexAndLineNumber(problem);
 				Problem p = new Problem(problem, a[0], a[1]);
 				if ((Boolean) errorList[i][8])
@@ -550,6 +548,8 @@ public class ErrorCheckerService implements Runnable {
 				if ((Boolean) errorList[i][9])
 					p.setType(Problem.WARNING);
 
+				if (p.isWarning() && !warningsEnabled)
+					continue;
 				problemsList.add(p);
 			}
 

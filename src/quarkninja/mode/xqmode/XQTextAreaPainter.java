@@ -98,7 +98,6 @@ public class XQTextAreaPainter extends TextAreaPainter {
 
 	}
 
-	ErrorMarker currentMarker = null;
 
 	/**
 	 * Paints the underline for an error/warning line
@@ -122,7 +121,6 @@ public class XQTextAreaPainter extends TextAreaPainter {
 		// error or warning
 		for (ErrorMarker emarker : errorCheckerService.errorBar.errorPoints) {
 			if (emarker.problem.lineNumber == line + 1) {
-				currentMarker = emarker;
 				notFound = false;
 				if (emarker.type == ErrorMarker.Warning)
 					isWarning = true;
