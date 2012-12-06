@@ -135,57 +135,75 @@ public class ErrorBar extends JPanel {
 	 * @param problems
 	 *            - List of problems.
 	 */
-	public void updateErrorPoints(ArrayList<Problem> problems) {
+	synchronized public void updateErrorPoints(final ArrayList<Problem> problems) {
 
 		// NOTE TO SELF: ErrorMarkers are calculated for the present tab only
 		// Error Marker index in the arraylist is LOCALIZED for current tab.
 
-		int bigCount = 0;
-		int totalLines = 0;
-		int currentTab = 0;
-		for (SketchCode sc : editor.getSketch().getCode()) {
-			if (sc.isExtension("pde")) {
-				sc.setPreprocOffset(bigCount);
+		 final int fheight = this.getHeight();
+		  SwingWorker worker = new SwingWorker() {
 
-				try {
-					if (editor.getSketch().getCurrentCode().equals(sc)) {
-						// Adding + 1 to len because \n gets appended for each
-						// sketchcode extracted during processPDECode()
-						totalLines = Base.countLines(sc.getDocument().getText(
-								0, sc.getDocument().getLength())) + 1;
-						break;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			currentTab++;
-		}
-		// System.out.println("Total lines: " + totalLines);
+	      protected Object doInBackground() throws Exception {
+	        return null;
+	      }
 
-		// TODO: Swing Worker approach? Not needed yet. Since repaint() is
-		// called only after error points have been updated.
-		errorPointsOld.clear();
-		for (ErrorMarker marker : errorPoints) {
-			errorPointsOld.add(marker);
-		}
-		errorPoints.clear();
+	      protected void done() {
+	        int bigCount = 0;
+	        int totalLines = 0;
+	        int currentTab = 0;
+	        for (SketchCode sc : editor.getSketch().getCode()) {
+	          if (sc.isExtension("pde")) {
+	            sc.setPreprocOffset(bigCount);
 
-		// Each problem.getSourceLine() will have an extra line added because of
-		// class declaration in the beginnning
-		for (Problem problem : problems) {
-			if (problem.tabIndex == currentTab) {
-				// Ratio of error line to total lines
-				float y = problem.lineNumber / ((float) totalLines);
-				// Ratio multiplied by height of the error bar
-				y *= this.getHeight() - 15; // -15 is just a vertical offset
-				errorPoints.add(new ErrorMarker(problem, (int) y, problem
-						.isError() ? ErrorMarker.Error : ErrorMarker.Warning));
-				// System.out.println("Y: " + y);
-			}
-		}
+	            try {
+	              if (editor.getSketch().getCurrentCode().equals(sc)) {
+	                // Adding + 1 to len because \n gets appended for each
+	                // sketchcode extracted during processPDECode()
+	                totalLines = Base.countLines(sc.getDocument().getText(
+	                    0, sc.getDocument().getLength())) + 1;
+	                break;
+	              }
+	            } catch (Exception e) {
+	              e.printStackTrace();
+	            }
+	          }
+	          currentTab++;
+	        }
+	        // System.out.println("Total lines: " + totalLines);
 
-		repaint();
+	        // TODO: Swing Worker approach? Not needed yet. Since repaint() is
+	        // called only after error points have been updated.
+	        errorPointsOld.clear();
+	        for (ErrorMarker marker : errorPoints) {
+	          errorPointsOld.add(marker);
+	        }
+	        errorPoints.clear();
+
+	        // Each problem.getSourceLine() will have an extra line added because of
+	        // class declaration in the beginning
+	        for (Problem problem : problems) {
+	          if (problem.tabIndex == currentTab) {
+	            // Ratio of error line to total lines
+	            float y = problem.lineNumber / ((float) totalLines);
+	            // Ratio multiplied by height of the error bar
+	            y *= fheight - 15; // -15 is just a vertical offset
+	            errorPoints.add(new ErrorMarker(problem, (int) y, problem
+	                .isError() ? ErrorMarker.Error : ErrorMarker.Warning));
+	            // System.out.println("Y: " + y);
+	          }
+	        }
+
+	        repaint();
+	      }
+	    };
+
+	    try {
+	      worker.execute();
+	    } catch (Exception exp) {
+	      System.out.println("Errorbar update markers is slacking."
+	          + exp.getMessage());
+	      // e.printStackTrace();
+	    }
 	}
 
 	/**
