@@ -5,7 +5,7 @@ XQMode for PDE (Processing Development Environment)
 
 XQMode is a contributed Mode for Processing that reports syntax and compilation 
 errors in code as you type, on the fly.<br />
-__UPDATE:__ Starting with Processing 2.0b8, XQMode has been integrated as a part of Processing as Experimental Mode. So further development continues in the Processing repo.
+__UPDATE:__ Starting with Processing 2.0b8, XQMode has been integrated into Processing as Experimental Mode. So further development continues in the Processing repo.
 
 ![XQMode](https://lh6.googleusercontent.com/-0Y7Ca_-yat8/UIcHrszopOI/AAAAAAAAAz4/PMyLalJJjHA/s512/xqscr1.png)
 
